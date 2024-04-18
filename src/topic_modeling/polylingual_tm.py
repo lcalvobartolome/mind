@@ -105,7 +105,7 @@ class PolylingualTM(object):
         Parameters
         ----------
         df_path : pd.DataFrame
-            Path to a dataframe with the following columns: `doc_id`, `lang`, and `text`.
+            Path to a dataframe with the following columns: `doc_id`, `lang`, and `raw_text`.
 
         Returns
         -------
@@ -124,7 +124,7 @@ class PolylingualTM(object):
         df = pd.read_parquet(df_path)
         for lang in [self._lang1, self._lang2]:
             df_lang = df.copy()
-            df_lang.loc[df_lang.lang != lang, "text"] = ""
+            df_lang.loc[df_lang.lang != lang, "lemmas"] = ""
             if df_lang.empty:
                 self._logger.error(
                     f"-- -- No documents found for language {lang}.")
@@ -133,7 +133,7 @@ class PolylingualTM(object):
             self._logger.info(
                 f"-- -- Creating Mallet {corpus_txt_path.as_posix()}...")
             with corpus_txt_path.open("w", encoding="utf8") as fout:
-                for i, t in zip(df_lang.doc_id, df_lang.text):
+                for i, t in zip(df_lang.doc_id, df_lang.lemmas):
                     fout.write(f"{i} {lang.upper()} {t}\n")
             self._logger.info(
                 f"-- -- Mallet {corpus_txt_path.as_posix()} created.")

@@ -57,12 +57,18 @@ class RosieCorpus(object):
             Fraction of the corpus to use. Default is 1.0.
         """
         
+        self._logger.info(f"-- Generating training corpus at {level} level with a sample of {sample}...")
         df_en_sample = self.df_en.sample(frac=sample)
         df_es_sample = self.df_es.sample(frac=sample)
         
+        self._logger.info(f"-- {len(df_en_sample)} elements in English and {len(df_es_sample)} elements in Spanish.")
+        
         # Create intermediate files for preprocessing if they don't exist
-        path_save_preproc = pathlib.Path(path_save).parent / "preproc"
+        path_save = pathlib.Path(path_save)
+        path_save_preproc = path_save.parent / "preproc"
         path_save_preproc.mkdir(exist_ok=True)
+        
+        self._logger.info(f"-- Intermediate files for preprocessing will be saved at {path_save_preproc}")
         
         path_save_en = path_save_preproc / f"en_{sample}.parquet"
         path_save_es = path_save_preproc / f"es_{sample}.parquet"
@@ -79,12 +85,12 @@ class RosieCorpus(object):
             else:
                 raise ValueError(f"Level {level} not recognized.")
         
-        if not path_save_en.exists() or not path_save_es.exists():
+        if not path_save_en.exists() or not path_save_es.exists() or not path_save.exists():
             self._logger.info(
                 f"-- -- Saving intermediate files for preprocessing at {path_save_preproc}...")
             
             dicts_to_df = []
-            for id, (df, lang, path_save) in enumerate(tuples_get):
+            for id, (df, lang, path_save_) in enumerate(tuples_get):
                 self._logger.info(
                     f"-- -- Generating training corpus at {level} level...")
                 doc_ids, texts = [], []
@@ -99,22 +105,38 @@ class RosieCorpus(object):
                         "text": texts,
                         "lang": [lang] * len(doc_ids)
                     })
-                dicts_to_df.append(new_df)
-                
+            
                 # Save intermediate files
-                new_df.to_parquet(path_save)
+                new_df.to_parquet(path_save_)
 
                 # Carry out preprocessing
-                self.preproc_tr_corpus(source_path=path_save, lang=lang, spacy_model=spacy_models[id])
+                self._logger.info(f"-- -- Preprocessing {lang} corpus...")
+                self.preproc_tr_corpus(source_path=path_save_, lang=lang, spacy_model=spacy_models[id])
                 
-                df_preproc = pd.read_parquet(path_save)
+                # Get preprocessed dataframe and append to list
+                self._logger.info(f"-- -- Loading preprocessed {lang} corpus...")
+                df_preproc = pd.read_parquet(path_save_)
+                self._logger.info(f"-- -- Merging {lang} corpus with preprocessed data...")
+                df_preproc_with_all_info = df_preproc.merge(new_df, how= "left", on="id_preproc")
+                self._logger.info(f"-- -- {len(df_preproc_with_all_info)} elements in {lang} corpus.")
+                dicts_to_df.append(df_preproc_with_all_info)
             
-                import pdb; pdb.set_trace()
-                    
-            final_df = pd.concat(dicts_to_df)
+            self._logger.info(f"-- -- Merging both corpora...")
+            final_df = pd.concat(dicts_to_df)[['id_preproc', 'lemmas', 'doc_id', 'text', 'lang']]
+            self._logger.info(f"-- -- Showing some samples of the final dataframe...")
+            self._logger.info(f"{final_df.head()}")
             self._logger.info(
-                f"-- -- Training corpus generated. Nr elements is {len(dicts_to_df[0])} in {tuples_get[0][1]} and {len(dicts_to_df[1])} in {tuples_get[1][1]}. Saving at {path_save}...")
-            final_df.to_parquet(path_save)    
+                f"-- -- Training corpus generated. Nr elements is {len(dicts_to_df[0])} in {tuples_get[0][1]} and {len(dicts_to_df[1])} in {tuples_get[1][1]}. TOTAL: {len(final_df)}. Saving at {path_save}...")
+            
+            try:
+                final_df.to_parquet(path_save)    
+            except:
+                self._logger.error(f"-- -- Training corpus could not be saved at {path_save}.")
+                return
+        
+        else:
+            self._logger.info(
+                f"-- Intermediate files for preprocessing already exist. Loading from {path_save}...")
             
         return
     
@@ -136,11 +158,17 @@ class RosieCorpus(object):
             '--source %s '\
             '--destination_path %s '\
             '--lang %s ' \
-            '--spacy_model %s '
+            '--spacy_model %s ' \
+            '--path_config %s ' \
+            '--stw_path %s'
         cmd = cmd % \
             (source_save_path, "parquet", "rosie",
-             source_save_path, lang.lower(), spacy_model)
+             source_save_path, lang.lower(), spacy_model,
+             "/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/src/corpus_building/config.json",
+             "/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/src/corpus_building/preprocessing/stw_lists")
 
+        self._logger.info(cmd)
+        
         try:
             self._logger.info(
                 f'-- -- Preprocessing corpus {source_save_path}. Command is {cmd}')
