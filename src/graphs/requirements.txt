@@ -1,0 +1,10 @@
+networkx
+pathlib
+pandas
+numpy
+matplotlib
+scipy
+seaborn
+fa2
+gensim
+openpyxl

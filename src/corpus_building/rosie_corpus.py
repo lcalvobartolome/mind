@@ -4,6 +4,7 @@ from subprocess import check_output
 import pandas as pd
 import os
 
+
 class RosieCorpus(object):
     def __init__(
         self,
@@ -12,13 +13,20 @@ class RosieCorpus(object):
         path_preproc: str = "src/corpus_building/preprocessing/NLPipe/nlpipe.py",
         logger: logging.Logger = None
     ) -> None:
-        pass
 
         if logger is not None:
             self._logger = logger
         else:
             self._logger = logging.getLogger(__name__)
-            self._logger.setLevel(logging.INFO)
+            self._logger.setLevel(logging.INFO)  # Set logger level to INFO or lower
+
+            # Add a console handler to output logs to the console
+            console_handler = logging.StreamHandler()
+            console_handler.setLevel(logging.INFO)  # Set handler level to INFO or lower
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            console_handler.setFormatter(formatter)
+            self._logger.addHandler(console_handler)
+
 
         if not pathlib.Path(path_data_en).exists():
             raise FileNotFoundError(f"File not found: {path_data_en}")
@@ -33,20 +41,20 @@ class RosieCorpus(object):
         self.df_es = pd.read_json(path_data_es, lines=True)
         self._logger.info(
             f"-- -- {len(self.df_es)} elements read from {path_data_es}")
-        
+
         self._path_preproc = pathlib.Path(path_preproc)
-        
-        return 
-    
+
+        return
+
     def generate_tm_tr_corpus(
-        self,
-        path_save: str,
-        level: str = "passage",
-        sample: float = 1.0,
-        spacy_models = ["en_core_web_sm", "es_core_news_sm"]):
+            self,
+            path_save: str,
+            level: str = "passage",
+            sample: float = 1.0,
+            spacy_models=["en_core_web_sm", "es_core_news_sm"]):
         """
         Generate a training corpus for the Polylingual Topic Model from the Rosie corpus (json files in English and Spanish at either document or passage level).
-        
+
         Parameters
         ----------
         path_save : str
@@ -56,39 +64,47 @@ class RosieCorpus(object):
         sample : float
             Fraction of the corpus to use. Default is 1.0.
         """
-        
-        self._logger.info(f"-- Generating training corpus at {level} level with a sample of {sample}...")
+
+        self._logger.info(
+            f"-- Generating training corpus at {level} level with a sample of {sample}...")
         df_en_sample = self.df_en.sample(frac=sample)
         df_es_sample = self.df_es.sample(frac=sample)
-        
-        self._logger.info(f"-- {len(df_en_sample)} elements in English and {len(df_es_sample)} elements in Spanish.")
-        
+
+        self._logger.info(
+            f"-- {len(df_en_sample)} elements in English and {len(df_es_sample)} elements in Spanish.")
+
         # Create intermediate files for preprocessing if they don't exist
         path_save = pathlib.Path(path_save)
         path_save_preproc = path_save.parent / "preproc"
         path_save_preproc.mkdir(exist_ok=True)
-        
-        self._logger.info(f"-- Intermediate files for preprocessing will be saved at {path_save_preproc}")
-        
-        path_save_en = path_save_preproc / f"en_{sample}.parquet"
+        path_save = path_save.parent / pathlib.Path(pathlib.Path(
+            path_save).stem + f"_{sample}.parquet")
+        self._logger.info(f"-- Final preprocessed corpus for sample {sample} will be saved at {path_save}")
+
+        self._logger.info(
+            f"-- Intermediate files for preprocessing will be saved at {path_save_preproc}")
+
+        path_save_en = path_save_preproc / \
+            f"en_{sample}.parquet"  # TODO: incluir level
         path_save_es = path_save_preproc / f"es_{sample}.parquet"
-        
+
         tuples_get = [
             (df_en_sample, "EN", path_save_en),
             (df_es_sample, "ES", path_save_es)]
-        
-        def get_doc_id(lang, index, row , level):
+
+        def get_doc_id(lang, index, row, level):
             if level == "passage":
                 return f"{lang}_{index}_{row.passage_id}", "passage"
             elif level == "document":
                 return f"{lang}_{index}", "contents"
             else:
                 raise ValueError(f"Level {level} not recognized.")
-        
+
         if not path_save_en.exists() or not path_save_es.exists() or not path_save.exists():
+
             self._logger.info(
                 f"-- -- Saving intermediate files for preprocessing at {path_save_preproc}...")
-            
+
             dicts_to_df = []
             for id, (df, lang, path_save_) in enumerate(tuples_get):
                 self._logger.info(
@@ -98,59 +114,74 @@ class RosieCorpus(object):
                     doc_id, text_col = get_doc_id(lang, index, row, level)
                     doc_ids.append(doc_id)
                     texts.append(row[text_col])
-                
-                new_df = pd.DataFrame({
-                        "id_preproc": range(len(doc_ids)),
-                        "doc_id": doc_ids,
-                        "text": texts,
-                        "lang": [lang] * len(doc_ids)
-                    })
-            
-                # Save intermediate files
-                new_df.to_parquet(path_save_)
 
-                # Carry out preprocessing
-                self._logger.info(f"-- -- Preprocessing {lang} corpus...")
-                self.preproc_tr_corpus(source_path=path_save_, lang=lang, spacy_model=spacy_models[id])
-                
+                new_df = pd.DataFrame({
+                    "id_preproc": range(len(doc_ids)),
+                    "doc_id": doc_ids,
+                    "text": texts,
+                    "lang": [lang] * len(doc_ids)
+                })
+
+                if path_save_en.exists() and path_save_es.exists():
+
+                    self._logger.info(
+                        f"-- -- Intermediate files for preprocessing already exist. Loading from {path_save_}...")
+                else:
+                    # Save intermediate files for preprocessing
+                    self._logger.info(
+                        f"-- -- Saving intermediate files for preprocessing at {path_save_}...")
+                    new_df.to_parquet(path_save_)
+
+                    # Carry out preprocessing
+                    self._logger.info(f"-- -- Preprocessing {lang} corpus...")
+                    self.preproc_tr_corpus(
+                        source_path=path_save_, lang=lang, spacy_model=spacy_models[id])
+
                 # Get preprocessed dataframe and append to list
-                self._logger.info(f"-- -- Loading preprocessed {lang} corpus...")
+                self._logger.info(
+                    f"-- -- Loading preprocessed {lang} corpus...")
                 df_preproc = pd.read_parquet(path_save_)
-                self._logger.info(f"-- -- Merging {lang} corpus with preprocessed data...")
-                df_preproc_with_all_info = df_preproc.merge(new_df, how= "left", on="id_preproc")
-                self._logger.info(f"-- -- {len(df_preproc_with_all_info)} elements in {lang} corpus.")
+                self._logger.info(
+                    f"-- -- Merging {lang} corpus with preprocessed data...")
+                df_preproc_with_all_info = df_preproc.merge(
+                    new_df, how="left", on="id_preproc")
+                self._logger.info(
+                    f"-- -- {len(df_preproc_with_all_info)} elements in {lang} corpus.")
                 dicts_to_df.append(df_preproc_with_all_info)
-            
+
             self._logger.info(f"-- -- Merging both corpora...")
-            final_df = pd.concat(dicts_to_df)[['id_preproc', 'lemmas', 'doc_id', 'text', 'lang']]
-            self._logger.info(f"-- -- Showing some samples of the final dataframe...")
+            final_df = pd.concat(dicts_to_df)[
+                ['id_preproc', 'lemmas', 'doc_id', 'text', 'lang']]
+            self._logger.info(
+                f"-- -- Showing some samples of the final dataframe...")
             self._logger.info(f"{final_df.head()}")
             self._logger.info(
                 f"-- -- Training corpus generated. Nr elements is {len(dicts_to_df[0])} in {tuples_get[0][1]} and {len(dicts_to_df[1])} in {tuples_get[1][1]}. TOTAL: {len(final_df)}. Saving at {path_save}...")
-            
+
             try:
-                final_df.to_parquet(path_save)    
+                final_df.to_parquet(path_save)
             except:
-                self._logger.error(f"-- -- Training corpus could not be saved at {path_save}.")
+                self._logger.error(
+                    f"-- -- Training corpus could not be saved at {path_save}.")
                 return
-        
+
         else:
             self._logger.info(
                 f"-- Intermediate files for preprocessing already exist. Loading from {path_save}...")
-            
-        return
-    
+
+        return path_save
+
     def preproc_tr_corpus(
-        self,
-        source_path,
-        lang,
-        spacy_model):
-        
-        #path_python = (self._path_preproc.parent.parent / ".venv_nlpipe/bin/python3")
-        #path_python = pathlib.Path("/Users/lbartolome/Documents/GitHub/NLPipe/.venv/bin/python3")
-        path_python_str = "python3 " #f"{path_python.as_posix()} "
+            self,
+            source_path,
+            lang,
+            spacy_model):
+
+        # path_python = (self._path_preproc.parent.parent / ".venv_nlpipe/bin/python3")
+        # path_python = pathlib.Path("/Users/lbartolome/Documents/GitHub/NLPipe/.venv/bin/python3")
+        path_python_str = "python3 "  # f"{path_python.as_posix()} "
         path_nlpipe = os.getcwd() / self._path_preproc
-        
+
         source_save_path = source_path.resolve().as_posix()
         cmd = path_python_str + path_nlpipe.as_posix() + \
             ' --source_path %s ' \
@@ -168,7 +199,7 @@ class RosieCorpus(object):
              "/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/src/corpus_building/preprocessing/stw_lists")
 
         self._logger.info(cmd)
-        
+
         try:
             self._logger.info(
                 f'-- -- Preprocessing corpus {source_save_path}. Command is {cmd}')
@@ -176,7 +207,7 @@ class RosieCorpus(object):
         except:
             self._logger.error('-- -- Preprocessing corpus. Revise command')
             return
-        
+
         # Luego hay que volver a juntarlo para tener los "empties"
-        
+
         return

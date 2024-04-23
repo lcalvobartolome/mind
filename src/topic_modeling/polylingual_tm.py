@@ -79,6 +79,12 @@ class PolylingualTM(object):
         else:
             logging.basicConfig(level='INFO')
             self._logger = logging.getLogger('PolylingualTM')
+            # Add a console handler to output logs to the console
+            console_handler = logging.StreamHandler()
+            console_handler.setLevel(logging.INFO)  # Set handler level to INFO or lower
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            console_handler.setFormatter(formatter)
+            self._logger.addHandler(console_handler)
 
         # Create folder for the model
         # If a model with the same name already exists, save a copy; then create a new folder
