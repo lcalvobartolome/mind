@@ -12,22 +12,63 @@ from gensim.matutils import corpus2csc
 from ast import literal_eval
 import networkx.algorithms.community as nx_comm
 
+# Define the figure size and dpi
+fig_width = 6.9  # inches
+fig_height = 3.5  # inches
+fig_dpi = 350
 
-path2data = '/data/source/NSF_df_35topics.xlsx'
-NSF_df_all = pd.read_excel(path2data)
+plt.rcParams.update({
+    'figure.figsize': (fig_width, fig_height),
+    'figure.dpi': fig_dpi,
+
+    # Fonts
+    'font.size': 18,
+
+    # Axes
+    'axes.labelsize': 12,
+    'axes.titlesize': 12,
+    'axes.linewidth': 1,
+    'axes.grid': True,
+    'grid.linestyle': ':',
+    'grid.linewidth': 1,
+    'grid.color': 'gray',
+
+    # Legend
+    'legend.fontsize': 8,
+    'legend.frameon': True,
+    'legend.framealpha': 0.8,
+    'legend.fancybox': False,
+    'legend.edgecolor': 'gray',
+    'legend.facecolor': 'white',
+    'legend.borderaxespad': 0.5,
+    'legend.borderpad': 0.4,
+    'legend.labelspacing': 0.5,
+
+    # Lines
+    'lines.linewidth': 2.0,
+    'lines.markersize': 2,
+    'axes.labelsize': 10,
+    'axes.titlesize': 12,
+    'xtick.labelsize': 8,
+    'ytick.labelsize': 8,
+})
+
+#path2data = '/data/source/NSF_df_35topics.xlsx'
+#NSF_df_all = pd.read_excel(path2data)
+NSF_df_all = pd.read_parquet("/data/source/rosie_all_40.parquet")
 corpus_size = len(NSF_df_all)
 print(f"Original dataset contains {corpus_size} documents")
 NSF_df_all.head()
 
-print(set(NSF_df_all['main_topic_35']))
+print(set(NSF_df_all['label']))
 
 # Remove garbage topics
-NSF_df_all = NSF_df_all[NSF_df_all['main_topic_35']!='Garbage topic']
+#NSF_df_all = NSF_df_all[NSF_df_all['main_topic_35']!='Garbage topic']
 corpus_size = len(NSF_df_all)
 print(f"Clean dataset contains {corpus_size} documents")
 
 # Take a sample of documents
-n_docs = 1000
+n_docs = 200#1000
 print(f"{n_docs} documents")
 
 # Take a sample of documents
@@ -38,7 +79,8 @@ print("Sample documents:")
 NSF_df.head()
 
 
-X = [literal_eval(el) for el in NSF_df['LDA_35'].values.tolist()]
+#X = [literal_eval(el) for el in NSF_df['LDA_35'].values.tolist()]
+X =  [literal_eval(el) for el in NSF_df['thetas'].values.tolist()]
 X = corpus2csc(X).T
 n_topics = X.shape[1]
 print(f"Number of topics: {n_topics}")
@@ -99,9 +141,9 @@ G_lcc = G.subgraph(lcc)
 seed_value = 0
 positions_lcc = nx.spring_layout(G_lcc, seed=seed_value)
 
-plt.figure(figsize=(3, 3))
+plt.figure()
 nx.draw(G_lcc, pos=positions_lcc, node_size=1, width=0.02)
-file_path = '/data/source/draw_graph_lcc.png'
+file_path = '/data/source/draw_graph_lcc_rosie.png'
 plt.savefig(file_path)
 
 
@@ -163,10 +205,10 @@ node_colors = [palette[node2comm[n]] for n in G_lcc]
 degrees = [val / 3 for (node, val) in G_lcc.degree()]
 
 #  Draw graph
-plt.figure(figsize=(5, 5))
+plt.figure()
 nx.draw(G_lcc, positions, node_size=degrees, node_color=node_colors, width=0.1)
 
-file_path = '/data/source/draw_graph.png'
+file_path = '/data/source/draw_graph_rosie.png'
 
 # Save the figure as an image
 plt.savefig(file_path)

@@ -1,0 +1,12 @@
+Your task is to generate pair of questions in English and Spanish about pregnancy and infant care simulating what new mothers may ask to a Question Answering system. Generate 30 pairs of questions
+
+[Examples]
+
+Your response:
+[("Is it okay for my to color my hair after
+giving birth?", "¿Está bien si me tiño el cabello después de dar a luz?"), ("What is the advantage for not having an
+epidural during the labor?", "¿Cuál es la ventaja de no tener una epidural durante el parto?"), ("When does the fetus begin to develop memory?", "¿Cuándo comienza el feto a desarrollar memoria"), ...]
+
+Your answer should consists of ONLY a Python list of tuples, each element of the tuple the question in each language.
+
+[Your response]

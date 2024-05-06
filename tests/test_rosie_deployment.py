@@ -10,7 +10,8 @@ header = {'Content-Type': 'application/x-www-form-urlencoded'}
 
 # Define question data and build the request dictionary
 question_data = {
-        "text": "why does my baby have jaundice",
+        #"text": "Why my baby has Jaundice?",
+        "text": "por qué mi bebé tiene ictericia",
         "userUID": "lorena-trial",
         "lang": "en"
 }

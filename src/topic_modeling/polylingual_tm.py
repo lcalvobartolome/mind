@@ -3,9 +3,19 @@
 
 The input to the Mallet Polylingual Topic Model is a corpus of documents in multiple languages. This corpus of documents is given as a dataframe with the following columns:
 
-- `doc_id`: A unique identifier for each document.
-- `lang`: The language of the document. 
-- `text`: The text of the document.
+- id_preproc: 
+    Identifier used during the preprocessing of the document.
+- lemmas:
+    The lemmatized text of the document in the original language.
+- lemmas_tr:
+    The lemmatized text of the document in the target language.
+- doc_id: 
+    A unique identifier for each document, in the form "LANG_ID", where LANG is the language of the document and ID is a unique identifier. 
+- text:
+    The raw text of the document in the original language.
+- text_tr:
+    The raw text of the document in the target language.
+- lang: The language of the document. 
 
 The output is a folder with the following strucutre:
 - model_folder
