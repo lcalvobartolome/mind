@@ -19,7 +19,7 @@ def main():
     
     print("-- -- Training PolyLingual Topic Model")
     # Train PolyLingual Topic Model
-    for k in [20,50,100,200,300,400,500]:
+    for k in [20]: #,100,200,300,400,500
         model = PolylingualTM(
             lang1="EN",
             lang2="ES",

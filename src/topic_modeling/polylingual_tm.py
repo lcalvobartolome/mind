@@ -59,6 +59,8 @@ class PolylingualTM(object):
         alpha: float = 1.0,
         token_regexp: str = r"\p{L}+",
         mallet_path: str = "src/topic_modeling/Mallet-202108/bin/mallet",
+        add_stops_path: str = "src/topic_modeling/stops",
+        is_second_level: bool = False,
         logger: logging.Logger = None
     ) -> None:
         """Initialize the PolylingualTM object.
@@ -89,6 +91,8 @@ class PolylingualTM(object):
         self._token_regexp = token_regexp
         self._model_folder = model_folder
         self._mallet_path = pathlib.Path(mallet_path)
+        self._add_stops_path = pathlib.Path(add_stops_path)
+        self._is_second_level = is_second_level
 
         if logger:
             self._logger = logger
@@ -104,17 +108,18 @@ class PolylingualTM(object):
 
         # Create folder for the model
         # If a model with the same name already exists, save a copy; then create a new folder
-        if self._model_folder.exists():
-            self._logger.info(
-                f"-- -- Given model folder {self._model_folder} already exists. Saving a copy ..."
-            )
-            old_model_folder = self._model_folder.parent / \
-                (self._model_folder.name + "_old")
-            if not old_model_folder.is_dir():
-                os.makedirs(old_model_folder)
-                shutil.move(self._model_folder, old_model_folder)
+        if not self._is_second_level:
+            if self._model_folder.exists():
+                self._logger.info(
+                    f"-- -- Given model folder {self._model_folder} already exists. Saving a copy ..."
+                )
+                old_model_folder = self._model_folder.parent / \
+                    (self._model_folder.name + "_old")
+                if not old_model_folder.is_dir():
+                    os.makedirs(old_model_folder)
+                    shutil.move(self._model_folder, old_model_folder)
 
-        self._model_folder.mkdir(exist_ok=True)
+            self._model_folder.mkdir(exist_ok=True)
 
         return
 
@@ -141,29 +146,31 @@ class PolylingualTM(object):
         # Create 'train_data' folder
         self._train_data_folder = self._model_folder / "train_data"
         self._train_data_folder.mkdir(exist_ok=True)
+        
+        if not self._is_second_level:
 
-        # Read the dataframe and create the input files
-        df = pd.read_parquet(df_path)
-        for lang in [self._lang1, self._lang2]:
-            df_lang = df.copy()
-            #import pdb; pdb.set_trace()
-            
-            df_lang["lemmas"] = np.where(df_lang["lang"] != lang, df_lang["lemmas_tr"], df_lang["lemmas"])
+            # Read the dataframe and create the input files
+            df = pd.read_parquet(df_path)
+            for lang in [self._lang1, self._lang2]:
+                df_lang = df.copy()
+                #import pdb; pdb.set_trace()
+                
+                df_lang["lemmas"] = np.where(df_lang["lang"] != lang, df_lang["lemmas_tr"], df_lang["lemmas"])
 
-            if df_lang.empty:
-                self._logger.error(
-                    f"-- -- No documents found for language {lang}.")
-                return 1
-            corpus_txt_path = self._train_data_folder / f"corpus_{lang}.txt"
-            self._logger.info(
-                f"-- -- Creating Mallet {corpus_txt_path.as_posix()}...")
-            with corpus_txt_path.open("w", encoding="utf8") as fout:
-                for i, t in zip(df_lang.doc_id, df_lang.lemmas):
-                    fout.write(f"{i} {lang.upper()} {t}\n")
-            self._logger.info(
-                f"-- -- Mallet {corpus_txt_path.as_posix()} created.")
+                if df_lang.empty:
+                    self._logger.error(
+                        f"-- -- No documents found for language {lang}.")
+                    return 1
+                corpus_txt_path = self._train_data_folder / f"corpus_{lang}.txt"
+                self._logger.info(
+                    f"-- -- Creating Mallet {corpus_txt_path.as_posix()}...")
+                with corpus_txt_path.open("w", encoding="utf8") as fout:
+                    for i, t in zip(df_lang.doc_id, df_lang.lemmas):
+                        fout.write(f"{i} {lang.upper()} {t}\n")
+                self._logger.info(
+                    f"-- -- Mallet {corpus_txt_path.as_posix()} created.")
 
-        if (self._train_data_folder / "corpus_lang1.txt").exists() and (self._train_data_folder / "corpus_lang2.txt").exists():
+        if (self._train_data_folder / f"corpus_{self._lang1}.txt").exists() and (self._train_data_folder / f"corpus_{self._lang2}.txt").exists():
             return 2
         else:
             return 0
@@ -191,12 +198,14 @@ class PolylingualTM(object):
         for lang in [self._lang1, self._lang2]:
             corpus_txt_path = self._train_data_folder / f"corpus_{lang}.txt"
             corpus_mallet = self._mallet_input_folder / f"corpus_{lang}.mallet"
+            
+            stw_file = self._add_stops_path / f"{lang.lower()}.txt"
 
             cmd = self._mallet_path.as_posix() + \
                 ' import-file --preserve-case --keep-sequence ' + \
                 '--remove-stopwords --token-regex "' + self._token_regexp + \
-                '" --print-output --input %s --output %s'
-            cmd = cmd % (corpus_txt_path, corpus_mallet)
+                '" --print-output --input %s --output %s --extra-stopwords %s'
+            cmd = cmd % (corpus_txt_path, corpus_mallet, stw_file)
 
             try:
                 self._logger.info(f'-- -- Running command {cmd}')
@@ -215,7 +224,7 @@ class PolylingualTM(object):
 
     def train(
         self,
-        df_path: pathlib.Path,
+        df_path: pathlib.Path=None,
     ) -> int:
         """Assuming there is a 'corpus_es.mallet' and 'corpus_en.mallet' files in the model folder, train the Mallet Polylingual Topic Model.
 
@@ -312,8 +321,8 @@ class PolylingualTM(object):
                     lang2_thetas[doc_id - 1, topic_id] = weight
 
         # Convert to sparse matrices and save
-        sparse.save_npz(self._train_data_folder / f"thetas_{self._lang1}.npz", sparse.csr_matrix(lang1_thetas, copy=True))
-        sparse.save_npz(self._train_data_folder / f"thetas_{self._lang2}.npz", sparse.csr_matrix(lang2_thetas, copy=True))
+        sparse.save_npz(self._mallet_out_folder / f"thetas_{self._lang1}.npz", sparse.csr_matrix(lang1_thetas, copy=True))
+        sparse.save_npz(self._mallet_out_folder / f"thetas_{self._lang2}.npz", sparse.csr_matrix(lang2_thetas, copy=True))
 
 
         ########################################################################
@@ -366,7 +375,7 @@ class PolylingualTM(object):
             # Filter by lang
             df_lang = topic_keys_df[topic_keys_df.lang == id_lang]
             
-            keys_file = self._mallet_out_folder / f"keys_{lang}.json"
+            keys_file = self._mallet_out_folder / f"keys_{lang}.txt"
             with open(keys_file, 'w') as file:
                 # Iterate over each value in the column and write it to the file
                 for value in df_lang["topK"]:

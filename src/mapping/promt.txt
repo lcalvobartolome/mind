@@ -3,7 +3,7 @@ Given a set of keywords representing a topic and three documents where this topi
 2. Determine if documents falling within such a topic can be utilized to answer questions about health and wellness specifically in maternal and infant health. Questions may pertain to medication dosages, breastfeeding, signs of postpartum depression, sleep patterns, major developmental milestones, and addressing higher rates of infant and maternal mortality, anxiety, and depression, among others.
 3. You must accompany your decision with a rationale.
 
-Your response should follow this format: LABEL - True/False - RATIONALE. Choose a label for the topic, indicate whether the documents can answer questions about maternal and infant health (True/False), and provide the reasoning behind your answer. If you are unsure about whether the documents can be used, you may return True.
+Your response should follow this format: LABEL - True/False - RATIONALE. Choose a label for the topic, indicate whether the documents can answer questions about maternal and infant health (True/False), and provide the reasoning behind your answer. If you are unsure about whether the documents can be used, you may return True. Even when the documents could not be utilized to answer questions about maternal/child health, but the keywords seem to cover this topic, you should answer True.
 
 
 [Examples]

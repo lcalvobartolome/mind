@@ -11,206 +11,294 @@ from fa2 import ForceAtlas2
 from gensim.matutils import corpus2csc
 from ast import literal_eval
 import networkx.algorithms.community as nx_comm
+import argparse
+from scipy.spatial.distance import jensenshannon
+from sklearn.metrics import adjusted_rand_score
+import json
 
-# Define the figure size and dpi
-fig_width = 6.9  # inches
-fig_height = 3.5  # inches
-fig_dpi = 350
-
-plt.rcParams.update({
-    'figure.figsize': (fig_width, fig_height),
-    'figure.dpi': fig_dpi,
-
-    # Fonts
-    'font.size': 18,
-
-    # Axes
-    'axes.labelsize': 12,
-    'axes.titlesize': 12,
-    'axes.linewidth': 1,
-    'axes.grid': True,
-    'grid.linestyle': ':',
-    'grid.linewidth': 1,
-    'grid.color': 'gray',
-
-    # Legend
-    'legend.fontsize': 8,
-    'legend.frameon': True,
-    'legend.framealpha': 0.8,
-    'legend.fancybox': False,
-    'legend.edgecolor': 'gray',
-    'legend.facecolor': 'white',
-    'legend.borderaxespad': 0.5,
-    'legend.borderpad': 0.4,
-    'legend.labelspacing': 0.5,
-
-    # Lines
-    'lines.linewidth': 2.0,
-    'lines.markersize': 2,
-    'axes.labelsize': 10,
-    'axes.titlesize': 12,
-    'xtick.labelsize': 8,
-    'ytick.labelsize': 8,
-})
-
-#path2data = '/data/source/NSF_df_35topics.xlsx'
-#NSF_df_all = pd.read_excel(path2data)
-NSF_df_all = pd.read_parquet("/data/source/rosie_all_40.parquet")
-corpus_size = len(NSF_df_all)
-print(f"Original dataset contains {corpus_size} documents")
-NSF_df_all.head()
-
-print(set(NSF_df_all['label']))
-
-# Remove garbage topics
-#NSF_df_all = NSF_df_all[NSF_df_all['main_topic_35']!='Garbage topic']
-corpus_size = len(NSF_df_all)
-print(f"Clean dataset contains {corpus_size} documents")
-
-# Take a sample of documents
-n_docs = 200#1000
-print(f"{n_docs} documents")
-
-# Take a sample of documents
-sample_factor = n_docs / corpus_size
-NSF_df = NSF_df_all.sample(n_docs, random_state=0)
-print(f"Dataset reduced to {n_docs} documents")
-print("Sample documents:")
-NSF_df.head()
-
-
-#X = [literal_eval(el) for el in NSF_df['LDA_35'].values.tolist()]
-X =  [literal_eval(el) for el in NSF_df['thetas'].values.tolist()]
-X = corpus2csc(X).T
-n_topics = X.shape[1]
-print(f"Number of topics: {n_topics}")
-print(f"X: sparse matrix with {X.nnz} nonzero values out of {n_docs *n_topics}")
-print(X.shape)
-
-# Normalization:
-X = scsp.csr_matrix(X / np.sum(X, axis=1))
-print(f"Average row sum: {np.mean(X.sum(axis=1).T)}")
-
-S = np.sqrt(X) * np.sqrt(X.T)
-print("Number of non-zero components: ", S.nnz)
-nnz_prop = S.nnz / (S.shape[0] * S.shape[1])
-print("Proportion of non-zero components: ", nnz_prop)
-print("Proportion of zeros: ", 1 - nnz_prop)
-
-# Matrix is symmetric. Keep only upper triangular part
-S = scsp.triu(S, k=1)
-
-print('Number of non-zero components in S:', S.nnz)
-
-n_nodes = S.shape[0]
-n_edges = S.nnz
-n_edges_per_node = n_edges / n_nodes
-
-print(f"Number of nodes: {n_nodes}")
-print(f"Number of edges: {n_edges}")
-print(f"Number of edges per node: {n_edges_per_node}")
-
-# Set average number of edges per node
-n_edges_per_node = 10
-
-# Compute threshold to get the target number of edges
-# <SOL>
-n_edges = n_nodes * n_edges_per_node
-sorted_similarity_values = np.sort(S.data)[::-1]
-thr = sorted_similarity_values[n_edges]
-# </SOL>
-
-# Apply the threshold to similarity matrix
-# <SOL>
-S.data[S.data < thr] = 0
-S.eliminate_zeros()
-# </SOL>
-
-print(f"Threshold: {thr}")
-print(f"Number of edges: {n_edges}")
-print('Estimated number of links in full corpus:', len(S.data)/2/sample_factor**2)
-
-
-# Transform graph to networkx format
-G = nx.from_scipy_sparse_array(S)
-
-# largest connected component  (LCC) from the graph
-nodes = list(nx.connected_components(G))
-lcc = max(nodes, key=len)
-G_lcc = G.subgraph(lcc)
-seed_value = 0
-positions_lcc = nx.spring_layout(G_lcc, seed=seed_value)
-
-plt.figure()
-nx.draw(G_lcc, pos=positions_lcc, node_size=1, width=0.02)
-file_path = '/data/source/draw_graph_lcc_rosie.png'
-plt.savefig(file_path)
-
-
-# Compute positions using layout algorithm
-gravity = 50
-
-# Create layout object
-forceatlas2 = ForceAtlas2(
-    gravity=gravity
-)
-
-# This is a hack to avoid an execution error depending on the version of networkx. You can
-# simply ignore but not remove it
+# This is a hack to avoid an execution error depending on the version of networkx. You can simply ignore but not remove it
 if not hasattr(nx, "to_scipy_sparse_matrix"):
     def to_scipy_sparse_matrix(G, dtype='f', format='lil'):
         return nx.to_scipy_sparse_array(G)
 nx.to_scipy_sparse_matrix = to_scipy_sparse_matrix
 
+def visualize_graph(G, output_path, filename, topic_labels, positions, dpi=300):
+    # Detect communities using the Louvain method
+    communities = nx_comm.louvain_communities(G, seed=42)
+    modularity = nx_comm.modularity(G, communities)
 
-positions = forceatlas2.forceatlas2_networkx_layout(G, pos=None, iterations=200)
-print(positions)
-print(len(positions))
-print(positions.keys())
-print(list(positions))
+    # Number of communities
+    nc = len(communities)
+    print(f"Number of communities: {nc}")
+    print(f"Modularity: {modularity}")
 
-G = G.subgraph(list(G.nodes))
+    # Get a palette of colors for communities
+    palette = sns.color_palette("hsv", n_colors=nc)
+    node2comm = {node: i for i, com in enumerate(communities) for node in com}
 
-valid_positions = {k: positions[k] for k in list(positions)}
-#valid_positions = {k: positions[k] for k in positions.keys()}
+    # Create a list of node colors
+    node_colors = [palette[node2comm[node]] for node in G.nodes()]
+    degrees = [G.degree(node) for node in G.nodes()]
 
+    plt.figure(figsize=(14, 14), dpi=dpi)
+    nx.draw_networkx_nodes(G, positions, node_size=[v * 10 for v in degrees], node_color=node_colors, alpha=0.85)
+    nx.draw_networkx_edges(G, positions, alpha=0.6, width=0.5)
 
-nx.draw_networkx_nodes(G, valid_positions, node_size=20, node_color="blue", alpha=0.4)
-nx.draw_networkx_edges(G, valid_positions, edge_color="green", alpha=0.05)
-plt.axis('off')
-plt.show()
+    plt.axis('off')
+    plt.savefig(f"{output_path}/{filename}", dpi=dpi, bbox_inches='tight')
+    plt.show()
 
-C = nx_comm.louvain_communities(G_lcc, seed=0)
+def process_and_visualize(data_path, output_path, language, n_docs=200, n_edges_per_node=10, gravity=50, random_state=0, dpi=300, use_sample=True):
+    # Load dataset
+    df = pd.read_parquet(data_path)
+    corpus_size = len(df)
+    print(f"-- -- {language.capitalize()} dataset contains {corpus_size} documents")
+    print(f"LABELS: {set(df['label'])}")
 
-# Modularity of the partition
-modularity = nx_comm.modularity(G_lcc, C)
+    if use_sample:
+        # Take a sample of documents
+        sample_factor = n_docs / corpus_size
+        df_sample = df.sample(n_docs, random_state=random_state)
+        print(f"Dataset reduced to {n_docs} documents")
+    else:
+        df_sample = df
+        sample_factor = 1
+        n_docs = corpus_size
 
-nc = len(C)
-print(f"Number of communities: {nc}")
-print(f"Modularity: {modularity}")
+    print("-- - Sample documents:")
+    print(df_sample.head())
 
-# Get a palette of rgb colors as large as the list of unique attributes
-palette = sns.color_palette(palette="Paired", n_colors=nc)
+    X = [literal_eval(el) for el in df_sample['thetas'].values.tolist()]
+    X = corpus2csc(X).T
+    n_topics = X.shape[1]
+    print(f"-- -- Number of topics: {n_topics}")
+    print(f"X: sparse matrix with {X.nnz} nonzero values out of {n_docs * n_topics}")
+    print(X.shape)
 
-# Mapping communities in nx format into an ordered list of communities, one per node.
-node2comm = {n: 0 for n in G_lcc}
-for i, com in enumerate(C):
-    for node in list(com):
-        node2comm[node] = i
-        
-# Map node attribute to rgb colors
-node_colors = [palette[node2comm[n]] for n in G_lcc]
+    # Normalization
+    X = scsp.csr_matrix(X / np.sum(X, axis=1))
+    print(f"-- -- Average row sum: {np.mean(X.sum(axis=1).T)}")
 
-# Get list of degrees
-degrees = [val / 3 for (node, val) in G_lcc.degree()]
+    S = np.sqrt(X) * np.sqrt(X.T)
+    print("-- -- Number of non-zero components: ", S.nnz)
+    nnz_prop = S.nnz / (S.shape[0] * S.shape[1])
+    print("-- -- Proportion of non-zero components: ", nnz_prop)
+    print("-- -- Proportion of zeros: ", 1 - nnz_prop)
 
-#  Draw graph
-plt.figure()
-nx.draw(G_lcc, positions, node_size=degrees, node_color=node_colors, width=0.1)
+    # Matrix is symmetric. Keep only upper triangular part
+    S = scsp.triu(S, k=1)
+    print('-- -- Number of non-zero components in S:', S.nnz)
 
-file_path = '/data/source/draw_graph_rosie.png'
+    n_nodes = S.shape[0]
+    n_edges = S.nnz
+    n_edges_per_node = n_edges / n_nodes
+    print(f"-- -- Number of nodes: {n_nodes}")
+    print(f"-- -- Number of edges: {n_edges}")
+    print(f"-- -- Number of edges per node: {n_edges_per_node}")
 
-# Save the figure as an image
-plt.savefig(file_path)
+    # Set average number of edges per node
+    n_edges_per_node = 10
+    n_edges = n_nodes * n_edges_per_node
+    sorted_similarity_values = np.sort(S.data)[::-1]
+    thr = sorted_similarity_values[n_edges]
 
-print(f"Code saved to '{file_path}' successfully.")
+    # Apply the threshold to similarity matrix
+    S.data[S.data < thr] = 0
+    S.eliminate_zeros()
+    print(f"-- -- Threshold: {thr}")
+    print(f"-- -- Number of edges: {n_edges}")
+    print('-- -- Estimated number of links in full corpus:', len(S.data) / 2 / sample_factor**2)
+
+    # Transform graph to networkx format
+    G = nx.from_scipy_sparse_array(S)
+
+    # Filter edges by weight
+    edges_to_remove = [(u, v) for u, v, w in G.edges(data=True) if w['weight'] < thr]
+    G.remove_edges_from(edges_to_remove)
+
+    # Largest connected component (LCC) from the graph
+    nodes = list(nx.connected_components(G))
+    lcc = max(nodes, key=len)
+    G_lcc = G.subgraph(lcc)
+    positions_lcc = nx.spring_layout(G_lcc, seed=random_state)
+
+    plt.figure(figsize=(10, 10), dpi=dpi)
+    nx.draw(G_lcc, pos=positions_lcc, node_size=50, width=0.1)
+    plt.savefig(f"{output_path}/draw_graph_lcc_{language}.png", dpi=dpi)
+
+    # Compute positions using layout algorithm
+    forceatlas2 = ForceAtlas2(gravity=gravity)
+    positions = forceatlas2.forceatlas2_networkx_layout(G, pos=None, iterations=200)
+    G = G.subgraph(list(G.nodes()))
+    valid_positions = {k: positions[k] for k in list(positions)}
+
+    plt.figure(figsize=(10, 10), dpi=dpi)
+    nx.draw_networkx_nodes(G, valid_positions, node_size=50, node_color="blue", alpha=0.7)
+    nx.draw_networkx_edges(G, valid_positions, edge_color="green", alpha=0.3)
+    plt.axis('off')
+    plt.savefig(f"{output_path}/draw_graph_forceatlas2_{language}.png", dpi=dpi)
+
+    topic_labels = df_sample['label'].tolist()
+    visualize_graph(G_lcc, output_path, f"draw_graph_communities_{language}.png", topic_labels, positions_lcc, dpi)
+
+    return df_sample, G, X, positions_lcc
+
+def find_closest_documents(X1, X2):
+    similarities = []
+    for i, theta1 in enumerate(X1):
+        similarities.append([])
+        for j, theta2 in enumerate(X2):
+            sim = 1 - jensenshannon(theta1.toarray().ravel(), theta2.toarray().ravel())
+            similarities[-1].append((j, sim))
+    return similarities
+
+def save_closest_docs_info(df1, df2, closest_docs, filename):
+    info = []
+    for i, doc_similarities in enumerate(closest_docs):
+        doc_info = {"document": i, "closest_documents": []}
+        sorted_docs = sorted(doc_similarities, key=lambda x: -x[1])[:5]
+        for j, sim in sorted_docs:
+            doc_info["closest_documents"].append({"document": j, "similarity": sim})
+        info.append(doc_info)
+    with open(filename, 'w') as f:
+        json.dump(info, f, indent=4)
+
+def color_nodes_based_on_closest_documents(df1, G1, df2, G2, closest_docs, positions_G1, positions_G2, filename, dpi=300, info_filename=None):
+    # Detect communities in the second graph (G2)
+    communities2 = nx_comm.louvain_communities(G2, seed=42)
+    node2comm2 = {node: i for i, com in enumerate(communities2) for node in com}
+    n_communities2 = len(communities2)
+
+    # Color nodes in the second graph (G2) based on its communities
+    palette = sns.color_palette("hsv", n_colors=n_communities2)
+    node_colors_G2 = [palette[node2comm2[node]] for node in G2.nodes()]
+    
+    # Color nodes in the first graph (G1) based on the closest documents in the second graph's communities
+    closest_community_colors_G1 = []
+    for i in range(len(df1)):
+        closest_docs_i = sorted(closest_docs[i], key=lambda x: -x[1])[:5]
+        closest_communities = [node2comm2[closest_doc[0]] for closest_doc in closest_docs_i if closest_doc[1] > 0]
+        if closest_communities:
+            common_community = Counter(closest_communities).most_common(1)[0][0]
+            closest_community_colors_G1.append(palette[common_community])
+        else:
+            closest_community_colors_G1.append((0.5, 0.5, 0.5))  # Gray color for unmatched nodes
+
+    if info_filename:
+        save_closest_docs_info(df1, df2, closest_docs, info_filename)
+
+    degrees_G2 = [G2.degree(node) for node in G2.nodes()]
+    degrees_G1 = [G1.degree(node) for node in G1.nodes()]
+
+    plt.figure(figsize=(20, 10), dpi=dpi)
+    
+    # Plot G2 with its communities
+    plt.subplot(121)
+    nx.draw_networkx_nodes(G2, positions_G2, node_size=[v * 10 for v in degrees_G2], node_color=node_colors_G2, alpha=0.85)
+    nx.draw_networkx_edges(G2, positions_G2, alpha=0.6, width=0.5)
+    plt.title("Graph 2 with its Communities")
+    plt.axis('off')
+
+    # Plot G1 colored by G2's communities
+    plt.subplot(122)
+    nx.draw_networkx_nodes(G1, positions_G1, node_size=[v * 10 for v in degrees_G1], node_color=closest_community_colors_G1, alpha=0.85)
+    nx.draw_networkx_edges(G1, positions_G1, alpha=0.6, width=0.5)
+    plt.title("Graph 1 Colored by Graph 2's Communities")
+    plt.axis('off')
+
+    plt.savefig(filename, dpi=dpi, bbox_inches='tight')
+    plt.show()
+    
+def compare_communities(G1, G2):
+    comms1 = list(nx_comm.louvain_communities(G1, seed=42))
+    comms2 = list(nx_comm.louvain_communities(G2, seed=42))
+    node2comm1 = {node: i for i, comm in enumerate(comms1) for node in comm}
+    node2comm2 = {node: i for i, comm in enumerate(comms2) for node in comm}
+    labels1 = [node2comm1.get(node, -1) for node in G1.nodes()]
+    labels2 = [node2comm2.get(node, -1) for node in G2.nodes()]
+    return adjusted_rand_score(labels1, labels2)
+
+def main(
+    data_path_spanish,
+    data_path_english,
+    output_path,
+    n_docs=200,
+    n_edges_per_node=10,
+    gravity=50,
+    random_state=0,
+    dpi=300,
+    use_sample=True
+):
+    df_spanish, G_spanish, X_spanish, positions_spanish = process_and_visualize(data_path_spanish, output_path, "spanish", n_docs, n_edges_per_node, gravity, random_state, dpi, use_sample)
+    df_english, G_english, X_english, positions_english = process_and_visualize(data_path_english, output_path, "english", n_docs, n_edges_per_node, gravity, random_state, dpi, use_sample)
+
+    # Find closest documents between English and Spanish
+    closest_docs_en_to_es = find_closest_documents(X_english, X_spanish)
+    closest_docs_es_to_en = find_closest_documents(X_spanish, X_english)
+
+    # Visualize English communities on Spanish graph
+    color_nodes_based_on_closest_documents(df_spanish, G_spanish, df_english, G_english, closest_docs_en_to_es, positions_spanish, positions_english, f"{output_path}/spanish_colored_by_english.png", dpi, f"{output_path}/closest_docs_en_to_es.json")
+
+    # Visualize Spanish communities on English graph
+    color_nodes_based_on_closest_documents(df_english, G_english, df_spanish, G_spanish, closest_docs_es_to_en, positions_english, positions_spanish, f"{output_path}/english_colored_by_spanish.png", dpi, f"{output_path}/closest_docs_es_to_en.json")
+
+    # Compare communities
+    community_similarity = compare_communities(G_spanish, G_english)
+    print(f"Adjusted Rand Index for community comparison: {community_similarity}")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Process and visualize network data.")
+    parser.add_argument(
+        '--data_path_english',
+        type=str,
+        required=False, 
+        help="Path to the data file",
+        default="/data/source/rosie_1_20/df_graph_en.parquet"
+    )
+    parser.add_argument(
+        '--data_path_spanish',
+        type=str,
+        required=False, 
+        help="Path to the data file",
+        default="/data/source/rosie_1_20/df_graph_es.parquet"
+    )
+    parser.add_argument(
+        '--output_path',
+        type=str,
+        required=False,
+        help="Path to save output files",
+        default="/data/source/rosie_1_20"
+    )
+    parser.add_argument(
+        '--n_docs',
+        type=int,
+        default=200,
+        help="Number of documents to sample")
+    parser.add_argument(
+        '--n_edges_per_node',
+        type=int,
+        default=10,
+        help="Average number of edges per node"
+    )
+    parser.add_argument(
+        '--gravity',
+        type=int,
+        default=50,
+        help="Gravity parameter for ForceAtlas2"
+    )
+    parser.add_argument(
+        '--random_state',
+        type=int,
+        default=0,
+        help="Random state for reproducibility"
+    )
+    parser.add_argument(
+        '--dpi',
+        type=int,
+        default=300,
+        help="DPI for saving figures"
+    )
+
+    args = parser.parse_args()
+    main(args.data_path_spanish, args.data_path_english, args.output_path, args.n_docs, args.n_edges_per_node, args.gravity, args.random_state, args.dpi)

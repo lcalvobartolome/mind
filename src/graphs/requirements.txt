@@ -9,3 +9,4 @@ fa2
 gensim
 openpyxl
 pyarrow
+scikit-learn
