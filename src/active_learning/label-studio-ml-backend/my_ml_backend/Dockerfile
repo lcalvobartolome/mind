@@ -35,7 +35,7 @@ RUN if [ "$TEST_ENV" = "true" ]; then \
     fi
 
 # Modify the import statement in the target file
-RUN sed -i 's/from label_studio_sdk.objects import PredictionValue/from label_studio_sdk._legacy.objects import PredictionValue/' /usr/local/lib/python3.12/site-packages/label_studio_ml/response.py
+#RUN sed -i 's/from label_studio_sdk.objects import PredictionValue/from label_studio_sdk._legacy.objects import PredictionValue/' /usr/local/lib/python3.12/site-packages/label_studio_ml/response.py
 
 # Comment out the unused import line in the _legacy/objects.py file
 RUN sed -i 's/from label_studio_sdk._legacy.objects import AnnotationValue, TaskValue, PredictionValue/# from label_studio_sdk._legacy.objects import AnnotationValue, TaskValue, PredictionValue/' /usr/local/lib/python3.12/site-packages/label_studio_sdk/label_interface/interface.py

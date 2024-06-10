@@ -7,11 +7,11 @@ import numpy as np
 import pandas as pd
 from label_studio_ml.model import LabelStudioMLBase
 from label_studio_ml.response import ModelResponse
-from src.active_learning.blade import Blade
+#from src.active_learning.blade import Blade
 
 logger = logging.getLogger(__name__)
 
-_model: Blade = None
+#_model: Blade = None
 
 class NewModel(LabelStudioMLBase):
     """Custom ML Backend model
@@ -21,7 +21,7 @@ class NewModel(LabelStudioMLBase):
     # MODEL PARAMETERS
     ########################################
     # Label Studio host - to be used for training
-    LABEL_STUDIO_HOST = os.getenv('LABEL_STUDIO_HOST', 'http://kumo01:9091')
+    LABEL_STUDIO_HOST = os.getenv('LABEL_STUDIO_HOST', 'http://localhost:9091')
     # Label Studio API key - to be used for training
     LABEL_STUDIO_API_KEY = os.getenv('LABEL_STUDIO_API_KEY')
     # Start training each N updates

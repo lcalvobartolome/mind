@@ -8,19 +8,22 @@ Date: 24.05.2025
 """
 
 import logging
+from pathlib import Path
 import numpy as np
-import pandas as pd
 from sklearn.linear_model import SGDClassifier
 from scipy.sparse import vstack, csr_matrix, hstack
 import copy
+
+from doc_selector import DocSelector
 
 
 class Blade(object):
     def __init__(
         self,
-        thetas: np.ndarray,
-        S3: np.ndarray,
-        df: pd.DataFrame,
+        model_path: str,
+        lang: str,
+        source_path: str = "/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/source/corpus_rosie/passages/df_1.parquet",
+        metric_classifier: int = 4,
         logger: logging.Logger = None
     ):
         """
@@ -28,27 +31,40 @@ class Blade(object):
 
         Parameters
         ----------
-        thetas: np.ndarray
-            Document-topic distribution
-        S3: np.ndarray
-            For each document and topic, sum of the betas of the words in the document
-        df: pd.DataFrame
-            DataFrame containing document metadata
+        model_path: str
+            Path to the topic model directory
+        lang: str
+            Language of the documents
+        source_path: str
+            Path to the source data directory
+        metric_classifier: int
+            Metric to use to extract features for the classifier
         logger: logging.Logger, optional
             Logger for logging information, by default None
         """
         self._logger = logger if logger else logging.getLogger(__name__)
 
-        # Save input data
-        self.thetas = thetas
-        self.S3 = S3
-        self.df_docs = df
+        # Initialize DocSelector to extract features for the classifier
+        self.doc_selector = DocSelector(
+            Path(model_path), Path(source_path), lang=lang, logger=self._logger)
+
+        # Get features from the DocSelector
+        self.thetas = self.doc_selector.output_lang["thetas"]
+        self.S3 = self.doc_selector.invoke_method_by_id(metric_classifier)
+        self.df_docs = self.doc_selector.output_lang["df"]
+
         # Construct features as the concatenation of thetas and S3
         self.X = hstack(
-            [csr_matrix(copy.deepcopy(thetas)).astype(np.float64),
-             csr_matrix(copy.deepcopy(S3)).astype(np.float64)
+            [csr_matrix(copy.deepcopy(self.thetas)).astype(np.float64),
+             csr_matrix(copy.deepcopy(self.S3)).astype(np.float64)
              ], format='csr'
         )
+        
+        print("X:", self.X.shape)
+        print("thetas:", self.thetas.shape)
+        print("S3:", self.S3.shape)
+        print("DF:", len(self.df_docs))
+        # TODO: Add TF-IDF!!!
 
         # Read keywords
         try:
@@ -70,7 +86,7 @@ class Blade(object):
 
         # Initialize pool
         self.X_pool = self.X
-        self.df_pool = df.copy()
+        self.df_pool = self.df_docs.copy()
 
         # Preprocess positive and negative indices
         self._preprocess_indices()
@@ -79,7 +95,8 @@ class Blade(object):
         """
         Initialize the active learner classifier.
         """
-        self.learner = SGDClassifier(loss="log_loss", penalty='l2', tol=1e-3, random_state=42, learning_rate="optimal", eta0=0.1, validation_fraction=0.2, alpha=0.000005)
+        self.learner = SGDClassifier(loss="log_loss", penalty='l2', tol=1e-3, random_state=42,
+                                     learning_rate="optimal", eta0=0.1, validation_fraction=0.2, alpha=0.000005)
         self._logger.info("-- -- Active Learner initialized.")
 
     def _preprocess_indices(self):
