@@ -11,7 +11,7 @@ services:
     volumes:
       - .:/home/jovyan/work/active_learning
       - ../../data/models/filtering:/home/jovyan/work/data/models/filtering
-      - ../../data/corpus_rosie/passages:/home/jovyan/work/data/corpus_rosie/passages
+      - ../../data/source/corpus_rosie/passages:/home/jovyan/work/data/source/corpus_rosie/passages
 
     environment:
       - JUPYTER_ENABLE_LAB=yes
@@ -27,7 +27,7 @@ services:
     volumes:
       - .:/home/jovyan/work/active_learning
       - ../../data/models/filtering:/home/jovyan/work/data/models/filtering
-      - ../../data/corpus_rosie/passages:/home/jovyan/work/data/corpus_rosie/passages
+      - ../../data/source/corpus_rosie/passages:/home/jovyan/work/data/source/corpus_rosie/passages
     environment:
       - JUPYTER_ENABLE_LAB=yes
     entrypoint: ["valerie.sh"]

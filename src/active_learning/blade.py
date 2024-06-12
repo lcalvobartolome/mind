@@ -88,7 +88,7 @@ class Blade(object):
             self.original_to_current_index = {
                 i: i for i in range(len(self.df_pool))}
             
-            self.blade_state_path = blade_state_path
+            self.blade_state_path = Path(blade_state_path)
             self.save(blade_state_path)
 
     def _init_classifier(self):
