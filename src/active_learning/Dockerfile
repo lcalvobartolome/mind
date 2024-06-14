@@ -1,21 +1,16 @@
-FROM jupyter/base-notebook
+FROM python:3.9
 
-RUN pip install --no-cache-dir notebook
+# Set up working directory
+WORKDIR /app
 
-USER root
+# Copy application files
+COPY . /app
 
-COPY . /home/jovyan/work/active_learning
-
-COPY bash_script_nb_eval/audrey.sh /usr/local/bin/audrey.sh
-COPY bash_script_nb_eval/valerie.sh /usr/local/bin/valerie.sh
-
-RUN chmod +x /usr/local/bin/audrey.sh
-RUN chmod +x /usr/local/bin/valerie.sh
-
-USER jovyan
-
-WORKDIR /home/jovyan/work/active_learning
-
+# Install additional dependencies
 RUN pip install -r requirements.txt
 
-EXPOSE 8888
+# Expose Streamlit port
+EXPOSE 2092
+
+# Command to run the  app
+CMD ["python3", "app2.py"]

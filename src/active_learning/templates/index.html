@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Annotate Document</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            function fetchDocument() {
+                $.post('/get_new_document', function(data) {
+                    $('#document').text(data.doc_content);
+                    $('#doc_id').val(data.doc_id);
+                });
+            }
+
+            $('#submit_annotation').on('click', function(event) {
+                event.preventDefault();
+                var label = $('#annotation').val();
+                $.post('/submit_annotation', { label: label }, function(response) {
+                    if (response.message) {
+                        $('#message').text(response.message);
+                        fetchDocument();  // Fetch a new document after successful annotation
+                        $('#annotation').val('');  // Clear the input field
+                    } else {
+                        $('#message').text(response.error);
+                    }
+                });
+            });
+
+            fetchDocument();  // Fetch the first document when the page loads
+        });
+    </script>
+</head>
+<body>
+    <h1>Annotate Document</h1>
+    <p id="document">Loading...</p>
+    <form id="annotation_form">
+        <input type="hidden" id="doc_id" name="doc_id">
+        <label for="annotation">Annotation:</label>
+        <input type="text" id="annotation" name="annotation">
+        <button id="submit_annotation">Submit</button>
+    </form>
+    <p id="message"></p>
+</body>
+</html>

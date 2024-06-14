@@ -142,6 +142,67 @@ class Blade(object):
             selected_idx = np.argmax(uncertainty)
 
         return [selected_idx]
+    
+    def get_document(self, idx):
+        
+        preferred_indices = self.preference_function(idx)
+        query_idx = preferred_indices[0]
+        query_instance = self.X_pool[query_idx].reshape(1, -1)
+        doc_id = self.df_pool.iloc[query_idx]['id_top']
+        doc_content = self.df_pool.iloc[query_idx]['text']
+        
+        self._logger.info(f"Document ID: {doc_id}")
+        self._logger.info(f"Document Content: {doc_content}")
+        
+        self._last_query_instance = query_instance
+        self._last_query_idx = query_idx
+                
+        return {
+            "doc_id": str(doc_id),
+            "doc_content": doc_content,
+        }
+    
+    def do_update(self, label):
+        
+        # Update training data
+        self.X_train = vstack([self.X_train, self._last_query_instance])
+        self.y_train = np.append(self.y_train, label)
+
+        # Fit the classifier with the new data
+        self.learner.partial_fit(
+            self.X_train, self.y_train, classes=np.array([0, 1]))
+
+        # Update df_docs with the label
+        original_index = list(self.original_to_current_index.keys())[
+            list(self.original_to_current_index.values()).index(self._last_query_idx)]
+        self.df_docs.loc[original_index, 'label'] = label
+        self.df_docs.loc[original_index, 'human_labeled'] = True
+
+        # Remove queried instance from the pool
+        self.X_pool = vstack(
+            [self.X_pool[:self._last_query_idx], self.X_pool[self._last_query_idx+1:]])
+        self.df_pool = self.df_pool.drop(
+            self.df_pool.index[self._last_query_idx]).reset_index(drop=True)
+
+        # Update the mapping
+        self.original_to_current_index.pop(original_index)
+        self.original_to_current_index = {
+            orig: cur-1 if cur > self._last_query_idx else cur for orig, cur in self.original_to_current_index.items()}
+
+        self.update_indices(original_index)
+
+    def save_state(self):
+        # Save the updated DataFrame to a file after the loop completes
+        self.df_docs.to_csv(self.state_path, index=False)
+        
+        # Save the Blade object
+        blade_state_path = self.blade_state_path.parent /  self.blade_state_path.name.replace(".pkl", "_trained.pkl")
+        self._logger.info(f"-- -- Saving Blade object to {blade_state_path}")
+        self.save(blade_state_path)
+        self._logger.info(f"-- -- Blade object saved to {blade_state_path}")
+        
+        return
+    
 
     def active_learning_loop(self, max_duration_minutes=60):
         start_time = time.time()
