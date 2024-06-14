@@ -9,19 +9,29 @@
             justify-content: center;
             align-items: center;
         }
+        .annotation-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .disabled-button {
+            pointer-events: none;
+            opacity: 0.6;
+        }
     </style>
 </head>
 <body>
     <div class="container mt-5">
         <h1 class="mb-4">Instructions for Evaluating Rosie Corpus Documents</h1>
         <div class="alert alert-info">
-            <strong>Welcome to the active learning evaluation notebook. This notebook will guide you through the process of labeling documents to improve our classifier. Please follow the steps below:</strong>
+            <strong>Welcome to the Rosie Corpus Documents evaluation task. Please follow the steps below:</strong>
         </div>
         <h2>Task Orientation</h2>
         <p>You are going to be evaluating document passages from the Rosie Corpus. Your task is to review each passage and annotate whether it is "in domain" or "not in domain" based on the following criteria:</p>
         <ul>
-            <li><strong>In Domain:</strong> Documents that are health relevant, even if they are not specifically about maternal or infant health.</li>
-            <li><strong>Not In Domain:</strong> Documents that are meaningless, such as those made up of references, location information, meaningless tables of content, etc.</li>
+            <li><strong>In Domain:</strong> Health-relevant documents, even if not specifically about maternal or infant health.</li>
+            <li><strong>Not In Domain:</strong> Meaningless documents (e.g., references, location info, meaningless tables).</li>
         </ul>
         <h2>Steps to Follow</h2>
         <ol>
@@ -30,19 +40,19 @@
                     <li>Each document will be presented with a unique `Document ID` and `Document Content`.</li>
                 </ul>
             </li>
-            <li><strong>Provide a Label:</strong>
+            <li><strong>Provide Annotation:</strong>
                 <ul>
                     <li>You will be prompted to provide a label for each document.</li>
-                    <li>Enter `0` if the document is <strong>not in domain</strong>, or `1` if the document is <strong>in domain</strong>.</li>
+                    <li>Click the corresponding button: </li><br>
+                    <div class="annotation-buttons mt-2">
+                        <button class="btn btn-success disabled-button">In Domain</button>
+                        <button class="btn btn-danger disabled-button">Not In Domain</button>
+                    </div><br>
+                    <li>Wait for the message <strong>"Document labeled successfully"</strong> before moving to the next document.</li>
                     <li>If an invalid input is entered, you will see an error message in red. Please enter either `0` or `1`.</li>
                 </ul>
             </li>
-            <li><strong>Separator Line:</strong>
-                <ul>
-                    <li>After each document, a separator line in magenta will appear to clearly indicate the end of the current document and the start of the next one.</li>
-                </ul>
-            </li>
-            <li><strong>Completion Message:</strong>
+            <li><strong>Completion Message::</strong>
                 <ul>
                     <li>Once the active learning loop is completed, a completion message will be displayed in large, green font.</li>
                 </ul>

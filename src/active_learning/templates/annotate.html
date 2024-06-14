@@ -21,12 +21,28 @@
         .annotation-buttons button {
             width: 45%;
         }
+        .message {
+            font-size: 24px; /* Tamaño de fuente más grande */
+            font-weight: bold; /* Negrita */
+            text-align: center; /* Centrado */
+            margin-top: 20px; /* Espacio superior */
+        }
+        .text-danger {
+            color: red; /* Color rojo para los errores */
+        }
+        .text-success {
+            color: green; /* Color verde para el éxito */
+        }
+        .disabled-button {
+            pointer-events: none;
+            opacity: 0.6;
+        }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
             let startTime;
-            const annotationDuration = 3600; // 1 hour in seconds
+            const annotationDuration = 900; // 30 seconds for testing
 
             // Fetch start time from the server
             $.get('/get_start_time', function(data) {
@@ -73,14 +89,13 @@
 
             // Function to show the time up message and save state
             function showTimeUpMessage() {
+                console.log('showTimeUpMessage called');
                 $('#main_content').hide();
                 $('#time_up_message').show();
                 $.post('/stop_annotation_task', function(data) {
-                    $('#time_up_message').hide();
-                    $('#final_message').show();
+                    console.log('stop_annotation_task successful');
                 }).fail(function() {
-                    $('#time_up_message').hide();
-                    $('#final_message').show();
+                    console.log('stop_annotation_task failed');
                 });
             }
 
@@ -91,7 +106,7 @@
                         $('#message').text(response.message).removeClass('text-danger').addClass('text-success');
                         fetchDocument();  // Fetch a new document after successful annotation
                     } else {
-                        $('#message').text(response.error).addClass('text-danger');
+                        $('#message').text(response.error).removeClass('text-success').addClass('text-danger');
                     }
                 });
             }
@@ -129,53 +144,45 @@
                 <button id="in_domain_button" class="btn btn-success">In Domain</button>
                 <button id="not_in_domain_button" class="btn btn-danger">Not In Domain</button>
             </div>
-            <p id="message" class="mt-3"></p>
+            <p id="message" class="message mt-3"></p>
         </div>
         <div id="time_up_message" style="text-align: center; margin-top: 20px; display: none;">
             <h2 style='color: green; font-weight: bold;'>Time is up! Your feedback has been collected.</h2>
-            <h3 style='color: gray;'>Please wait a moment while we save your responses...</h3>
-        </div>
-        <div id="final_message" style="text-align: center; margin-top: 20px; display: none;">
-            <h2 style='color: green; font-weight: bold;'>Your feedback has been successfully saved!</h2>
-            <h3 style='color: gray;'>Thank you for your participation.</h3>
+            <h3 style='color: gray;'>Thank you for your participation!  &#128522;</h3>
         </div>
         <div class="instructions alert alert-info">
-            <h2>Instructions for Evaluating Rosie Corpus Documents</h2>
-            <p>Welcome to the active learning evaluation notebook. This notebook will guide you through the process of labeling documents to improve our classifier. Please follow the steps below:</p>
-            <h3>Task Orientation</h3>
+            <h1>Instructions for Evaluating Rosie Corpus Documents</h2>
+            <h2>Task Orientation</h2>
             <p>You are going to be evaluating document passages from the Rosie Corpus. Your task is to review each passage and annotate whether it is "in domain" or "not in domain" based on the following criteria:</p>
             <ul>
-                <li><strong>In Domain:</strong> Documents that are health relevant, even if they are not specifically about maternal or infant health.</li>
-                <li><strong>Not In Domain:</strong> Documents that are meaningless, such as those made up of references, location information, meaningless tables of content, etc.</li>
+                <li><strong>In Domain:</strong> Health-relevant documents, even if not specifically about maternal or infant health.</li>
+                <li><strong>Not In Domain:</strong> Meaningless documents (e.g., references, location info, meaningless tables).</li>
             </ul>
-            <h3>Steps to Follow</h3>
+            <h2>Steps to Follow</h2>
             <ol>
                 <li><strong>Review the Document:</strong>
                     <ul>
                         <li>Each document will be presented with a unique `Document ID` and `Document Content`.</li>
                     </ul>
                 </li>
-                <li><strong>Provide a Label:</strong>
+                <li><strong>Provide Annotation:</strong>
                     <ul>
                         <li>You will be prompted to provide a label for each document.</li>
-                        <li>Enter `0` if the document is <strong>not in domain</strong>, or `1` if the document is <strong>in domain</strong>.</li>
+                        <li>Click the corresponding button: </li><br>
+                        <div class="annotation-buttons mt-2">
+                            <button class="btn btn-success disabled-button">In Domain</button>
+                            <button class="btn btn-danger disabled-button">Not In Domain</button>
+                        </div><br>
+                        <li>Wait for the message <strong>"Document labeled successfully"</strong> before moving to the next document.</li>
                         <li>If an invalid input is entered, you will see an error message in red. Please enter either `0` or `1`.</li>
                     </ul>
                 </li>
-                <li><strong>Separator Line:</strong>
-                    <ul>
-                        <li>After each document, a separator line in magenta will appear to clearly indicate the end of the current document and the start of the next one.</li>
-                    </ul>
-                </li>
-                <li><strong>Completion Message:</strong>
+                <li><strong>Completion Message::</strong>
                     <ul>
                         <li>Once the active learning loop is completed, a completion message will be displayed in large, green font.</li>
                     </ul>
                 </li>
             </ol>
-            <div class="alert alert-warning">
-                <strong>Important!</strong> If you are unsure about whether the document is In Domain or not, select it as In Domain.
-            </div>
         </div>
     </div>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

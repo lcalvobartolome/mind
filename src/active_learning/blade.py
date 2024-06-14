@@ -194,6 +194,8 @@ class Blade(object):
     def save_state(self):
         # Save the updated DataFrame to a file after the loop completes
         self.df_docs.to_csv(self.state_path, index=False)
+        self._logger.info(self.df_docs.head())
+        self._logger.info(f"-- -- Updated DataFrame saved to {self.state_path}")
         
         # Save the Blade object
         blade_state_path = self.blade_state_path.parent /  self.blade_state_path.name.replace(".pkl", "_trained.pkl")
