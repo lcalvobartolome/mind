@@ -12,7 +12,7 @@ from termcolor import cprint
 import os
 
 # Import the namespace
-from apis.namespace import api as active_learning_api
+from apis.namespace2 import api as active_learning_api
 
 # Create Flask app
 app = Flask(__name__)
@@ -22,7 +22,7 @@ app.config["RESTX_MASK_SWAGGER"] = False
 
 # Initialize API and add the namespace
 api = Api(
-    title="EWB's Topic Modeling API",
+    title="Rosie Corpus evaluation",
     version='1.0',
     description='whatever',
 )
@@ -46,7 +46,7 @@ def save_and_stop():
     stop_task = True
     task_running = False
     logger.info("Saving state before stopping the task")
-    response = requests.post('http://localhost:2095/test/SaveState/')  # Assuming the app runs on port 5000
+    response = requests.post('http://app1_container:5000/test/SaveState/')  # Assuming the app runs on port 5000
     if response.status_code == 200:
         logger.info("State saved successfully")
     else:
@@ -65,7 +65,7 @@ def get_new_document():
 
     idx = 0  # Replace with actual logic to get document index
     logger.info("Calling getDocumentToLabel")
-    response = requests.post('http://kumo01:2095/test/getDocumentToLabel/', data={'idx': idx})
+    response = requests.post('http://app1_container:5000/test/getDocumentToLabel/', data={'idx': idx})
     if response.status_code != 200:
         logger.error(f"Error calling getDocumentToLabel: {response.json()}")
         return jsonify({"error": "Failed to fetch document"}), 500
@@ -86,7 +86,7 @@ def submit_annotation():
 
     label = request.form['label']
     logger.info("Calling LabelDocument")
-    response = requests.post('http://kumo01:2095/test/LabelDocument/', data={'label': label})
+    response = requests.post('http://app1_container:5000/test/LabelDocument/', data={'label': label})
     if response.status_code != 200:
         logger.error(f"Error calling LabelDocument: {response.json()}")
         return jsonify({"error": "Failed to label document"}), 500
@@ -121,7 +121,7 @@ def run_annotation_task(duration=3600):
     while not stop_task and time.time() - start_time < duration:
         idx = 0  # Replace with actual logic to get document index
         logger.info("Calling getDocumentToLabel")
-        response = requests.post('http://kumo01:2095/test/getDocumentToLabel/', data={'idx': idx})
+        response = requests.post('http://app1_container:5000/test/getDocumentToLabel/', data={'idx': idx})
         if response.status_code != 200:
             logger.error(f"Error calling getDocumentToLabel: {response.json()}")
             break
@@ -173,7 +173,7 @@ if __name__ == '__main__':
     logger.info("Starting the Flask app")
 
     try:
-        app.run(host='0.0.0.0', port=2095, debug=True)
+        app.run(host='0.0.0.0', port=5000, debug=True)
         # from waitress import serve
         # serve(app, host="0.0.0.0", port=2092)
     except Exception as e:

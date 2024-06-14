@@ -1,13 +1,35 @@
 version: '3'
 
 services:
-  app:
+  app1:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: annotation_app
+    container_name: app1_container
     ports:
-      - "2095:2092"
+      - "2091:5000"
+    environment:
+      - FLASK_APP=app2.py
+      - MODEL_PATH=/app/data/models/filtering/rosie_1_5
+      - SOURCE_PATH=/app/data/source/corpus_rosie/passages/translated/df_1.parquet
+      - BLADE_STATE_PATH=/app/data/models/filtering/rosie_1_5/blade_state_EN.pkl
+    volumes:
+      - .:/app
+      - ../../data/models/filtering:/app/data/models/filtering
+      - ../../data/source/corpus_rosie/passages:/app/data/source/corpus_rosie/passages
+
+  app2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app2_container
+    ports:
+      - "2092:5000"
+    environment:
+      - FLASK_APP=app2.py
+      - MODEL_PATH=/app/data/models/filtering/rosie_1_5
+      - SOURCE_PATH=/app/data/source/corpus_rosie/passages/translated/df_1.parquet
+      - BLADE_STATE_PATH=/app/data/models/filtering/rosie_1_5/blade_state_EN.pkl
     volumes:
       - .:/app
       - ../../data/models/filtering:/app/data/models/filtering

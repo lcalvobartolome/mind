@@ -1,16 +1,19 @@
-FROM python:3.9
+# Dockerfile
+FROM python:3.10-slim
 
-# Set up working directory
 WORKDIR /app
 
-# Copy application files
-COPY . /app
+# Copy the requirements file
+COPY requirements.txt requirements.txt
 
-# Install additional dependencies
-RUN pip install -r requirements.txt
+# Install the dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose Streamlit port
-EXPOSE 2092
+# Copy the application code
+COPY . .
 
-# Command to run the  app
-CMD ["python3", "app2.py"]
+# Expose the port the app runs on
+EXPOSE 5000
+
+# Command to run the app
+CMD ["python", "app.py"]
