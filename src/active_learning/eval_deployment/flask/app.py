@@ -9,7 +9,6 @@ import time
 import requests
 from pyfiglet import figlet_format
 from termcolor import cprint
-import os
 
 # Import the namespace
 from apis.namespace import api as active_learning_api
