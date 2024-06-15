@@ -15,7 +15,7 @@ COPY . .
 RUN ls -la /app
 
 # Expose the port the app runs on
-EXPOSE 5000
+EXPOSE 5001
 
 # Command to run the app
-CMD ["python", "eval_deployment/flask/app.py"]
+CMD ["python", "eval_deployment/flask/app2.py"]

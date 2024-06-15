@@ -46,7 +46,7 @@ def save_and_stop():
     stop_task = True
     task_running = False
     logger.info("Saving state before stopping the task")
-    response = requests.post('http://app1_container:5000/test/SaveState/')
+    response = requests.post('http://app2_container:5001/test/SaveState/')
     logger.info(response)
     if response.status_code == 200:
         logger.info("State saved successfully")
@@ -67,7 +67,7 @@ def get_new_document():
     global global_idx
     idx = global_idx  # Use the global index
     logger.info("Calling getDocumentToLabel")
-    response = requests.post('http://app1_container:5000/test/getDocumentToLabel/', data={'idx': idx})
+    response = requests.post('http://app2_container:5001/test/getDocumentToLabel/', data={'idx': idx})
     if response.status_code != 200:
         logger.error(f"Error calling getDocumentToLabel: {response.json()}")
         return jsonify({"error": "Failed to fetch document"}), 500
@@ -88,7 +88,7 @@ def submit_annotation():
 
     label = request.form['label']
     logger.info("Calling LabelDocument")
-    response = requests.post('http://app1_container:5000/test/LabelDocument/', data={'label': label, 'idx': global_idx})
+    response = requests.post('http://app2_container:5001/test/LabelDocument/', data={'label': label, 'idx': global_idx})
     if response.status_code != 200:
         logger.error(f"Error calling LabelDocument: {response.json()}")
         return jsonify({"error": "Failed to label document"}), 500
@@ -158,7 +158,7 @@ if __name__ == '__main__':
     logger.info("Starting the Flask app")
 
     try:
-        app.run(host='0.0.0.0', port=5000, debug=True)
+        app.run(host='0.0.0.0', port=5001, debug=True)
         # from waitress import serve
         # serve(app, host="0.0.0.0", port=2092)
     except Exception as e:

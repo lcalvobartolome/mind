@@ -1,6 +1,8 @@
 from flask_restx import Namespace, Resource, reqparse
 from flask import jsonify
 import logging
+import sys
+sys.path.append("/app")
 from blade import Blade
 import os
 
@@ -12,6 +14,8 @@ model_path = os.environ.get('MODEL_PATH', '/default/path/to/model')
 source_path = os.environ.get('SOURCE_PATH', '/default/path/to/source')
 blade_state_path = os.environ.get('BLADE_STATE_PATH', '/default/path/to/blade_state')
 lang = os.environ.get('LANG', 'EN')
+logger.info(f"LANG: {lang}")
+print(f"LANG: {lang}")
 
 # Create Blade object
 blade = Blade(
@@ -20,6 +24,8 @@ blade = Blade(
     lang=lang,
     blade_state_path=blade_state_path
 )
+logger.info(blade.df_docs)
+print(blade.df_docs)
 
 api = Namespace('AL', title='Active Learning API')
 
