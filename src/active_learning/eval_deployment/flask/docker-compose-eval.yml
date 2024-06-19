@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  app_eval:
+    build:
+      context: ../..
+      dockerfile: eval_deployment/flask/Dockerfile_eval
+    container_name: app_eval_container
+    ports:
+      - "2091:5003"
+    environment:
+      - FLASK_APP=app_second_eval.py
+      - ANNOTATION_PATH_EN=/app/data/models/filtering/rosie_1_20/df_docs_updated_EN.csv
+      - ANNOTATION_PATH_ES=/app/data/models/filtering/rosie_1_20/df_docs_updated_ES.csv
+    volumes:
+      - ../..:/app
+      - ../../../../data/models/filtering:/app/data/models/filtering
+      - ../../../../data/source/corpus_rosie/passages:/app/data/source/corpus_rosie/passages

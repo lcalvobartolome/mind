@@ -9,7 +9,8 @@ def main():
     print("ENTRA AQUI")
     path_corpus_es = "/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/source/corpus_rosie/corpus_pass_es_tr.parquet"
     path_corpus_en = "/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/source/corpus_rosie/corpus_pass_en_tr.parquet"
-    path_save_tr = "/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/source/corpus_rosie/passages/translated/df.parquet"
+    #path_save_tr = "/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/source/corpus_rosie/passages/translated/df.parquet"
+    path_save_tr = "/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/source/corpus_rosie/passages/translated_stops/df.parquet"
     
     # Generate training data
     print("-- -- Generating training data")
@@ -23,7 +24,7 @@ def main():
         model = PolylingualTM(
             lang1="EN",
             lang2="ES",
-            model_folder= pathlib.Path(f"/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/models/POLI/rosie_{str(sample)}_{k}"),
+            model_folder= pathlib.Path(f"/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/models/POLI/rosie_stops_{str(sample)}_{k}"),
             num_topics=k
         )
         model.train(path_save)
