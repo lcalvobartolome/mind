@@ -13,7 +13,7 @@ annotations_path_en = os.environ.get('ANNOTATION_PATH_EN', '/default/path/to/mod
 annotations_path_es = os.environ.get('ANNOTATION_PATH_ES', '/default/path/to/source')
 
 # Load the dataframes at the start
-def get_balanced_sample(path, size=0.01):
+def get_balanced_sample(path, size=0.6):
     # Read the annotations
     df = pd.read_csv(path)
     df = df[df.human_labeled == True]
@@ -39,11 +39,10 @@ def get_balanced_sample(path, size=0.01):
 
 # Get balanced samples for English and Spanish docs
 df_en = get_balanced_sample(annotations_path_en)
-#df_es = get_balanced_sample(annotations_path_es)
+df_es = get_balanced_sample(annotations_path_es)
 
 # Combine and shuffle the balanced samples
-#combined_df = pd.concat([df_en, df_es]).sample(frac=1, random_state=1).reset_index(drop=True)
-combined_df = df_en
+combined_df = pd.concat([df_en, df_es]).sample(frac=1, random_state=1).reset_index(drop=True)
 combined_df['second_eval_label'] = None  # Initialize the new column
 
 # Set up a set to keep track of labeled document IDs

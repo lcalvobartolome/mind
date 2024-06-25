@@ -15,6 +15,8 @@ from apis.namespace import api as active_learning_api
 
 # Create Flask app
 app = Flask(__name__)
+# Set the secret key for session management
+app.config['SECRET_KEY'] = os.urandom(24)
 # Deactivate the default mask parameter
 app.config["RESTX_MASK_SWAGGER"] = False
 

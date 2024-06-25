@@ -62,7 +62,7 @@ def main(model_path, source_path, orig_en_path, orig_es_path, path_template):
     df["len"] = df['lemmas'].apply(lambda x: len(x.split()))
     
     # Read and save thetas, get top-topics for each doc
-    thetas = sparse.load_npz(model_path / "train_data" / "thetas_EN.npz")
+    thetas = sparse.load_npz(model_path / "mallet_output" / "thetas_EN.npz")
     df["thetas"] = list(thetas.toarray())
     df.loc[:, "top_k"] = df["thetas"].apply(get_doc_top_tpcs)
     df.loc[:, "main_topic"] = df["thetas"].apply(get_doc_main_topc)
@@ -106,14 +106,14 @@ if __name__ == "__main__":
         type=str,
         required=False,
         help='Path to the Polylingual TM directory',
-        default="/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/models/POLI/rosie_1_20"
+        default="/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/models/POLI_FILTERED_AL/rosie_1_20"
     )
     parser.add_argument(
         '--source_path',
         type=str,
         required=False,
         help='Path to the source file with which the TM was trained.',
-        default="/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/source/corpus_rosie/passages/translated/df_1.parquet"
+        default="/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/source/corpus_rosie/passages/translated_stops_filtered_by_al/df_1.parquet"
     )
     parser.add_argument(
         '--orig_en_path',

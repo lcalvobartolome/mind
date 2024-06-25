@@ -22,6 +22,19 @@ if not hasattr(nx, "to_scipy_sparse_matrix"):
         return nx.to_scipy_sparse_array(G)
 nx.to_scipy_sparse_matrix = to_scipy_sparse_matrix
 
+def save_graph_data(G, output_path, filename_prefix):
+    # Save nodes
+    nodes_filename = f"{output_path}/{filename_prefix}_nodes.csv"
+    pd.DataFrame(list(G.nodes()), columns=['Node']).to_csv(nodes_filename, index=False)
+    print(f"Nodes saved to {nodes_filename}")
+
+    # Save edges with weights
+    edges_filename = f"{output_path}/{filename_prefix}_edges.csv"
+    edges_data = [(u, v, d['weight']) for u, v, d in G.edges(data=True)]
+    pd.DataFrame(edges_data, columns=['Source', 'Target', 'Weight']).to_csv(edges_filename, index=False)
+    print(f"Edges saved to {edges_filename}")
+
+
 def visualize_graph(G, output_path, filename, topic_labels, positions, dpi=300):
     # Detect communities using the Louvain method
     communities = nx_comm.louvain_communities(G, seed=42)
@@ -115,6 +128,9 @@ def process_and_visualize(data_path, output_path, language, n_docs=200, n_edges_
     # Filter edges by weight
     edges_to_remove = [(u, v) for u, v, w in G.edges(data=True) if w['weight'] < thr]
     G.remove_edges_from(edges_to_remove)
+    
+    # Save the graph data
+    save_graph_data(G, output_path, f"graph_{language}")
 
     # Largest connected component (LCC) from the graph
     nodes = list(nx.connected_components(G))
