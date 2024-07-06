@@ -3,7 +3,7 @@ from flask import jsonify
 import logging
 import sys
 sys.path.append("/app")
-from blade import Blade
+from multi_blade import MultiBlade
 import os
 
 # Set up logging
@@ -18,7 +18,7 @@ logger.info(f"LANG: {lang}")
 print(f"LANG: {lang}")
 
 # Create Blade object
-blade = Blade(
+blade = MultiBlade(
     model_path=model_path,
     source_path=source_path,
     lang=lang,

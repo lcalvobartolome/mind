@@ -4,7 +4,7 @@ import pickle
 from pathlib import Path
 import time
 from termcolor import colored
-
+import pandas as pd
 import numpy as np
 from doc_selector import DocSelector
 from scipy.sparse import csr_matrix, hstack, vstack
@@ -42,7 +42,7 @@ class MultiBlade(object):
             self._logger.info(f"Blade object loaded from {blade_state_path}")
         else:
             
-            self._logger.info(f"-- -- No exisiting BLADE object found. Initializing from scratch...")
+            self._logger.info(f"-- -- No existing BLADE object found. Initializing from scratch...")
             self.doc_selector = DocSelector(
                 Path(model_path), Path(source_path), lang=lang, logger=self._logger)
 
@@ -51,7 +51,7 @@ class MultiBlade(object):
             self.df_docs = self.doc_selector.output_lang["df"]
 
             # Initialize columns for labels and human-labeled flag
-            self.df_docs['label'] = [np.nan] * len(self.df_docs)
+            self.df_docs['label'] = None
             self.df_docs['human_labeled'] = False
             if state_path:
                 self.state_path = state_path
@@ -89,8 +89,12 @@ class MultiBlade(object):
             self.original_to_current_index = {
                 i: i for i in range(len(self.df_pool))}
             
+            self._last_query_instance = None
+            self._last_query_idx = None
+            
             self.blade_state_path = Path(blade_state_path)
             self.save(blade_state_path)
+            
 
     def _init_classifier(self):
         self.learner = OneVsRestClassifier(SGDClassifier(
@@ -156,6 +160,7 @@ class MultiBlade(object):
         self._logger.info(f"Document Content: {doc_content}")
         
         self._last_query_instance = query_instance
+        self._logger.info(f"Query instance set to: {query_instance}")
         self._last_query_idx = query_idx
                 
         return {
@@ -164,6 +169,17 @@ class MultiBlade(object):
         }
     
     def do_update(self, label):
+        self._logger.info(f"This is the label before parsing: {label}")
+        
+        if isinstance(label, str):
+            label = list(map(int, label.split(',')))
+        
+        self._logger.info(f"This is the label after parsing: {label}")
+        
+        # Check if self._last_query_instance is not None
+        if self._last_query_instance is None:
+            self._logger.error("No query instance found. Please fetch a document before updating.")
+            return
         
         # Update training data
         self.X_train = vstack([self.X_train, self._last_query_instance])
@@ -175,6 +191,8 @@ class MultiBlade(object):
         # Update df_docs with the label
         original_index = list(self.original_to_current_index.keys())[
             list(self.original_to_current_index.values()).index(self._last_query_idx)]
+        
+        # Ensure the label is assigned correctly as a list
         self.df_docs.at[original_index, 'label'] = label
         self.df_docs.at[original_index, 'human_labeled'] = True
 
@@ -190,6 +208,7 @@ class MultiBlade(object):
             orig: cur-1 if cur > self._last_query_idx else cur for orig, cur in self.original_to_current_index.items()}
 
         self.update_indices(original_index)
+
 
     def save_state(self):
         # Save the updated DataFrame to a file after the loop completes
@@ -264,7 +283,7 @@ class MultiBlade(object):
         
         # Save the Blade object
         blade_state_path = self.blade_state_path.parent /  self.blade_state_path.name.replace(".pkl", "_trained.pkl")
-        print(f"-- -- Saving Blade object to {blade_state_path}")
+        print(f("-- -- Saving Blade object to {blade_state_path}"))
         self.save(blade_state_path)
         
         # Clear the previous output and display the second message
@@ -310,10 +329,10 @@ class MultiBlade(object):
         if len(self.y_train) > 0:
             # Predict the labels for the remaining pool of documents
             predictions = self.learner.predict(self.X_pool)
-            self.df_pool['predicted_label'] = list(predictions)
+            self.df_pool['predicted_label'] = [list(pred) for pred in predictions]
             self.df_pool['human_labeled'] = False
             
-            self._logger.info(f"-- -- Labels predicted for the remaining pool of documents.")
+            self._logger.info(f("-- -- Labels predicted for the remaining pool of documents."))
 
             # Merge the predictions with the original df_docs based on the document ID
             self.df_docs = self.df_docs.merge(
@@ -323,19 +342,19 @@ class MultiBlade(object):
                 suffixes=('', '_pred')
             )
             
-            self._logger.info(f"-- -- Merged the predictions with the original df_docs.")
+            self._logger.info(f("-- -- Merged the predictions with the original df_docs."))
             
             # Fill the label column with the predicted labels where applicable
             self.df_docs['label'] = self.df_docs['label'].combine_first(self.df_docs['predicted_label'])
             self.df_docs['human_labeled'] = self.df_docs['human_labeled'].combine_first(self.df_pool['human_labeled'])
             
-            self._logger.info(f"-- -- Filled the label column with the predicted labels.")
+            self._logger.info(f("-- -- Filled the label column with the predicted labels."))
 
             # Save the updated DataFrame to a file
             if not path_save:
                 path_save = self.state_path.parent / self.state_path.name.replace(".csv", "_predicted.csv")
             self.df_docs.to_csv(path_save, index=False)
-            self._logger.info(f"-- -- Predicted labels saved to {path_save}")
+            self._logger.info(f("-- -- Predicted labels saved to {path_save}"))
 
             return self.df_pool[['id_top', 'text', 'predicted_label']]
         else:

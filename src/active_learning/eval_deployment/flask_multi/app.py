@@ -15,6 +15,8 @@ from apis.namespace import api as active_learning_api
 
 # Create Flask app
 app = Flask(__name__)
+# Set the secret key for session management
+app.config['SECRET_KEY'] = os.urandom(25)
 # Deactivate the default mask parameter
 app.config["RESTX_MASK_SWAGGER"] = False
 
@@ -79,16 +81,22 @@ def get_new_document():
 def submit_annotation():
     global global_idx
     if 'start_time' not in session:
+        logger.error("Annotation session not started")
         return jsonify({"error": "Annotation session not started"}), 403
 
     elapsed_time = time.time() - session['start_time']
     if elapsed_time > annotation_duration:
+        logger.error("Annotation session has ended")
         return jsonify({"error": "Annotation session has ended"}), 403
 
-    label = request.form['labels']
-    logger.info("Calling LabelDocument")
+    label = request.form['label']
+    logger.info(f"Submitting annotation for index {global_idx} with label {label}")
+    
     response = requests.post('http://app1_container:5000/test/LabelDocument/', data={'label': label, 'idx': global_idx})
-    if response.status_code != 200:
+    
+    if response.status_code == 403:
+        logger.error(f"Received 403 Forbidden error for index {global_idx}")
+    elif response.status_code != 200:
         logger.error(f"Error calling LabelDocument: {response.json()}")
         return jsonify({"error": "Failed to label document"}), 500
 

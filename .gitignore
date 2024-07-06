@@ -167,3 +167,9 @@ src/corpus_building/preprocessing/.venv_nlpipe
 *Mallet-202108
 src/active_learning/blade_state.pkl
 *pkl
+src/colbert/ColBERT
+src/contradictions/dspy
+src/hfclient
+.env
+.ipynb_checkpoints
+.venv

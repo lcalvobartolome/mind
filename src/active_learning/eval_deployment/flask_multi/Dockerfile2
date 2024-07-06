@@ -3,7 +3,7 @@ FROM python:3.10-slim
 WORKDIR /app
 
 # Copy the requirements file
-COPY eval_deployment/flask/requirements.txt requirements.txt
+COPY eval_deployment/flask_multi/requirements.txt requirements.txt
 
 # Install the dependencies
 RUN pip install --no-cache-dir -r requirements.txt
@@ -18,4 +18,4 @@ RUN ls -la /app
 EXPOSE 5001
 
 # Command to run the app
-CMD ["python", "eval_deployment/flask/app2.py"]
+CMD ["python", "eval_deployment/flask_multi/app2.py"]

@@ -4,7 +4,7 @@ services:
   app1:
     build:
       context: ../..
-      dockerfile: eval_deployment/flask/Dockerfile
+      dockerfile: eval_deployment/flask_multi/Dockerfile
     container_name: app1_container
     ports:
       - "2091:5000"
@@ -12,7 +12,7 @@ services:
       - FLASK_APP=app.py
       - MODEL_PATH=/app/data/models/filtering/rosie_1_20
       - SOURCE_PATH=/app/data/source/corpus_rosie/passages/translated/df_1.parquet
-      - BLADE_STATE_PATH=/app/data/models/filtering/rosie_1_20/blade_state_EN.pkl
+      - BLADE_STATE_PATH=/app/data/models/filtering/rosie_1_20/multi_blade_state_EN.pkl
       - LANG=EN
     volumes:
       - ../..:/app
@@ -22,7 +22,7 @@ services:
   app2:
     build:
       context: ../..
-      dockerfile: eval_deployment/flask/Dockerfile2
+      dockerfile: eval_deployment/flask_multi/Dockerfile2
     container_name: app2_container
     ports:
       - "2092:5001"
@@ -30,7 +30,7 @@ services:
       - FLASK_APP=app2.py
       - MODEL_PATH=/app/data/models/filtering/rosie_1_20
       - SOURCE_PATH=/app/data/source/corpus_rosie/passages/translated/df_1.parquet
-      - BLADE_STATE_PATH=/app/data/models/filtering/rosie_1_20/blade_state_ES.pkl
+      - BLADE_STATE_PATH=/app/data/models/filtering/rosie_1_20/multi_blade_state_ES.pkl
       - LANG=ES
     volumes:
       - ../..:/app

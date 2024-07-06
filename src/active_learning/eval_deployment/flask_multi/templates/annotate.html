@@ -10,33 +10,69 @@
       .my_radio {
         margin-left: 20px;
       }
-      .form-check {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10px;
-        text-align: left;
-      }
       .center-button,
       .center-buttons {
         display: flex;
         justify-content: center;
         margin-top: 10px;
       }
+      .disabled-button {
+        pointer-events: none;
+        opacity: 0.6;
+      }
+      .question-container {
+        padding-left: 20px; /* Adjust the value as needed */
+      }
       table {
         width: 100%;
         border-collapse: collapse;
         margin-top: 20px;
       }
-      table,
-      th,
-      td {
-        border: 1px solid black;
-      }
       th,
       td {
         padding: 10px;
         text-align: center;
+        vertical-align: middle; /* Center vertically */
+      }
+      .table-striped tbody tr:nth-of-type(odd) {
+        background-color: rgba(0, 0, 0, 0.05);
+      }
+      .table-bordered th,
+      .table-bordered td {
+        border: 1px solid #dee2e6;
+      }
+      .checkbox-group {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 10px;
+      }
+      .checkbox-group label {
+        margin-bottom: 5px;
+      }
+      .checkbox-group div {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .thead-custom {
+        background-color: #024287ee; /* Bluish background color */
+        color: white;
+      }
+      .instructions {
+        display: none;
+        margin-top: 20px; /* Adjust the value as needed */
+      }
+      .message {
+        font-size: 24px; /* Tamaño de fuente más grande */
+        font-weight: bold; /* Negrita */
+        text-align: center; /* Centrado */
+        margin-top: 20px; /* Espacio superior */
+      }
+      .text-danger {
+          color: red; /* Color rojo para los errores */
+      }
+      .text-success {
+          color: green; /* Color verde para el éxito */
       }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -67,6 +103,9 @@
               $("#doc_id").val(data.doc_id);
               $("#message").text("");
               $("#annotation_form").show();
+
+              // Clear all radio button selections
+              $('input[type="radio"]').prop('checked', false);
             }
           });
         }
@@ -76,6 +115,7 @@
           if (startTime) {
             var elapsedTime = Math.floor(Date.now() / 1000) - startTime;
             var remainingTime = annotationDuration - elapsedTime;
+            console.log(remainingTime);
             if (remainingTime <= 0) {
               $("#timer").text("Time is up!");
               showTimeUpMessage();
@@ -105,7 +145,9 @@
         // Function to submit annotation
         function submitAnnotation(label) {
           $.post("/submit_annotation", { label: label }, function (response) {
+            console.log(response);
             if (response.message) {
+              console.log(response.message);
               $("#message")
                 .text(response.message)
                 .removeClass("text-danger")
@@ -119,29 +161,44 @@
             }
           });
         }
-
         // Event listener for the annotate button
         document
-          .getElementById("annotate_button")
-          .addEventListener("click", function () {
-            const annotations = [];
-            if (document.querySelector('input[name="health"]:checked')) {
-              annotations.push(1);
+        .getElementById("annotate_button")
+        .addEventListener("click", function () {
+          const annotations = [];
+          let allSelected = true; // Variable to track if all options are selected
+      
+          // Function to check and push the value for each category
+          function checkAndPush(name) {
+            const selected = document.querySelector(`input[name="${name}"]:checked`);
+            if (selected) {
+              annotations.push(selected.value === 'yes' ? 1 : 0);
+            } else {
+              allSelected = false; // Mark as false if any option is not selected
             }
-            if (document.querySelector('input[name="kids"]:checked')) {
-              annotations.push(2);
-            }
-            if (document.querySelector('input[name="women"]:checked')) {
-              annotations.push(3);
-            }
-            if (document.querySelector('input[name="services"]:checked')) {
-              annotations.push(4);
-            }
-            if (annotations.length === 0) {
-              annotations.push(0); // None
-            }
-            submitAnnotation(annotations);
-          });
+          }
+      
+          // Check each category
+          checkAndPush("health");
+          checkAndPush("kids");
+          checkAndPush("women");
+          checkAndPush("services");
+      
+          // Show message and prevent submission if not all options are selected
+          if (!allSelected) {
+            alert("Please select an option for all categories.");
+            return; // Prevent further execution
+          }
+      
+          if (annotations.length === 0) {
+            annotations.push(0); // None
+          }
+          // Convert annotations array to a string
+          const annotationsString = annotations.join(',');
+
+          console.log(annotationsString);
+          submitAnnotation(annotationsString);
+        });
 
         $("#show_instructions").on("click", function () {
           $(".instructions").toggle();
@@ -166,100 +223,55 @@
             <p id="document">Loading...</p>
           </div>
         </div>
-        <div id="annotation_form" class="annotation-buttons mb-3">
-          <div class="annotation-buttons mt-2">
-            <label>Is this passage relevant for <b>HEALTH</b>?</label>
-            <div>
-              <input
-                class="my_radio"
-                type="radio"
-                id="health_yes"
-                name="health"
-                value="yes"
-              />
-              <label for="health_yes">YES</label>
-              <input
-                class="my_radio"
-                type="radio"
-                id="health_no"
-                name="health"
-                value="no"
-              />
-              <label for="health_no">NO</label>
-            </div>
-          </div>
-          <div class="annotation-buttons mt-2e">
-            <label>Is this passage relevant for <b>KIDS</b>?</label>
-            <div>
-              <input
-                class="my_radio"
-                type="radio"
-                id="kids_yes"
-                name="kids"
-                value="yes"
-              />
-              <label for="kids_yes">YES</label>
-              <input
-                class="my_radio"
-                type="radio"
-                id="kids_no"
-                name="kids"
-                value="no"
-              />
-              <label for="kids_no">NO</label>
-            </div>
-          </div>
-          <div class="annotation-buttons mt-2">
-            <label>Is this passage relevant for <b>WOMEN</b>?</label>
-            <div>
-              <input
-                class="my_radio"
-                type="radio"
-                id="women_yes"
-                name="women"
-                value="yes"
-              />
-              <label for="women_yes">YES</label>
-              <input
-                class="my_radio"
-                type="radio"
-                id="women_no"
-                name="women"
-                value="no"
-              />
-              <label for="women_no">NO</label>
-            </div>
-          </div>
-          <div class="annotation-buttons mt-2">
-            <label>Is this passage relevant for <b>SOCIAL SERVICES</b>?</label>
-            <div>
-              <input
-                class="my_radio"
-                type="radio"
-                id="services_yes"
-                name="services"
-                value="yes"
-              />
-              <label for="services_yes">YES</label>
-              <input
-                class="my_radio"
-                type="radio"
-                id="services_no"
-                name="services"
-                value="no"
-              />
-              <label for="services_no">NO</label>
-            </div>
-          </div>
-          <div class="center-button">
-            <button
-              class="btn btn-primary btn-lg btn-block"
-              id="annotate_button"
-            >
-              Annotate
-            </button>
+
+      <div class="question-container" id="annotation_form" class="annotation-buttons mb-3">
+        <div class="annotation-buttons mt-2">
+          <label>Is this passage relevant for <b>HEALTH</b>? 🩺</label>
+          <div>
+            <input class="my_radio" type="radio" id="health_yes" name="health" value="yes" />
+            <label for="health_yes">YES</label>
+            <input class="my_radio" type="radio" id="health_no" name="health" value="no" />
+            <label for="health_no">NO</label>
           </div>
         </div>
+        <div class="annotation-buttons mt-2">
+          <label>Is this passage relevant for <b>KIDS</b>? 🧒</label>
+          <div>
+            <input class="my_radio" type="radio" id="kids_yes" name="kids" value="yes" />
+            <label for="kids_yes">YES</label>
+            <input class="my_radio" type="radio" id="kids_no" name="kids" value="no" />
+            <label for="kids_no">NO</label>
+          </div>
+        </div>
+        <div class="annotation-buttons mt-2">
+          <label>Is this passage relevant for <b>WOMEN</b>? 👩</label>
+          <div>
+            <input class="my_radio" type="radio" id="women_yes" name="women" value="yes" />
+            <label for="women_yes">YES</label>
+            <input class="my_radio" type="radio" id="women_no" name="women" value="no" />
+            <label for="women_no">NO</label>
+          </div>
+        </div>
+        <div class="annotation-buttons mt-2">
+          <label>Is this passage relevant for <b>SOCIAL SERVICES</b>? 🏢</label>
+          <div>
+            <input class="my_radio" type="radio" id="services_yes" name="services" value="yes" />
+            <label for="services_yes">YES</label>
+            <input class="my_radio" type="radio" id="services_no" name="services" value="no" />
+            <label for="services_no">NO</label>
+          </div>
+        </div>
+      </div>
+
+        <div class="center-button">
+          <button class="btn btn-primary btn-lg btn-block" id="annotate_button">
+            Annotate
+          </button>
+        </div>
+        <div class="center-button">
+          <p id="message" class="message mt-3"></p>
+        </div>
+      </div>
         <div
           id="time_up_message"
           style="text-align: center; margin-top: 20px; display: none"
@@ -271,9 +283,9 @@
             Thank you for your participation! &#128522;
           </h3>
         </div>
-        <div class="instructions alert alert-info">
+        <div class="instructions alert alert-info" style="display: none">
           <h2>Instructions for Evaluating Rosie Corpus Documents</h2>
-          <h3>Task Orientation</h3>
+          <h3>📖 Task Orientation</h3>
           <p>
             You are going to be evaluating document passages from the Rosie
             Corpus. Your task is to review each passage and annotate whether it
@@ -281,7 +293,7 @@
             <b>HEALTH, KIDS, WOMEN, and SOCIAL SERVICES.</b>
           </p>
 
-          <h3>Steps to Follow</h3>
+          <h3>✔️ Steps to Follow</h3>
           <ol>
             <li><strong>Review the passage</strong></li>
             <li>
@@ -292,7 +304,7 @@
 
               <div class="annotation-buttons mt-2">
                 <div class="checkbox-group mb-3">
-                  <label>Is this passage relevant for <b>HEALTH</b>?</label>
+                  <label>Is this passage relevant for <b>HEALTH</b>? 🩺</label>
                   <div>
                     <input
                       class="my_radio"
@@ -334,7 +346,7 @@
                   </div>
                 </div>
                 <div class="checkbox-group mb-3">
-                  <label>Is this passage relevant for <b>WOMEN</b>?</label>
+                  <label>Is this passage relevant for <b>WOMEN</b>? 👩</label>
                   <div>
                     <input
                       class="my_radio"
@@ -356,7 +368,7 @@
                 </div>
                 <div class="checkbox-group mb-3">
                   <label
-                    >Is this passage relevant for <b>SOCIAL SERVICES</b>?</label
+                    >Is this passage relevant for <b>SOCIAL SERVICES</b>? 🏢</label
                   >
                   <div>
                     <input
@@ -385,166 +397,250 @@
               the next document.
             </li>
             <li>
-            Once the active learning loop is completed, a <strong>completion message</strong> will be displayed in large, <strong style="color:green;">green font</strong>.
+              Once the active learning loop is completed, a
+              <strong>completion message</strong> will be displayed in large,
+              <strong style="color: green">green font</strong>.
+            </li>
+            <li>
+              You can <strong>toggle the button below</strong> to view some
+              <strong>example annotations</strong>.
             </li>
           </ol>
-          <p id="message" class="message mt-3"></p>
-          <h3>Example Annotations</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Document</th>
-                <th>HEALTH</th>
-                <th>KIDS</th>
-                <th>WOMEN</th>
-                <th>SOCIAL SERVICES</th>
-                <th>Reason</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>
-                  Continue to foster the learning process by engaging,
-                  responding, and encouraging exploration. Practice and build on
-                  what your little one learns with age-appropriate toys and a
-                  safe environment to explore.
-                </td>
-                <td>
-                  <input class="my_radio" type="radio" name="doc1_health" />
-                </td>
-                <td>
-                  <input
-                    class="my_radio"
-                    type="radio"
-                    name="doc1_kids"
-                    checked
-                  />
-                </td>
-                <td>
-                  <input class="my_radio" type="radio" name="doc1_women" />
-                </td>
-                <td>
-                  <input class="my_radio" type="radio" name="doc1_services" />
-                </td>
-                <td>
-                  This passage is not about HEALTH, WOMEN, or SOCIAL SERVICES
-                  because it does not mention or focus on health-related issues,
-                  women's specific needs or roles, or broader social service
-                  contexts; it strictly centers on children's learning and
-                  exploration.
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  Comprehensive — customized — dedicated: Many Executive Health
-                  Program participants remark that the comprehensive nature of
-                  our executive physicals, the ability to customize the
-                  assessments based on their needs, dedicated time with
-                  physicians and the warmth of our staff are what distinguish
-                  our program
-                </td>
-                <td>
-                  <input
-                    class="my_radio"
-                    type="radio"
-                    name="doc2_health"
-                    checked
-                  />
-                </td>
-                <td>
-                  <input class="my_radio" type="radio" name="doc2_kids" />
-                </td>
-                <td>
-                  <input class="my_radio" type="radio" name="doc2_women" />
-                </td>
-                <td>
-                  <input class="my_radio" type="radio" name="doc2_services" />
-                </td>
-                <td>Reason document 2</td>
-              </tr>
-              <tr>
-                <td>
-                  Prepare for Myocardial Perfusion Imaging Stress Test:\n- If
-                  you wear reading glasses bring them with you. You will need to
-                  read and sign a consent form before you start your test
-                </td>
-                <td>
-                  <input
-                    class="my_radio"
-                    type="radio"
-                    name="doc3_health"
-                    checked
-                  />
-                </td>
-                <td>
-                  <input class="my_radio" type="radio" name="doc3_kids" />
-                </td>
-                <td>
-                  <input class="my_radio" type="radio" name="doc3_women" />
-                </td>
-                <td>
-                  <input class="my_radio" type="radio" name="doc3_services" />
-                </td>
-                <td>Reason document 3</td>
-              </tr>
-              <tr>
-                <td>Document 4</td>
-                <td>
-                  <input class="my_radio" type="radio" name="doc4_health" />
-                </td>
-                <td>
-                  <input class="my_radio" type="radio" name="doc4_kids" />
-                </td>
-                <td>
-                  <input class="my_radio" type="radio" name="doc4_women" />
-                </td>
-                <td>
-                  <input class="my_radio" type="radio" name="doc4_services" />
-                </td>
-                <td>Reason document 4</td>
-              </tr>
-              <tr>
-                <td>Document 5</td>
-                <td>
-                  <input class="my_radio" type="radio" name="doc5_health" />
-                </td>
-                <td>
-                  <input class="my_radio" type="radio" name="doc5_kids" />
-                </td>
-                <td>
-                  <input class="my_radio" type="radio" name="doc5_women" />
-                </td>
-                <td>
-                  <input class="my_radio" type="radio" name="doc5_services" />
-                </td>
-                <td>Reason document 5</td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="center-buttons">
+            <button
+              class="btn btn-secondary"
+              type="button"
+              data-toggle="collapse"
+              data-target="#exampleAnnotations"
+              aria-expanded="false"
+              aria-controls="exampleAnnotations"
+            >
+              Toggle Example Annotations
+            </button>
+          </div>
+          <div id="exampleAnnotations" class="collapse">
+            <table class="table table-bordered table-striped">
+              <thead class="thead-custom">
+                <tr>
+                  <th>Document</th>
+                  <th>HEALTH</th>
+                  <th>KIDS</th>
+                  <th>WOMEN</th>
+                  <th>SOCIAL SERVICES</th>
+                  <th>Reason</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    Continue to foster the learning process by engaging,
+                    responding, and encouraging exploration. Practice and build
+                    on what your little one learns with age-appropriate toys and
+                    a safe environment to explore.
+                  </td>
+                  <td>
+                    <input
+                      class="my_radio"
+                      type="radio"
+                      name="doc1_health"
+                      disabled
+                    />
+                  </td>
+                  <td>
+                    <input
+                      class="my_radio"
+                      type="radio"
+                      name="doc1_kids"
+                      checked
+                      disabled
+                    />
+                  </td>
+                  <td>
+                    <input
+                      class="my_radio"
+                      type="radio"
+                      name="doc1_women"
+                      disabled
+                    />
+                  </td>
+                  <td>
+                    <input
+                      class="my_radio"
+                      type="radio"
+                      name="doc1_services"
+                      disabled
+                    />
+                  </td>
+                  <td>
+                    This passage is not about HEALTH, WOMEN, or SOCIAL SERVICES
+                    because it does not mention or focus on health-related
+                    issues, women's specific needs or roles, or broader social
+                    service contexts; it strictly centers on children's learning
+                    and exploration.
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    Comprehensive — customized — dedicated: Many Executive
+                    Health Program participants remark that the comprehensive
+                    nature of our executive physicals, the ability to customize
+                    the assessments based on their needs, dedicated time with
+                    physicians and the warmth of our staff are what distinguish
+                    our program
+                  </td>
+                  <td>
+                    <input
+                      class="my_radio"
+                      type="radio"
+                      name="doc2_health"
+                      checked
+                      disabled
+                    />
+                  </td>
+                  <td>
+                    <input
+                      class="my_radio"
+                      type="radio"
+                      name="doc2_kids"
+                      disabled
+                    />
+                  </td>
+                  <td>
+                    <input
+                      class="my_radio"
+                      type="radio"
+                      name="doc2_women"
+                      disabled
+                    />
+                  </td>
+                  <td>
+                    <input
+                      class="my_radio"
+                      type="radio"
+                      name="doc2_services"
+                      disabled
+                    />
+                  </td>
+                  <td>Reason document 2</td>
+                </tr>
+                <tr>
+                  <td>
+                    Prepare for Myocardial Perfusion Imaging Stress Test: If you
+                    wear reading glasses bring them with you. You will need to
+                    read and sign a consent form before you start your test
+                  </td>
+                  <td>
+                    <input
+                      class="my_radio"
+                      type="radio"
+                      name="doc3_health"
+                      checked
+                      disabled
+                    />
+                  </td>
+                  <td>
+                    <input
+                      class="my_radio"
+                      type="radio"
+                      name="doc3_kids"
+                      disabled
+                    />
+                  </td>
+                  <td>
+                    <input
+                      class="my_radio"
+                      type="radio"
+                      name="doc3_women"
+                      disabled
+                    />
+                  </td>
+                  <td>
+                    <input
+                      class="my_radio"
+                      type="radio"
+                      name="doc3_services"
+                      disabled
+                    />
+                  </td>
+                  <td>Reason document 3</td>
+                </tr>
+                <tr>
+                  <td>Document 4</td>
+                  <td>
+                    <input
+                      class="my_radio"
+                      type="radio"
+                      name="doc4_health"
+                      disabled
+                    />
+                  </td>
+                  <td>
+                    <input
+                      class="my_radio"
+                      type="radio"
+                      name="doc4_kids"
+                      disabled
+                    />
+                  </td>
+                  <td>
+                    <input
+                      class="my_radio"
+                      type="radio"
+                      name="doc4_women"
+                      disabled
+                    />
+                  </td>
+                  <td>
+                    <input
+                      class="my_radio"
+                      type="radio"
+                      name="doc4_services"
+                      disabled
+                    />
+                  </td>
+                  <td>Reason document 4</td>
+                </tr>
+                <tr>
+                  <td>Document 5</td>
+                  <td>
+                    <input
+                      class="my_radio"
+                      type="radio"
+                      name="doc5_health"
+                      disabled
+                    />
+                  </td>
+                  <td>
+                    <input
+                      class="my_radio"
+                      type="radio"
+                      name="doc5_kids"
+                      disabled
+                    />
+                  </td>
+                  <td>
+                    <input
+                      class="my_radio"
+                      type="radio"
+                      name="doc5_women"
+                      disabled
+                    />
+                  </td>
+                  <td>
+                    <input
+                      class="my_radio"
+                      type="radio"
+                      name="doc5_services"
+                      disabled
+                    />
+                  </td>
+                  <td>Reason document 5</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-    </div>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script>
-      document
-        .getElementById("annotate_button")
-        .addEventListener("click", function () {
-          const annotations = {
-            health: document.querySelector('input[name="health"]:checked')
-              ? document.querySelector('input[name="health"]:checked').value
-              : null,
-            kids: document.querySelector('input[name="kids"]:checked')
-              ? document.querySelector('input[name="kids"]:checked').value
-              : null,
-            women: document.querySelector('input[name="women"]:checked')
-              ? document.querySelector('input[name="women"]:checked').value
-              : null,
-            services: document.querySelector('input[name="services"]:checked')
-              ? document.querySelector('input[name="services"]:checked').value
-              : null,
-          };
-          console.log(annotations); // You can replace this with the desired action
-        });
-    </script>
   </body>
 </html>

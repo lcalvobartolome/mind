@@ -4,7 +4,7 @@ services:
   app_eval:
     build:
       context: ../..
-      dockerfile: eval_deployment/flask/Dockerfile_eval
+      dockerfile: eval_deployment/flask_multi/Dockerfile_eval
     container_name: app_eval_container
     ports:
       - "2091:5003"
