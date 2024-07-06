@@ -55,7 +55,7 @@ class LabelDocument(Resource):
     @api.doc(parser=parser)
     def post(self):
         args = parser.parse_args()
-        label = int(args['label'])
+        label = args['label'] #int(args['label'])
         logger.info(f"Labeling document with label {label}")
         try:
             blade.do_update(label)

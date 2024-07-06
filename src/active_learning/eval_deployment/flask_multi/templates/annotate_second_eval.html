@@ -1,162 +1,542 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title>Annotate Document</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
     <style>
-        .center-buttons {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 20px;
-        }
-        .instructions {
-            display: none;
-        }
-        .annotation-buttons {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 20px;
-        }
-        .annotation-buttons button {
-            width: 45%;
-        }
-        .message {
-            font-size: 24px; /* Larger font size */
-            font-weight: bold; /* Bold text */
-            text-align: center; /* Center text */
-            margin-top: 20px; /* Top margin */
-        }
-        .text-danger {
-            color: red; /* Red color for errors */
-        }
-        .text-success {
-            color: green; /* Green color for success */
-        }
-        .disabled-button {
-            pointer-events: none;
-            opacity: 0.6;
-        }
+      .my_radio {
+        margin-left: 20px;
+      }
+      .form-check {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        text-align: left;
+      }
+      .center-button,
+      .center-buttons {
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      table,
+      th,
+      td {
+        border: 1px solid black;
+      }
+      th,
+      td {
+        padding: 10px;
+        text-align: center;
+      }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function() {
-            // Function to fetch document count
-            function fetchDocumentCount() {
-                $.get('/get_document_count', function(data) {
-                    if (data.total_documents !== undefined && data.remaining_documents !== undefined) {
-                        $('#document_count').text('Documents Left: ' + data.remaining_documents + '/' + data.total_documents);
-                    } else {
-                        $('#document_count').text('Error fetching document count').addClass('text-danger');
-                    }
-                });
+      $(document).ready(function () {
+        // Function to fetch document count
+        function fetchDocumentCount() {
+          $.get("/get_document_count", function (data) {
+            if (
+              data.total_documents !== undefined &&
+              data.remaining_documents !== undefined
+            ) {
+              $("#document_count").text(
+                "Documents Left: " +
+                  data.remaining_documents +
+                  "/" +
+                  data.total_documents
+              );
+            } else {
+              $("#document_count")
+                .text("Error fetching document count")
+                .addClass("text-danger");
             }
+          });
+        }
 
-            // Function to fetch a new document
-            function fetchDocument() {
-                $.post('/get_new_document', function(data) {
-                    console.log(data)
-                    if (data.error) {
-                        $('#message').text(data.error).addClass('text-danger');
-                        $('#annotation_form').hide();
-                    } else if (data.message) {
-                        $('#message').text(data.message).addClass('text-success');
-                        $('#main_content').hide();
-                        $('#document_count').hide();
-                        $('#completion_message').show();
-                    } else {
-                        $('#document').text(data.text);
-                        $('#doc_id').val(data.doc_id);
-                        $('#message').text('');
-                        $('#annotation_form').show();
-                        fetchDocumentCount();  // Update the document count after fetching a new document
-                    }
-                });
+        // Function to fetch a new document
+        function fetchDocument() {
+          $.post("/get_new_document", function (data) {
+            console.log(data);
+            if (data.error) {
+              $("#message").text(data.error).addClass("text-danger");
+              $("#annotation_form").hide();
+            } else if (data.message) {
+              $("#message").text(data.message).addClass("text-success");
+              $("#main_content").hide();
+              $("#document_count").hide();
+              $("#completion_message").show();
+            } else {
+              $("#document").text(data.text);
+              $("#doc_id").val(data.doc_id);
+              $("#message").text("");
+              $("#annotation_form").show();
+              fetchDocumentCount(); // Update the document count after fetching a new document
             }
+          });
+        }
 
-            // Function to submit annotation
-            function submitAnnotation(label) {
-                const idx = $('#doc_id').val();
-                $.post('/submit_annotation', { label: label, idx: idx }, function(response) {
-                    if (response.message) {
-                        $('#message').text(response.message).removeClass('text-danger').addClass('text-success');
-                        fetchDocument();  // Fetch a new document after successful annotation
-                    } else {
-                        $('#message').text(response.error).removeClass('text-success').addClass('text-danger');
-                    }
-                });
+        // Function to submit annotation
+        function submitAnnotation(label) {
+          const idx = $("#doc_id").val();
+          $.post(
+            "/submit_annotation",
+            { label: label, idx: idx },
+            function (response) {
+              if (response.message) {
+                $("#message")
+                  .text(response.message)
+                  .removeClass("text-danger")
+                  .addClass("text-success");
+                fetchDocument(); // Fetch a new document after successful annotation
+              } else {
+                $("#message")
+                  .text(response.error)
+                  .removeClass("text-success")
+                  .addClass("text-danger");
+              }
             }
+          );
+        }
 
-            $('#in_domain_button').on('click', function() {
-                submitAnnotation(1);
-            });
+        // Event listener for the annotate button
+        document
+          .getElementById("annotate_button")
+          .addEventListener("click", function () {
+            const annotations = [];
+            if (document.querySelector('input[name="health"]:checked')) {
+              annotations.push(1);
+            }
+            if (document.querySelector('input[name="kids"]:checked')) {
+              annotations.push(2);
+            }
+            if (document.querySelector('input[name="women"]:checked')) {
+              annotations.push(3);
+            }
+            if (document.querySelector('input[name="services"]:checked')) {
+              annotations.push(4);
+            }
+            if (annotations.length === 0) {
+              annotations.push(0); // None
+            }
+            submitAnnotation(annotations);
+          });
 
-            $('#not_in_domain_button').on('click', function() {
-                submitAnnotation(0);
-            });
-
-            $('#show_instructions').on('click', function() {
-                $('.instructions').toggle();
-            });
-
-            fetchDocument();  // Fetch the first document when the page loads
+        $("#show_instructions").on("click", function () {
+          $(".instructions").toggle();
         });
+
+        fetchDocument(); // Fetch the first document when the page loads
+      });
     </script>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container mt-5">
-        <h1>Annotate Document</h1>
-        <div class="center-buttons">
-            <button id="show_instructions" class="btn btn-secondary mb-3">Show Instructions</button>
+      <h1>Annotate Passage</h1>
+      <div class="center-buttons">
+        <button id="show_instructions" class="btn btn-secondary mb-3">
+          Show Instructions
+        </button>
+      </div>
+      <div class="alert alert-secondary" id="document_count">
+        Loading document count...
+      </div>
+      <div id="main_content">
+        <div class="card mb-3">
+          <div class="card-body">
+            <p id="document">Loading...</p>
+          </div>
         </div>
-        <div class="alert alert-secondary" id="document_count">Loading document count...</div>
-        <div id="main_content">
-            <div class="card mb-3">
-                <div class="card-body">
-                    <p id="document">Loading...</p>
-                    <input type="hidden" id="doc_id" value="">
-                </div>
+        <div id="annotation_form" class="annotation-buttons mb-3">
+          <div class="annotation-buttons mt-2">
+            <label>Is this passage relevant for <b>HEALTH</b>?</label>
+            <div>
+              <input
+                class="my_radio"
+                type="radio"
+                id="health_yes"
+                name="health"
+                value="yes"
+              />
+              <label for="health_yes">YES</label>
+              <input
+                class="my_radio"
+                type="radio"
+                id="health_no"
+                name="health"
+                value="no"
+              />
+              <label for="health_no">NO</label>
             </div>
-            <div id="annotation_form" class="annotation-buttons mb-3">
-                <button id="in_domain_button" class="btn btn-success">In Domain</button>
-                <button id="not_in_domain_button" class="btn btn-danger">Not In Domain</button>
+          </div>
+          <div class="annotation-buttons mt-2e">
+            <label>Is this passage relevant for <b>KIDS</b>?</label>
+            <div>
+              <input
+                class="my_radio"
+                type="radio"
+                id="kids_yes"
+                name="kids"
+                value="yes"
+              />
+              <label for="kids_yes">YES</label>
+              <input
+                class="my_radio"
+                type="radio"
+                id="kids_no"
+                name="kids"
+                value="no"
+              />
+              <label for="kids_no">NO</label>
             </div>
-            <p id="message" class="message mt-3"></p>
+          </div>
+          <div class="annotation-buttons mt-2">
+            <label>Is this passage relevant for <b>WOMEN</b>?</label>
+            <div>
+              <input
+                class="my_radio"
+                type="radio"
+                id="women_yes"
+                name="women"
+                value="yes"
+              />
+              <label for="women_yes">YES</label>
+              <input
+                class="my_radio"
+                type="radio"
+                id="women_no"
+                name="women"
+                value="no"
+              />
+              <label for="women_no">NO</label>
+            </div>
+          </div>
+          <div class="annotation-buttons mt-2">
+            <label>Is this passage relevant for <b>SOCIAL SERVICES</b>?</label>
+            <div>
+              <input
+                class="my_radio"
+                type="radio"
+                id="services_yes"
+                name="services"
+                value="yes"
+              />
+              <label for="services_yes">YES</label>
+              <input
+                class="my_radio"
+                type="radio"
+                id="services_no"
+                name="services"
+                value="no"
+              />
+              <label for="services_no">NO</label>
+            </div>
+          </div>
+          <div class="center-button">
+            <button
+              class="btn btn-primary btn-lg btn-block"
+              id="annotate_button"
+            >
+              Annotate
+            </button>
+          </div>
         </div>
-        <div id="completion_message" style="display: none; text-align: center; margin-top: 20px;">
-            <h2 style='color: green; font-weight: bold;'>No more documents to label. Task completed.</h2>
-            <h3 style='color: gray;'>Thank you for your participation!  &#128522;</h3>
+        <div
+          id="time_up_message"
+          style="text-align: center; margin-top: 20px; display: none"
+        >
+          <h2 style="color: green; font-weight: bold">
+            Time is up! Your feedback has been collected.
+          </h2>
+          <h3 style="color: gray">
+            Thank you for your participation! &#128522;
+          </h3>
         </div>
         <div class="instructions alert alert-info">
-            <h1>Instructions for Evaluating Rosie Corpus Documents</h1>
-            <h2>Task Orientation</h2>
-            <p>You are going to be evaluating document passages from the Rosie Corpus. Your task is to review each passage and annotate whether it is "in domain" or "not in domain" based on the following criteria:</p>
-            <ul>
-                <li><strong>In Domain:</strong> Health-relevant documents, even if not specifically about maternal or infant health.</li>
-                <li><strong>Not In Domain:</strong> Meaningless documents (e.g., references, location info, meaningless tables).</li>
-            </ul>
-            <h2>Steps to Follow</h2>
-            <ol>
-                <li><strong>Review the Document</strong></li>
-                <li><strong>Provide Annotation:</strong>
-                    <ul>
-                        <li>You will be prompted to provide a label for each document.</li>
-                        <li>Click the corresponding button:</li><br>
-                        <div class="annotation-buttons mt-2">
-                            <button class="btn btn-success disabled-button">In Domain</button>
-                            <button class="btn btn-danger disabled-button">Not In Domain</button>
-                        </div><br>
-                        <li>Wait for the message <strong>"Document labeled successfully"</strong> before moving to the next document.</li>
-                    </ul>
-                </li>
-                <li><strong>Completion Message:</strong>
-                    <ul>
-                        <li>Once the active learning loop is completed, a completion message will be displayed in large, green font.</li>
-                    </ul>
-                </li>
-            </ol>
+          <h2>Instructions for Evaluating Rosie Corpus Documents</h2>
+          <h3>Task Orientation</h3>
+          <p>
+            You are going to be evaluating document passages from the Rosie
+            Corpus. Your task is to review each passage and annotate whether it
+            is relevant for each of the following domains:
+            <b>HEALTH, KIDS, WOMEN, and SOCIAL SERVICES.</b>
+          </p>
+
+          <h3>Steps to Follow</h3>
+          <ol>
+            <li><strong>Review the passage</strong></li>
+            <li>
+              <strong
+                >Provide annotations by checking the corresponding
+                boxes:</strong
+              >
+
+              <div class="annotation-buttons mt-2">
+                <div class="checkbox-group mb-3">
+                  <label>Is this passage relevant for <b>HEALTH</b>?</label>
+                  <div>
+                    <input
+                      class="my_radio"
+                      type="radio"
+                      id="health_yes"
+                      name="health"
+                      value="yes"
+                    />
+                    <label for="health_yes">YES</label>
+                    <input
+                      class="my_radio"
+                      type="radio"
+                      id="health_no"
+                      name="health"
+                      value="no"
+                    />
+                    <label for="health_no">NO</label>
+                  </div>
+                </div>
+                <div class="checkbox-group mb-3">
+                  <label>Is this passage relevant for <b>KIDS</b>?</label>
+                  <div>
+                    <input
+                      class="my_radio"
+                      type="radio"
+                      id="kids_yes"
+                      name="kids"
+                      value="yes"
+                    />
+                    <label for="kids_yes">YES</label>
+                    <input
+                      class="my_radio"
+                      type="radio"
+                      id="kids_no"
+                      name="kids"
+                      value="no"
+                    />
+                    <label for="kids_no">NO</label>
+                  </div>
+                </div>
+                <div class="checkbox-group mb-3">
+                  <label>Is this passage relevant for <b>WOMEN</b>?</label>
+                  <div>
+                    <input
+                      class="my_radio"
+                      type="radio"
+                      id="women_yes"
+                      name="women"
+                      value="yes"
+                    />
+                    <label for="women_yes">YES</label>
+                    <input
+                      class="my_radio"
+                      type="radio"
+                      id="women_no"
+                      name="women"
+                      value="no"
+                    />
+                    <label for="women_no">NO</label>
+                  </div>
+                </div>
+                <div class="checkbox-group mb-3">
+                  <label
+                    >Is this passage relevant for <b>SOCIAL SERVICES</b>?</label
+                  >
+                  <div>
+                    <input
+                      class="my_radio"
+                      type="radio"
+                      id="services_yes"
+                      name="services"
+                      value="yes"
+                    />
+                    <label for="services_yes">YES</label>
+                    <input
+                      class="my_radio"
+                      type="radio"
+                      id="services_no"
+                      name="services"
+                      value="no"
+                    />
+                    <label for="services_no">NO</label>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li>
+              Wait for the message
+              <strong>"Document labeled successfully"</strong> before moving to
+              the next document.
+            </li>
+            <li>
+              Once the active learning loop is completed, a
+              <strong>completion message</strong> will be displayed in large,
+              <strong style="color: green">green font</strong>.
+            </li>
+          </ol>
+          <p id="message" class="message mt-3"></p>
+          <h3>Example Annotations</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Document</th>
+                <th>HEALTH</th>
+                <th>KIDS</th>
+                <th>WOMEN</th>
+                <th>SOCIAL SERVICES</th>
+                <th>Reason</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  Continue to foster the learning process by engaging,
+                  responding, and encouraging exploration. Practice and build on
+                  what your little one learns with age-appropriate toys and a
+                  safe environment to explore.
+                </td>
+                <td>
+                  <input class="my_radio" type="radio" name="doc1_health" />
+                </td>
+                <td>
+                  <input
+                    class="my_radio"
+                    type="radio"
+                    name="doc1_kids"
+                    checked
+                  />
+                </td>
+                <td>
+                  <input class="my_radio" type="radio" name="doc1_women" />
+                </td>
+                <td>
+                  <input class="my_radio" type="radio" name="doc1_services" />
+                </td>
+                <td>
+                  This passage is not about HEALTH, WOMEN, or SOCIAL SERVICES
+                  because it does not mention or focus on health-related issues,
+                  women's specific needs or roles, or broader social service
+                  contexts; it strictly centers on children's learning and
+                  exploration.
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Comprehensive — customized — dedicated: Many Executive Health
+                  Program participants remark that the comprehensive nature of
+                  our executive physicals, the ability to customize the
+                  assessments based on their needs, dedicated time with
+                  physicians and the warmth of our staff are what distinguish
+                  our program
+                </td>
+                <td>
+                  <input
+                    class="my_radio"
+                    type="radio"
+                    name="doc2_health"
+                    checked
+                  />
+                </td>
+                <td>
+                  <input class="my_radio" type="radio" name="doc2_kids" />
+                </td>
+                <td>
+                  <input class="my_radio" type="radio" name="doc2_women" />
+                </td>
+                <td>
+                  <input class="my_radio" type="radio" name="doc2_services" />
+                </td>
+                <td>Reason document 2</td>
+              </tr>
+              <tr>
+                <td>
+                  Prepare for Myocardial Perfusion Imaging Stress Test:\n- If
+                  you wear reading glasses bring them with you. You will need to
+                  read and sign a consent form before you start your test
+                </td>
+                <td>
+                  <input
+                    class="my_radio"
+                    type="radio"
+                    name="doc3_health"
+                    checked
+                  />
+                </td>
+                <td>
+                  <input class="my_radio" type="radio" name="doc3_kids" />
+                </td>
+                <td>
+                  <input class="my_radio" type="radio" name="doc3_women" />
+                </td>
+                <td>
+                  <input class="my_radio" type="radio" name="doc3_services" />
+                </td>
+                <td>Reason document 3</td>
+              </tr>
+              <tr>
+                <td>Document 4</td>
+                <td>
+                  <input class="my_radio" type="radio" name="doc4_health" />
+                </td>
+                <td>
+                  <input class="my_radio" type="radio" name="doc4_kids" />
+                </td>
+                <td>
+                  <input class="my_radio" type="radio" name="doc4_women" />
+                </td>
+                <td>
+                  <input class="my_radio" type="radio" name="doc4_services" />
+                </td>
+                <td>Reason document 4</td>
+              </tr>
+              <tr>
+                <td>Document 5</td>
+                <td>
+                  <input class="my_radio" type="radio" name="doc5_health" />
+                </td>
+                <td>
+                  <input class="my_radio" type="radio" name="doc5_kids" />
+                </td>
+                <td>
+                  <input class="my_radio" type="radio" name="doc5_women" />
+                </td>
+                <td>
+                  <input class="my_radio" type="radio" name="doc5_services" />
+                </td>
+                <td>Reason document 5</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+      </div>
     </div>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
+    <script>
+      document
+        .getElementById("annotate_button")
+        .addEventListener("click", function () {
+          const annotations = {
+            health: document.querySelector('input[name="health"]:checked')
+              ? document.querySelector('input[name="health"]:checked').value
+              : null,
+            kids: document.querySelector('input[name="kids"]:checked')
+              ? document.querySelector('input[name="kids"]:checked').value
+              : null,
+            women: document.querySelector('input[name="women"]:checked')
+              ? document.querySelector('input[name="women"]:checked').value
+              : null,
+            services: document.querySelector('input[name="services"]:checked')
+              ? document.querySelector('input[name="services"]:checked').value
+              : null,
+          };
+          console.log(annotations); // You can replace this with the desired action
+        });
+    </script>
+  </body>
 </html>

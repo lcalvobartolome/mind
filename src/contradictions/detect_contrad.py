@@ -136,11 +136,9 @@ def create_faiss_index(df, text_column, id_column, model_name="all-mpnet-base-v2
     ids: List of document IDs.
     texts: List of document texts.
     """
-    # Extract texts and ids
     texts = df[text_column].tolist()
     ids = df[id_column].tolist()
 
-    # Load pre-trained SentenceTransformer model
     model = SentenceTransformer(model_name, device="cuda")
 
     # Calculate embeddings for the texts
@@ -148,12 +146,10 @@ def create_faiss_index(df, text_column, id_column, model_name="all-mpnet-base-v2
 
     # Create a FAISS index
     d = embeddings.shape[1]
-    index = faiss.IndexFlatIP(d)  # Using Inner Product to approximate cosine similarity
+    index = faiss.IndexFlatIP(d)  
 
-    # Normalize the embeddings to unit length for cosine similarity
+    # Normalize embeddings to unit length and add to index
     faiss.normalize_L2(embeddings)
-
-    # Add embeddings to the index
     index.add(embeddings)
 
     # Save the index to a file

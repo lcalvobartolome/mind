@@ -85,7 +85,7 @@ def submit_annotation():
     if elapsed_time > annotation_duration:
         return jsonify({"error": "Annotation session has ended"}), 403
 
-    label = request.form['label']
+    label = request.form['labels']
     logger.info("Calling LabelDocument")
     response = requests.post('http://app1_container:5000/test/LabelDocument/', data={'label': label, 'idx': global_idx})
     if response.status_code != 200:
