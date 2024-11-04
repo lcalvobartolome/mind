@@ -1,29 +1,22 @@
 import logging
 import os
-from sentence_transformers import SentenceTransformer
-from scipy.spatial.distance import cosine
-import numpy as np
-import dspy
-from dspy.teleprompt import BootstrapFewShotWithRandomSearch
-from dspy.datasets import Dataset
-from typing import Optional
-import ast
-import contractions
-import pandas as pd
 import pathlib
-from sklearn.model_selection import train_test_split
-from dspy.teleprompt import COPRO
+from typing import Optional
+
+import dspy
+import pandas as pd
 from dotenv import load_dotenv
+from dspy.datasets import Dataset
 from dspy.evaluate import Evaluate
+from dspy.teleprompt import COPRO, BootstrapFewShotWithRandomSearch
+from scipy.spatial.distance import cosine
+from sentence_transformers import SentenceTransformer
+from sklearn.model_selection import train_test_split
+from sentence_transformers import SentenceTransformer
+from sklearn.svm import OneClassSVM
 
 ################################################################################
-# LLM Configuration
-################################################################################
-llm = dspy.HFClientTGI(model="meta-llama/Meta-Llama-3-8B ", port=8090, url="http://127.0.0.1")
-dspy.settings.configure(lm=llm)
-
-################################################################################
-# DATASET
+#  DATASET
 ################################################################################
 class QuestionsDataset(Dataset):
 
@@ -40,7 +33,7 @@ class QuestionsDataset(Dataset):
         """
         fact -> question
         """
-        
+
         super().__init__(*args, **kwargs)
 
         self._train = []
@@ -68,38 +61,67 @@ class QuestionsDataset(Dataset):
     def _convert_to_json(self, data: pd.DataFrame):
         if data is not None:
             return data.to_dict(orient='records')
-        
+
 ################################################################################
 # SIGNATURE & MODULE
 ################################################################################
 class GenerateQuestion(dspy.Signature):
-    """Form a close-ended question that directly asks the fact."""
+    """Form a close-ended question that directly asks the fact. Question should not be too specific."""
     fact = dspy.InputField()
-    question = dspy.OutputField(desc="it asks the fact")
-    
+    question = dspy.OutputField(desc="it asks the fact", prefix="Question:")
+
+
 class QAGeneratorModule(dspy.Module):
     def __init__(self):
         super().__init__()
-        self.generate_question = dspy.ChainOfThought(GenerateQuestion)
-    
+        #self.generate_question = dspy.Predict(GenerateQuestion)
+        self.generate_question = dspy.Predict("fact->question")
+
     def forward(self, fact):
-        question = self.generate_question(fact=fact).question        
+        # , context=context
+        question = self.generate_question(fact=fact).question
         return dspy.Prediction(question=question)
-    
+
+################################################################################
+# Question Adapter
+################################################################################
+class QuestionAdapter(object):
+    def __init__(
+            self,
+            path_tr_data="/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/src/qa_system/tr_data/questions_rosie/FullTrialQa7152024.csv",
+            logger: logging.Logger = None):
+        self._logger = logger or logging.getLogger(__name__)
+        self._trf_model = SentenceTransformer('all-MiniLM-L6-v2')
+
+        df_positive = pd.read_csv(path_tr_data)
+        df_filtered = df_positive.dropna(
+            subset=['question', 'answerPassageText'])
+        positive_questions = list(
+            set(df_filtered[['question', 'answerPassageText']].question.values.tolist()))
+
+        self.ocsvm = OneClassSVM(kernel='rbf', gamma='auto', nu=0.1)
+        self.ocsvm.fit(self._trf_model.encode(positive_questions))
+
+    def predict(self, question):
+        return self.ocsvm.predict(self._trf_model.encode([question]))[0]
+
+################################################################################
+# QAGenerator
+################################################################################
 class QAGenerator(object):
     def __init__(
         self,
         model_type: str = "llama",
         open_ai_model: str = "gpt-3.5-turbo",
         path_open_api_key="/export/usuarios_ml4ds/lbartolome/NextProcurement/NP-Search-Tool/.env",
-        path_tr_data="/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/src/qa_system/tr_data/facts_gpt4.csv",
+        path_tr_data="/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/src/qa_system/tr_data/questions_gpt4_curated.csv",
         trained_promt="/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/src/qa_system/prompts/QAGenerator.json",
         do_train=False,
         logger: logging.Logger = None
     ):
 
         self._logger = logger or logging.getLogger(__name__)
-        
+
         # Dspy settings
         if model_type == "llama":
             self.lm = dspy.HFClientTGI(model="meta-llama/Meta-Llama-3-8B ",
@@ -118,6 +140,7 @@ class QAGenerator(object):
             qag = QAGeneratorModule()
             qag.load(trained_promt)
             self.module = qag
+            self.adapter = QuestionAdapter()
 
             self._logger.info(
                 f"-- -- QAGeneratorModule loaded from {trained_promt}")
@@ -131,75 +154,72 @@ class QAGenerator(object):
                     f"-- -- Training QAGeneratorModule from {path_tr_data}")
                 self._tr_model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
                 self.module = self.optimize_module(path_tr_data)
+                self.adapter = QuestionAdapter()
                 self.module.save(trained_promt)
                 self._logger.info(
                     f"-- -- QAGeneratorModule trained and saved to {trained_promt}")
-    
+
     def optimize_module(self, data_path, mbd=4, mld=16, ncp=2, mr=2, dev_size=0.25):
-        
+
         dataset = QuestionsDataset(data_fpath=data_path, dev_size=dev_size)
-        
+
         self._logger.info(f"-- -- Dataset loaded from {data_path}")
-        
+
         trainset = dataset._train
         devset = dataset._dev
         testset = dataset._test
 
         self._logger.info(
             f"-- -- Dataset split into train, dev, and test. Training module...")
-        
-        """
+
         config = dict(max_bootstrapped_demos=mbd, max_labeled_demos=mld,
-                    num_candidate_programs=ncp, max_rounds=mr)
+                      num_candidate_programs=ncp, max_rounds=mr)
         teleprompter = BootstrapFewShotWithRandomSearch(
             metric=self.combined_score, **config)
-        
+
         compiled_pred = teleprompter.compile(
             QAGeneratorModule(), trainset=trainset, valset=devset)
-        """
 
         #######################################################################
-        ## COPRO OPTIMIZATION
+        # COPRO OPTIMIZATION
         #######################################################################
-        teleprompter = COPRO(
-           metric=self.combined_score,
-           verbose=True,
-           depth=10,
-           breadth=2,
-        )
-        kwargs = dict(num_threads=64, display_progress=True, display_table=0) 
-        compiled_prompt_opt = teleprompter.compile(QAGeneratorModule(), trainset=devset,eval_kwargs=kwargs)
+        # teleprompter = COPRO(
+        #    metric=self.combined_score,
+        #    verbose=True,
+        #    depth=10,
+        #    breadth=2,
+        # )
+        # kwargs = dict(num_threads=64, display_progress=True, display_table=0)
+        # compiled_prompt_opt = teleprompter.compile(QAGeneratorModule(), trainset=devset,eval_kwargs=kwargs)
         #######################################################################
-        
-        import pdb; pdb.set_trace()
-        
-        """
+
         self._logger.info(f"-- -- Module compiled. Evaluating on test set...")
-        
+
         tests = []
         for el in testset:
-            output = compiled_pred(el.passage)
-            tests.append([el.passage, el.facts, output["facts"], self.combined_score(el, output)])
-            
-        df_tests = pd.DataFrame(tests, columns=["passage", "facts", "output", "score"])
-        
+            output = compiled_pred(el.fact)
+            tests.append([el.fact, el.question, output["question"],
+                         self.combined_score(el, output)])
+
+        df_tests = pd.DataFrame(
+            tests, columns=["fact", "ground_q", "pred_q", "score"])
+
         self._logger.info(f"-- -- Test set evaluated. Results:")
-        self._logger.info(df_tests)
+        print(df_tests)
 
         evaluate = Evaluate(
             devset=devset, metric=self.combined_score, num_threads=1, display_progress=True)
         compiled_score = evaluate(compiled_pred)
         uncompiled_score = evaluate(QAGeneratorModule())
 
-        self._logger.info(
+        print(
             f"## QAGeneratorModule Score for uncompiled: {uncompiled_score}")
-        self._logger.info(
+        print(
             f"## QAGeneratorModule Score for compiled: {compiled_score}")
-        self._logger.info(f"Compilation Improvement: {compiled_score - uncompiled_score}%")
-        """
-        # compiled_pred
-        return 
-    
+        print(f"Compilation Improvement: {compiled_score - uncompiled_score}%")
+
+        return compiled_pred
+
     def combined_score(self, example, pred, trace=None):
         def sbert_similarity_score(example, pred, trace=None):
             try:
@@ -209,7 +229,7 @@ class QAGenerator(object):
                 # Generate embeddings for predicted and ground truth questions
                 pred_q_e = self._tr_model.encode(pred_q)
                 ground_q_e = self._tr_model.encode(ground_q)
-                
+
                 return 1 - cosine(pred_q_e, ground_q_e)
 
             except Exception as e:
@@ -219,8 +239,11 @@ class QAGenerator(object):
                 return 0.0
 
         return sbert_similarity_score(example, pred, trace)
-    
+
     def predict(self, fact):
-        return self.module(fact=fact).question
-        
-        
+        question = self.module(fact=fact).question
+        score = self.adapter.predict(question)
+        if score == 1:
+            return question, 1
+        else:
+            return question, 0

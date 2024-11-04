@@ -173,3 +173,4 @@ src/hfclient
 .env
 .ipynb_checkpoints
 .venv
+src/qa_system/components/question_qenerator.py

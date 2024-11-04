@@ -106,14 +106,14 @@ if __name__ == "__main__":
         type=str,
         required=False,
         help='Path to the Polylingual TM directory',
-        default="/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/models/POLI_FILTERED_AL/rosie_1_20"
+        default="/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/models/MULTI_BLADE_FILTERED/poly_rosie_v2_1_20"
     )
     parser.add_argument(
         '--source_path',
         type=str,
         required=False,
         help='Path to the source file with which the TM was trained.',
-        default="/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/source/corpus_rosie/passages/translated_stops_filtered_by_al/df_1.parquet"
+        default="/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/source/corpus_rosie/passages/multi_blade_filtered/df_1.parquet"
     )
     parser.add_argument(
         '--orig_en_path',

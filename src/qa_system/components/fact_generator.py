@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 from sentence_transformers import SentenceTransformer
 from scipy.spatial.distance import cosine
 import numpy as np
@@ -15,12 +16,6 @@ from sklearn.model_selection import train_test_split
 from dspy.teleprompt import COPRO
 from dotenv import load_dotenv
 from dspy.evaluate import Evaluate
-
-################################################################################
-# LLM Configuration
-################################################################################
-llm = dspy.HFClientTGI(model="meta-llama/Meta-Llama-3-8B ", port=8090, url="http://127.0.0.1")
-dspy.settings.configure(lm=llm)
 
 ################################################################################
 # DATASET
@@ -150,7 +145,7 @@ class FactsGenerator(object):
         model_type: str = "llama",
         open_ai_model: str = "gpt-3.5-turbo",
         path_open_api_key="/export/usuarios_ml4ds/lbartolome/NextProcurement/NP-Search-Tool/.env",
-        path_tr_data="/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/src/qa_system/tr_data/facts_gpt4.csv",
+        path_tr_data="/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/src/qa_system/tr_data/facts_gpt4_curated.csv",
         trained_promt="/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/src/qa_system/prompts/FactsGenerator.json",
         do_train=False,
         logger: logging.Logger = None
@@ -197,22 +192,20 @@ class FactsGenerator(object):
         
         dataset = FactsDataset(data_fpath=data_path, dev_size=dev_size)
         
-        self._logger.info(f"-- -- Dataset loaded from {data_path}")
+        print(f"-- -- Dataset loaded from {data_path}")
         
         trainset = dataset._train
         devset = dataset._dev
         testset = dataset._test
 
-        self._logger.info(
-            f"-- -- Dataset split into train, dev, and test. Training module...")
+        print(f"-- -- Dataset split into train, dev, and test. Training module...")
         
         config = dict(max_bootstrapped_demos=mbd, max_labeled_demos=mld,
                     num_candidate_programs=ncp, max_rounds=mr)
         teleprompter = BootstrapFewShotWithRandomSearch(
             metric=self.combined_score, **config)
         
-        compiled_pred = teleprompter.compile(
-            FactsGenerator(), trainset=trainset, valset=devset)
+        compiled_pred = teleprompter.compile(FactsGeneratorModule(), trainset=trainset, valset=devset)
 
         #######################################################################
         ## COPRO OPTIMIZATION
@@ -242,13 +235,13 @@ class FactsGenerator(object):
         evaluate = Evaluate(
             devset=devset, metric=self.combined_score, num_threads=1, display_progress=True)
         compiled_score = evaluate(compiled_pred)
-        uncompiled_score = evaluate(FactsGenerator())
+        uncompiled_score = evaluate(FactsGeneratorModule())
 
-        self._logger.info(
+        print(
             f"## FactsGeneratorModule Score for uncompiled: {uncompiled_score}")
-        self._logger.info(
+        print(
             f"## FactsGeneratorModule Score for compiled: {compiled_score}")
-        self._logger.info(f"Compilation Improvement: {compiled_score - uncompiled_score}%")
+        print(f"Compilation Improvement: {compiled_score - uncompiled_score}%")
 
         return compiled_pred
             

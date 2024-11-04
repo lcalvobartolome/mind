@@ -4,7 +4,6 @@ import pickle
 from pathlib import Path
 import time
 from termcolor import colored
-import pandas as pd
 import numpy as np
 from doc_selector import DocSelector
 from scipy.sparse import csr_matrix, hstack, vstack
@@ -155,9 +154,11 @@ class MultiBlade(object):
         query_instance = self.X_pool[query_idx].reshape(1, -1)
         doc_id = self.df_pool.iloc[query_idx]['id_top']
         doc_content = self.df_pool.iloc[query_idx]['text']
+        doc_context = self.df_pool.iloc[query_idx]['full_doc']
         
         self._logger.info(f"Document ID: {doc_id}")
         self._logger.info(f"Document Content: {doc_content}")
+        self._logger.info(f"Document Context: {doc_context}")
         
         self._last_query_instance = query_instance
         self._logger.info(f"Query instance set to: {query_instance}")
@@ -166,6 +167,7 @@ class MultiBlade(object):
         return {
             "doc_id": str(doc_id),
             "doc_content": doc_content,
+            "doc_context": doc_context
         }
     
     def do_update(self, label):

@@ -1,0 +1,129 @@
+{
+  "checker": {
+    "lm": null,
+    "traces": [],
+    "train": [],
+    "demos": [
+      {
+        "augmented": true,
+        "ANSWER1": "It's important to avoid nuts during pregnancy due to the risk of allergies.",
+        "ANSWER2": "There is no evidence that eating nuts during pregnancy increases the risk of allergies in the baby.",
+        "QUESTION": "Should I avoid nuts during pregnancy?",
+        "rationale": "The first answer is a recommendation to avoid nuts during pregnancy, while the second answer states that there is no evidence to support this recommendation. Therefore, the two answers are not faithful to each other.",
+        "faithfulness": "0"
+      },
+      {
+        "augmented": true,
+        "ANSWER1": "A semen allergy is not a direct cause of infertility.",
+        "ANSWER2": "No, a semen allergy is not a direct cause of infertility, but it can complicate conception and may require medical interventions to achieve pregnancy.",
+        "QUESTION": "Can a semen allergy cause infertility?",
+        "rationale": "A semen allergy is not a direct cause of infertility, but it can complicate conception and may require medical interventions to achieve pregnancy.",
+        "faithfulness": "1"
+      },
+      {
+        "augmented": true,
+        "ANSWER1": "Breastfeeding can reduce the risk of breast cancer for the mother.",
+        "ANSWER2": "Breastfeeding has no significant impact on the mother's risk of developing breast cancer.",
+        "QUESTION": "Does breastfeeding reduce the risk of breast cancer for the mother?",
+        "rationale": "ANSWER1 is a positive statement, while ANSWER2 is a negative statement. The two answers are not faithful to each other.",
+        "faithfulness": "0"
+      },
+      {
+        "augmented": true,
+        "ANSWER1": "Pregnant women should avoid all forms of exercise to protect the baby.",
+        "ANSWER2": "Moderate exercise during pregnancy is generally safe and can be beneficial for both the mother and the baby.",
+        "QUESTION": "Can I train while I am pregnant?",
+        "rationale": "Pregnant women should avoid all forms of exercise to protect the baby. Moderate exercise during pregnancy is generally safe and can be beneficial for both the mother and the baby.",
+        "faithfulness": "0"
+      },
+      {
+        "answer1": "A high-protein diet is necessary for all pregnant women.",
+        "answer2": "A balanced diet with moderate protein intake is sufficient for most pregnant women.",
+        "question": "Should I eat a high-protein diet while pregnant?",
+        "faith_strict": "0",
+        "faithfulness": "0"
+      },
+      {
+        "answer1": "Pregnant women should avoid hot baths to prevent overheating the baby.",
+        "answer2": "Moderate warm baths are safe during pregnancy.",
+        "question": "Is it safe to take hot baths during pregnancy?",
+        "faith_strict": "0",
+        "faithfulness": "1"
+      },
+      {
+        "answer1": "It\u2019s normal for pregnant women to experience shortness of breath.",
+        "answer2": "Shortness of breath during pregnancy can indicate a serious problem and should be checked.",
+        "question": "Is shortness of breath normal during pregnancy?",
+        "faith_strict": "0",
+        "faithfulness": "1"
+      },
+      {
+        "answer1": "Drinking milk during pregnancy can increase the baby's risk of lactose intolerance.",
+        "answer2": "There is no evidence linking maternal milk consumption to lactose intolerance in the baby.",
+        "question": "Can drinking milk during pregnancy cause lactose intolerance in the baby?",
+        "faith_strict": "0",
+        "faithfulness": "1"
+      },
+      {
+        "answer1": "Children may be breastfeed for more than two years.",
+        "answer2": "The length of the breastfeeding time varied with the sex of the child. Males\nare breast feed for two years, females for one",
+        "question": "How long is breastfeeding typically recommended?",
+        "faith_strict": "0",
+        "faithfulness": "0"
+      },
+      {
+        "answer1": "Pregnant women should avoid caffeine completely.",
+        "answer2": "Small amounts of caffeine are generally considered safe during pregnancy.",
+        "question": "Can I drink cofee while I am pregnant?",
+        "faith_strict": "0",
+        "faithfulness": "0"
+      },
+      {
+        "answer1": "Drinking cold water during pregnancy can cause the baby to catch a cold.",
+        "answer2": "There is no scientific evidence linking cold water intake to causing colds in babies.",
+        "question": "Does drinking cold water during pregnancy affect the baby?",
+        "faith_strict": "2",
+        "faithfulness": "3"
+      },
+      {
+        "answer1": "Prenatal vitamins should be taken every day throughout pregnancy to support the baby's development.",
+        "answer2": "Prenatal vitamins are optional and should only be taken if recommended by a healthcare provider.",
+        "question": "Should prenatal vitamins be taken daily throughout pregnancy?",
+        "faith_strict": "0",
+        "faithfulness": "1"
+      },
+      {
+        "answer1": "Alcohol should be completely avoided during pregnancy.",
+        "answer2": "Small amounts of alcohol occasionally are not harmful.",
+        "question": "Is it safe to consume alcohol during pregnancy?",
+        "faith_strict": "0",
+        "faithfulness": "0"
+      },
+      {
+        "answer1": "Exposure to secondhand smoke during pregnancy can increase the risk of low birth weight.",
+        "answer2": "Exposure to secondhand smoke has no proven effect on birth weight.",
+        "question": "Does secondhand smoke affect birth weight during pregnancy?",
+        "faith_strict": "0",
+        "faithfulness": "1"
+      },
+      {
+        "answer1": "A health care provider may suggest that a burning sensation in the vagina after ejaculation is due to a semen allergy.",
+        "answer2": "The context does not confirm that a burning sensation in the vagina after ejaculation is due to a semen allergy. It mentions that spermicides can cause vaginal burning and irritation, but does not specifically address semen allergy.",
+        "question": "Can a burning sensation in my vagina after ejaculation be due to semen allergy?",
+        "faith_strict": "2",
+        "faithfulness": "3"
+      },
+      {
+        "answer1": "Cats should be avoided during pregnancy due to the risk of toxoplasmosis.",
+        "answer2": "Cats are safe during pregnancy as long as proper hygiene is practiced.",
+        "question": "Is it safe to have a cat during pregnancy?",
+        "faith_strict": "0",
+        "faithfulness": "0"
+      }
+    ],
+    "signature_instructions": "Verify whether ANSWER1 and ANSWER2 are FAITHFUL (1) to each other or not (0) given QUESTION. If its faithfulness can't be determined, return 2.",
+    "signature_prefix": "Rationale:",
+    "extended_signature_instructions": "Verify whether ANSWER1 and ANSWER2 are FAITHFUL (1) to each other or not (0) given QUESTION. If its faithfulness can't be determined, return 2.",
+    "extended_signature_prefix": "Rationale:"
+  }
+}

@@ -190,6 +190,8 @@
               $("#completion_message").show();
             } else {
               $("#document").text(data.text);
+              $("#document_full_text").text(data.full_doc
+              );
               $("#doc_id").val(data.doc_id);
               const aux_idx = $("#doc_id").val();
               console.log("this is the idx");
@@ -289,182 +291,175 @@
       </div>
       <div class="alert alert-secondary" id="document_count">Loading document count...</div>
       <div id="main_content">
+        <b> Passage </b>
         <div class="card mb-3">
           <div class="card-body">
             <p id="document">Loading...</p>
-            <input type="hidden" id="doc_id" value="">
+          </div>
+        </div>
+        <b> Context (full text)  </b>
+        <div class="card mb-3">
+          <div class="card-body" style="height: 200px; overflow-y: auto;">
+            <p id="document_full_text">Loading...</p>
           </div>
         </div>
 
-      <div class="question-container" id="annotation_form" class="annotation-buttons mb-3">
-        <div class="annotation-buttons mt-2">
-          <label>Is this passage relevant for <b><span class="highlight_health">HEALTH</span></b>? 🩺</label>
-          <div>
-            <input class="my_radio" type="radio" id="health_yes" name="health" value="yes" />
-            <label for="health_yes">YES</label>
-            <input class="my_radio" type="radio" id="health_no" name="health" value="no" />
-            <label for="health_no">NO</label>
+        <div class="question-container" id="annotation_form" class="annotation-buttons mb-3">
+          <div class="annotation-buttons mt-2">
+            <label>Is this passage relevant for <b><span class="highlight_health">HEALTH</span></b> given the context in which it appears? 🩺</label>
+            <div>
+              <input class="my_radio" type="radio" id="health_yes" name="health" value="yes" />
+              <label for="health_yes">YES</label>
+              <input class="my_radio" type="radio" id="health_no" name="health" value="no" />
+              <label for="health_no">NO</label>
+            </div>
+          </div>
+          <div class="annotation-buttons mt-2">
+            <label>Is this passage relevant for <b><span class="highlight_kids">KIDS</span></b> given the context in which it appears? 🧒</label>
+            <div>
+              <input class="my_radio" type="radio" id="kids_yes" name="kids" value="yes" />
+              <label for="kids_yes">YES</label>
+              <input class="my_radio" type="radio" id="kids_no" name="kids" value="no" />
+              <label for="kids_no">NO</label>
+            </div>
+          </div>
+          <div class="annotation-buttons mt-2">
+            <label>Is this passage relevant for <b><span class="highlight_women">WOMEN</span></b> given the context in which it appears? 👩</label>
+            <div>
+              <input class="my_radio" type="radio" id="women_yes" name="women" value="yes" />
+              <label for="women_yes">YES</label>
+              <input class="my_radio" type="radio" id="women_no" name="women" value="no" />
+              <label for="women_no">NO</label>
+            </div>
+          </div>
+          <div class="annotation-buttons mt-2">
+            <label>Is this passage relevant for <b><span class="highlight_ss">SOCIAL SERVICES</span></b> given the context in which it appears? 🏢</label>
+            <div>
+              <input class="my_radio" type="radio" id="services_yes" name="services" value="yes" />
+              <label for="services_yes">YES</label>
+              <input class="my_radio" type="radio" id="services_no" name="services" value="no" />
+              <label for="services_no">NO</label>
+            </div>
           </div>
         </div>
-        <div class="annotation-buttons mt-2">
-          <label>Is this passage relevant for <b><span class="highlight_kids">KIDS</span></b>? 🧒</label>
-          <div>
-            <input class="my_radio" type="radio" id="kids_yes" name="kids" value="yes" />
-            <label for="kids_yes">YES</label>
-            <input class="my_radio" type="radio" id="kids_no" name="kids" value="no" />
-            <label for="kids_no">NO</label>
+  
+          <div class="center-button">
+            <button class="btn btn-primary btn-lg btn-block" id="annotate_button">
+              Annotate
+            </button>
+          </div>
+          <div class="center-button">
+            <p id="message" class="message mt-3"></p>
           </div>
         </div>
-        <div class="annotation-buttons mt-2">
-          <label>Is this passage relevant for <b><span class="highlight_women">WOMEN</span></b>? 👩</label>
-          <div>
-            <input class="my_radio" type="radio" id="women_yes" name="women" value="yes" />
-            <label for="women_yes">YES</label>
-            <input class="my_radio" type="radio" id="women_no" name="women" value="no" />
-            <label for="women_no">NO</label>
+          <div
+            id="time_up_message"
+            style="text-align: center; margin-top: 20px; display: none"
+          >
+            <h2 style="color: green; font-weight: bold">
+              Time is up! Your feedback has been collected.
+            </h2>
+            <h3 style="color: gray">
+              Thank you for your participation! &#128522;
+            </h3>
           </div>
-        </div>
-        <div class="annotation-buttons mt-2">
-          <label>Is this passage relevant for <b><span class="highlight_ss">SOCIAL SERVICES</span></b>? 🏢</label>
-          <div>
-            <input class="my_radio" type="radio" id="services_yes" name="services" value="yes" />
-            <label for="services_yes">YES</label>
-            <input class="my_radio" type="radio" id="services_no" name="services" value="no" />
-            <label for="services_no">NO</label>
-          </div>
-        </div>
-      </div>
-
-        <div class="center-button">
-          <button class="btn btn-primary btn-lg btn-block" id="annotate_button">
-            Annotate
-          </button>
-        </div>
-        <div class="center-button">
-          <p id="message" class="message mt-3"></p>
-        </div>
-      </div>
-      <div id="completion_message" style="display: none; text-align: center; margin-top: 20px;">
-        <h2 style='color: green; font-weight: bold;'>No more documents to label. Task completed.</h2>
-        <h3 style='color: gray;'>Thank you for your participation!  &#128522;</h3>
-    </div>
-        <div class="instructions alert alert-info" style="display: none">
-          <h1 class="mb-4">Instructions for Evaluating Rosie Corpus Documents</h1>
-          <div class="alert alert-info">
-              <strong>Welcome to the Rosie Corpus Documents evaluation task. Please follow the steps below:</strong>
-          </div>
-        
-          <h2>📖 Task Orientation</h2>
+          <div class="instructions alert alert-info" style="display: none">
+            <h1 class="mb-4">Instructions for Evaluating Rosie Corpus Documents</h1>    
+          <h4>📖 Task Orientation</h4>
           <p>
-              You are going to be evaluating document passages from the Rosie Corpus. Your task is to review each passage and annotate whether it is relevant for each of the following domains:
-              <b><span class="highlight highlight_health">HEALTH</span>, <span class="highlight highlight_kids">KIDS</span>, <span class="highlight highlight_women">WOMEN</span>, <span class="highlight highlight_ss">SOCIAL SERVICES</span>.</b> You may encounter passages that do not fit into any of the specified categories, in which case you should not select any category.
+              You will be evaluating passages from the Rosie Corpus. Each passage will be provided along with the full document it belongs to, giving you context. For each passage, your task is to answer the following question:
+  
+              <em><b>"Is this passage relevant to CATEGORY given the context in which it appears?"</b></em>
+              
+              <b>To help answer this question, consider whether someone might ask a question or seek information under this category.</b>
+              
           </p>
+          <p>Please review each category definition and example below to guide your evaluation:</p>
           
-          <div class="mt-4">
-              <div>
-                  <span class="highlight highlight_health">Health</span>
-              </div>
-              <div>
-                  <span class="definition_health">Definition:</span> Text that refers to aspects related to physical and mental well-being. Examples: medical care, disease prevention, wellness programs, healthcare services, etc.
-              </div>
-              <div>
-                  <span class="definition_health">Text example:</span> <em>“Treatment options for germ cell tumors may include surgery to remove the tumor, chemotherapy with drugs that kill cancer cells, and radiation therapy with powerful energy beams.”</em>
-              </div>
-          </div>
+          <!-- Box around the categories with adjusted padding and margin -->
+          <div style="border: 2px solid #D3D3D3; padding: 10px 15px; border-radius: 8px; margin-top: 0; margin-bottom: 15px;">
           
-          <div class="mt-4">
-              <div>
-                  <span class="highlight highlight_kids">Kids</span>
-              </div>
-              <div>
-                  <span class="definition_kids">Definition:</span> Text that focuses on issues, programs, or services specifically related to children, such as education, child development, childcare, and pediatric care.
-              </div>
-              <div>
-                  <span class="definition_kids">Text example:</span> <em>Astraphobia is the extreme fear of thunder and lightning. It’s most common in children…</em>
-              </div>
-          </div>
-          
-          <div class="mt-4">
-              <div>
-                  <span class="highlight highlight_women">Women</span>
-              </div>
-              <div>
-                  <span class="definition_women">Definition:</span> Texts that address the health, rights, and well-being of women, including reproductive health, gender-specific healthcare, etc.
-              </div>
-              <div>
-                  <span class="definition_women">Text example:</span> <em>“Because the seroconversion rate after vaccination of pregnant women might be markedly reduced compared with that of other healthy women, serologic tests to determine if a specific yellow fever immune response exists should be considered…”</em>
-              </div>
-          </div>
-          
-          <div class="mt-4">
-              <div>
-                  <span class="highlight highlight_ss">Social Services</span>
-              </div>
-              <div>
-                  <span class="definition_ss">Definition:</span> Text that refers to aspects related to physical and mental well-being. Examples: medical care, disease prevention, wellness programs, healthcare services, etc.
-              </div>
-              <div>
-                  <span class="definition_ss">Text example:</span> <em>“The grants, available in fiscal year 2023 and supported and administered by NIOSH, will provide funding to qualified individuals in academia, members of non-profit organizations, municipalities, and businesses involved in the fishing and maritime industries…”</em>
-              </div>
-          </div>
-  
-          <br>
-  
-          <h2>✔️ Steps to Follow</h2>
-          <ol>
-              <li><strong>Review the passage</strong></li>
-              <li>
-                  <strong>Provide annotations by checking the corresponding boxes:</strong>
-                  <div class="annotation-buttons mt-2">
-                      <div class="checkbox-group">
-                          <label>Is this passage relevant for <b><span class="highlight_health">HEALTH</span></b>? 🩺</label>
-                          <div>
-                              <input class="my_radio" type="radio" id="health_yes" name="health" disabled value="yes"/>
-                              <label for="health_yes">YES</label>
-                              <input class="my_radio" type="radio" id="health_no" name="health" disabled value="no"/>
-                              <label for="health_no">NO</label>
-                          </div>
-                      </div>
-                      <div class="checkbox-group">
-                          <label>Is this passage relevant for <b><span class="highlight_kids">KIDS</span></b>? 🧒</label>
-                          <div>
-                              <input class="my_radio" type="radio" id="kids_yes" name="kids" disabled value="yes"/>
-                              <label for="kids_yes">YES</label>
-                              <input class="my_radio" type="radio" id="kids_no" name="kids" disabled value="no"/>
-                              <label for="kids_no">NO</label>
-                          </div>
-                      </div>
-                      <div class="checkbox-group">
-                          <label>Is this passage relevant for <b><span class="highlight_women">WOMEN</span></b>? 👩</label>
-                          <div>
-                              <input class="my_radio" type="radio" id="women_yes" name="women" disabled value="yes"/>
-                              <label for="women_yes">YES</label>
-                              <input class="my_radio" type="radio" id="women_no" name="women" disabled value="no"/>
-                              <label for="women_no">NO</label>
-                          </div>
-                      </div>
-                      <div class="checkbox-group">
-                          <label>Is this passage relevant for <b><span class="highlight_ss">SOCIAL SERVICES</span></b>? 🏢</label>
-                          <div>
-                              <input class="my_radio" type="radio" id="services_yes" name="services" disabled value="yes"/>
-                              <label for="services_yes">YES</label>
-                              <input class="my_radio" type="radio" id="services_no" name="services" disabled value="no"/>
-                              <label for="services_no">NO</label>
-                          </div>
-                      </div>
+              <div class="mt-3">
+                  <div>
+                      <span class="highlight highlight_health">Health</span>
                   </div>
-              </li>
-              <li>Wait for the message <strong style="color:green;">"Document labeled successfully"</strong> before moving to the next document.</li>
-              <li>Once the active learning loop is completed, a <strong>completion message</strong> will be displayed in large, <strong style="color:green;">green font</strong>.
-              </li>
-              <li>You can <strong>toggle the button below</strong> to view some <strong>example annotations</strong>.
-              </li>
-          </ol>
+                  <div>
+                      <b>Definition:</b> Text related to physical and mental well-being, such as medical care, disease prevention, wellness programs, and healthcare services.
+                      <br>If a passage does not contain any medical advice (even if it includes some health-related words), it is not considered health-related.
+                  </div>
+                  <div>
+                      <b>Example:</b> <em>“Treatment options for germ cell tumors may include surgery to remove the tumor, chemotherapy with drugs that kill cancer cells, and radiation therapy with powerful energy beams.”</em>
+                  </div>
+              </div>
+          
+              <div class="mt-3">
+                  <div>
+                      <span class="highlight highlight_kids">Kids</span>
+                  </div>
+                  <div>
+                      <b>Definition:</b> Text focused on issues, programs, or services specifically related to children. This includes topics such as education, child development (e.g., stages of child growth, questions like "Is it normal that my child...?", or "What extra-curricular activities should my child participate in?"), childcare, and pediatric care.
+  
+                  </div>
+                  <div>
+                      <b>Example:</b> <em>Astraphobia is the extreme fear of thunder and lightning. It’s most common in children…</em>
+                  </div>
+              </div>
+          
+              <div class="mt-3">
+                  <div>
+                      <span class="highlight highlight_women">Women</span>
+                  </div>
+                  <div>
+                      <b>Definition:</b> Texts addressing the health, rights, and well-being of women, including reproductive health and gender-specific healthcare.
+                  </div>
+                  <div>
+                      <b>Example:</b> <em>“Because the seroconversion rate after vaccination of pregnant women might be markedly reduced compared with that of other healthy women, serologic tests to determine if a specific yellow fever immune response exists should be considered…”</em>
+                  </div>
+              </div>
+          
+              <!-- Distinct style for the note on mothers and children -->
+              <div style="background-color: #FFF2CC; padding: 8px 10px; border-radius: 5px; margin: 10px 0; border-left: 4px solid #FFB74D;">
+                  <p><b>📌 Note:</b> If a passage mentions studies or conditions that apply to pregnant or new mothers, and the context includes both mothers and children, please select both <b>KIDS</b> and <b>WOMEN</b> as relevant categories.</p>
+              </div>
+          
+              <div class="mt-3">
+                  <div>
+                      <span class="highlight highlight_ss">Social Services</span>
+                  </div>
+                  <div>
+                      <b>Definition:</b> Text that mentions services aimed at improving quality of life and providing assistance to individuals or families. Examples include welfare programs, counseling, housing assistance, and community support services.
+                  </div>
+                  <div>
+                      <b>Example:</b> <em>“The grants, available in fiscal year 2023 and supported and administered by NIOSH, will provide funding to qualified individuals in academia, members of non-profit organizations, municipalities, and businesses involved in the fishing and maritime industries…”</em>
+                  </div>
+              </div>
+          </div>
+          
+          <!-- Different styling for the "Important" note -->
+          <div style="background-color: #FFF9C4; padding: 8px 10px; border-radius: 5px; margin: 10px 0; border-left: 4px solid #FFD54F;">
+              <p><b>🔍 Important:</b> If a passage does not fit any of these categories, consider it <b>non-applicable</b>. This means the passage does not directly relate to any of the specified categories, or it may be loosely related but not truly relevant (e.g., it references unrelated articles, contains very specific statistics, or is purely technical without contextual relevance). In this case, please select <b>NO</b> for each category. Here are some examples of passages that are <b>not relevant</b> for any category:
+              </p>
+              <ul>
+                  <li><em>If your child has a follow-up visit, write down the date, time, and purpose of the visit.</em> (This is just a doctor appointment reminder, not relevant to any specific category.)</li>
+                  <li><em>Microbiological images. These may include photos of bacteria, fungi, parasites, or viruses, taken from fresh or stained samples and observed under optical, electron, or fluorescence microscopy...</em> (This is a technical description with no direct relevance to the categories.)</li>
+                  <li><em>There is no doctor whose last name begins with the letter Q. Find a doctor whose last name begins with the letter R. Find a doctor whose last name begins with the letter S...</em> (This is a directory listing without context for any category.)</li>
+                  <li><em>Since April 2021, the FDA has received more than 109,000 MDRs, including 426 reports of death, reportedly associated with the PE-PUR foam breakdown or suspected foam breakdown.</em> (This is a general report without specific relevance to the categories.)</li>
+                  <li><em>Fisher AA, Pascher F, Kanof NB. Allergic contact dermatitis due to ingredients of vehicles. A vehicle tray for patch testing. Arch Dermatol 1971;104:286-90.</em> (This is a bibliographic reference, which is unrelated to any category.)</li>
+              </ul>
+              <p>
+                  However, if you are unsure about whether a passage might be relevant to a certain category, please select it as <span class="highlight highlight_relevant">RELEVANT</span> to avoid potentially missing any applicable content.
+              </p>
+              <p>
+                  You can <strong>toggle the button below</strong> to view some additional <strong>example annotations</strong>.
+              </p> 
+          </div>
+  
           <div class="center-buttons">
               <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#exampleAnnotations" aria-expanded="false" aria-controls="exampleAnnotations">
                   Toggle Example Annotations
               </button>
           </div>
+  
           <div id="exampleAnnotations" class="collapse">
               <table class="table table-bordered table-striped">
                   <thead class="thead-custom">
@@ -550,9 +545,55 @@
                   </tbody>
               </table>
           </div>
-
-          <div class="alert alert-warning alert-heading">
-              <strong>Important!</strong> If you are unsure about whether the document is relevant for a certain category, please select it as <strong>RELEVANT</strong> to avoid missing any relevant documents.
+  
+          <h4>✔️ Steps to Follow</h4>
+          <ol>
+              <li>Review the passage and the context in which it appears.</li>
+              <li>
+                  Provide annotations by checking the corresponding boxes:
+                  <div class="annotation-buttons mt-2">
+                      <div class="checkbox-group">
+                          <label>Is this passage relevant for <b><span class="highlight_health">HEALTH</span></b> given the context in which it appears? 🩺</label>
+                          <div>
+                              <input class="my_radio" type="radio" id="health_yes" name="health" disabled value="yes"/>
+                              <label for="health_yes">YES</label>
+                              <input class="my_radio" type="radio" id="health_no" name="health" disabled value="no"/>
+                              <label for="health_no">NO</label>
+                          </div>
+                      </div>
+                      <div class="checkbox-group">
+                          <label>Is this passage relevant for <b><span class="highlight_kids">KIDS</span></b> given the context in which it appears? 🧒</label>
+                          <div>
+                              <input class="my_radio" type="radio" id="kids_yes" name="kids" disabled value="yes"/>
+                              <label for="kids_yes">YES</label>
+                              <input class="my_radio" type="radio" id="kids_no" name="kids" disabled value="no"/>
+                              <label for="kids_no">NO</label>
+                          </div>
+                      </div>
+                      <div class="checkbox-group">
+                          <label>Is this passage relevant for <b><span class="highlight_women">WOMEN</span></b> given the context in which it appears? 👩</label>
+                          <div>
+                              <input class="my_radio" type="radio" id="women_yes" name="women" disabled value="yes"/>
+                              <label for="women_yes">YES</label>
+                              <input class="my_radio" type="radio" id="women_no" name="women" disabled value="no"/>
+                              <label for="women_no">NO</label>
+                          </div>
+                      </div>
+                      <div class="checkbox-group">
+                          <label>Is this passage relevant for <b><span class="highlight_ss">SOCIAL SERVICES</span></b> given the context in which it appears? 🏢</label>
+                          <div>
+                              <input class="my_radio" type="radio" id="services_yes" name="services" disabled value="yes"/>
+                              <label for="services_yes">YES</label>
+                              <input class="my_radio" type="radio" id="services_no" name="services" disabled value="no"/>
+                              <label for="services_no">NO</label>
+                          </div>
+                      </div>
+                  </div>
+              </li>
+              <li>Wait for the message <strong style="color:green;">"Document labeled successfully"</strong> before moving to the next document.</li>
+              <li>Once the active learning loop is completed, a <strong>completion message</strong> will be displayed in large, <strong style="color:green;">green font</strong>.
+              </li>
+          </ol>  
           </div>
         </div>
       </div>

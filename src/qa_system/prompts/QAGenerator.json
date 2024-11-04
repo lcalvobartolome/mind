@@ -1,0 +1,91 @@
+{
+  "generate_question": {
+    "lm": null,
+    "traces": [],
+    "train": [],
+    "demos": [
+      {
+        "augmented": true,
+        "fact": "Birth defects affect 1 in every 33 babies born in the United States each year.",
+        "question": "How many babies are born with birth defects in the United States each year?"
+      },
+      {
+        "augmented": true,
+        "fact": "Birth defects are costly conditions.",
+        "question": "Are birth defects costly conditions?"
+      },
+      {
+        "augmented": true,
+        "fact": "Most people associate ultrasound with pregnancy.",
+        "question": "Do most people associate ultrasound with pregnancy?"
+      },
+      {
+        "augmented": true,
+        "fact": "Chorioamnionitis is a condition that occurs during pregnancy.",
+        "question": "Is chorioamnionitis a condition that occurs during pregnancy?"
+      },
+      {
+        "Unnamed: 0": 51,
+        "fact": "Parents should make sure their baby is vaccinated.",
+        "question": "Should parents make sure their baby is vaccinated?"
+      },
+      {
+        "Unnamed: 0": 23,
+        "fact": "Formula-fed babies may drink more formula than usual during feedings.",
+        "question": "Do formula-fed babies drink more formula than usual during feedings?"
+      },
+      {
+        "Unnamed: 0": 52,
+        "fact": "A baby who is fully immunized is at lower risk for Sudden Infant Death Syndrome (SIDS).",
+        "question": "Is a baby who is fully immunized at lower risk for Sudden Infant Death Syndrome (SIDS)?"
+      },
+      {
+        "Unnamed: 0": 40,
+        "fact": "Osteoporosis is a concern for people with certain physical disabilities.",
+        "question": "Is osteoporosis a concern for people with certain physical disabilities?"
+      },
+      {
+        "Unnamed: 0": 16,
+        "fact": "When a woman carries the faulty X chromosome, and her daughter gets the gene, the daughter will likely be a healthy carrier like her mother.",
+        "question": "Will a daughter who inherits the faulty X chromosome gene likely be a healthy carrier like her mother?"
+      },
+      {
+        "Unnamed: 0": 18,
+        "fact": "Babies can go through periods of increased hunger and fussiness.",
+        "question": "Do babies go through periods of increased hunger and fussiness?"
+      },
+      {
+        "Unnamed: 0": 6,
+        "fact": "In the early 1990s, a small study in England found an association between the vitamin K shot and childhood cancer.",
+        "question": "Did a small study in England in the early 1990s find an association between the vitamin K shot and childhood cancer?"
+      },
+      {
+        "Unnamed: 0": 15,
+        "fact": "Women who are carriers of the faulty X chromosome have a 1 in 2 chance of passing the faulty X chromosome to a child in every pregnancy.",
+        "question": "Do women who are carriers of the faulty X chromosome have a 1 in 2 chance of passing the faulty X chromosome to a child in every pregnancy?"
+      },
+      {
+        "Unnamed: 0": 12,
+        "fact": "Talking to a doctor about sterilization can be tricky for young people as they may worry that their doctor won\u2019t take them seriously or will try to talk them out of sterilization.",
+        "question": "Can talking to a doctor about sterilization be tricky?"
+      },
+      {
+        "Unnamed: 0": 22,
+        "fact": "Formula-fed babies may want to eat more often during feedings.",
+        "question": "Do formula-fed babies want to eat more often during feedings?"
+      },
+      {
+        "Unnamed: 0": 42,
+        "fact": "If donor eggs are being used, the same steps are taken as with non-donor eggs.",
+        "question": "Are the same steps taken with donor eggs as with non-donor eggs?"
+      },
+      {
+        "Unnamed: 0": 17,
+        "fact": "When a woman carries the faulty X chromosome, if her son gets the faulty X chromosome gene, the son will have X-linked agammaglobulinemia.",
+        "question": "Will a son have X-linked agammaglobulinemia if he gets the faulty X chromosome gene?"
+      }
+    ],
+    "signature_instructions": "Given the fields `fact`, produce the fields `question`.",
+    "signature_prefix": "Question:"
+  }
+}

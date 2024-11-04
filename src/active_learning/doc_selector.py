@@ -81,7 +81,7 @@ class DocSelector(object):
                 df_lang["id_top"] = range(len(df_lang))
 
             df_lang_raw = df_lang.merge(raw_lang, how="inner", on="doc_id")[
-                ["doc_id", "id_top", "id_preproc", "lemmas_x", "text", "len"]]
+                ["doc_id", "id_top", "id_preproc", "lemmas_x", "text", "len", "full_doc"]]
             self._logger.info(f"-- -- Loaded {len(df_lang_raw)} documents... ")
             print(f"-- -- Loaded {len(df_lang_raw)} documents... ")
 
