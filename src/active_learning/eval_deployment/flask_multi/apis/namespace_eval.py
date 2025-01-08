@@ -36,16 +36,16 @@ def get_balanced_sample(path, size=0.6):
     # Shuffle the combined dataframe
     #balanced_sample = balanced_sample.sample(frac=1, random_state=1).reset_index(drop=True)
     
-    sample = df.sample(n=sixty_percent_size, random_state=1)
+    sample = df#.sample(n=sixty_percent_size, random_state=1)
 
     return sample
 
 # Get balanced samples for English and Spanish docs
-df_en = get_balanced_sample(annotations_path_en, size=0.48366013071895425)
-df_es = get_balanced_sample(annotations_path_es, size=1)
+df_en = get_balanced_sample(annotations_path_en)#, size=0.48366013071895425
+#df_es = get_balanced_sample(annotations_path_es, size=1)
 
 # Combine and shuffle the balanced samples
-combined_df = pd.concat([df_en, df_es]).sample(frac=1, random_state=1).reset_index(drop=True)
+combined_df = df_en #pd.concat([df_en, df_es]).sample(frac=1, random_state=1).reset_index(drop=True)
 combined_df = combined_df.dropna(subset=['label'])
 #combined_df = pd.read_csv(annotations_path_second)
 combined_df['third_eval_label'] = None  # Initialize the new column

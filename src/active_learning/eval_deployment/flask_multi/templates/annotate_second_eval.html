@@ -190,8 +190,9 @@
               $("#completion_message").show();
             } else {
               $("#document").text(data.text);
-              $("#document_full_text").text(data.full_doc
-              );
+              $("#document_full_text").text(data.full_doc);
+              console.log("this is the doc_id");
+              console.log(data.doc_id);
               $("#doc_id").val(data.doc_id);
               const aux_idx = $("#doc_id").val();
               console.log("this is the idx");
@@ -295,6 +296,7 @@
         <div class="card mb-3">
           <div class="card-body">
             <p id="document">Loading...</p>
+            <input type="hidden" id="doc_id" value="">
           </div>
         </div>
         <b> Context (full text)  </b>

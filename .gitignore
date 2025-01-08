@@ -174,3 +174,7 @@ src/hfclient
 .ipynb_checkpoints
 .venv
 src/qa_system/components/question_qenerator.py
+.venv2
+src/qa_system/cache
+src/qa_system/indices
+src/qa_system/df_en.parquet

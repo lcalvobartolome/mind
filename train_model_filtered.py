@@ -10,7 +10,7 @@ def main():
     path_corpus_es = "/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/source/corpus_rosie/corpus_pass_es_tr.parquet"
     path_corpus_en = "/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/source/corpus_rosie/corpus_pass_en_tr.parquet"
     #path_save_tr = "/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/source/corpus_rosie/passages/translated/df.parquet"
-    path_save_tr = "/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/source/corpus_rosie/passages/29_dec/all/df.parquet"
+    path_save_tr = "/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/source/corpus_rosie/passages/29_dec/filtered_no_0000/df.parquet"
     
     # Generate training data
     print("-- -- Generating training data")
@@ -20,12 +20,12 @@ def main():
     
     print("-- -- Training PolyLingual Topic Model")
     # Train PolyLingual Topic Model
-    for k in [15,30,50,100]: #,100,200,300,400,500
+    for k in [50,100]: #,100,200,300,400,500
         model = PolylingualTM(
         #model = LDATM(
             lang1="EN",
             lang2="ES",
-            model_folder= pathlib.Path(f"/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/models/29_dec/all/poly_rosie_{str(sample)}_{k}"),
+            model_folder= pathlib.Path(f"/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/models/29_dec/filtered_no_0000/poly_rosie_{str(sample)}_{k}"),
             num_topics=k
         )
         model.train(path_save)

@@ -338,7 +338,7 @@ class MultiBlade(object):
 
             # Merge the predictions with the original df_docs based on the document ID
             self.df_docs = self.df_docs.merge(
-                self.df_pool[['id_top', 'predicted_label']],
+                self.df_pool,#[['id_top', 'predicted_label']]
                 on='id_top',
                 how='left',
                 suffixes=('', '_pred')
@@ -358,7 +358,7 @@ class MultiBlade(object):
             self.df_docs.to_csv(path_save, index=False)
             self._logger.info(f"-- -- Predicted labels saved to {path_save}")
 
-            return self.df_pool[['id_top', 'text', 'predicted_label']]
+            return self.df_docs #self.df_pool#[['id_top', 'text', 'predicted_label']]
         else:
             self._logger.info('No labeled data available to train the model.')
             return None

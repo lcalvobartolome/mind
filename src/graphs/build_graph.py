@@ -270,21 +270,21 @@ if __name__ == "__main__":
         type=str,
         required=False, 
         help="Path to the data file",
-        default="/data/source/poly_rosie_v2_1_20/df_graph_en.parquet"
+        default="/data/source/poly_rosie_1_10/df_graph_en.parquet"
     )
     parser.add_argument(
         '--data_path_spanish',
         type=str,
         required=False, 
         help="Path to the data file",
-        default="/data/source/poly_rosie_v2_1_20/df_graph_es.parquet"
+        default="/data/source/poly_rosie_1_10/df_graph_es.parquet"
     )
     parser.add_argument(
         '--output_path',
         type=str,
         required=False,
         help="Path to save output files",
-        default="/data/source/poly_rosie_v2_1_20"
+        default="/data/source/poly_rosie_1_10"
     )
     parser.add_argument(
         '--n_docs',

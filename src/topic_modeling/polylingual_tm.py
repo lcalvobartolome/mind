@@ -45,6 +45,8 @@ from scipy import sparse
 import gzip
 import json
 
+from sklearn.preprocessing import normalize
+
 from src.utils.utils import file_lines
 
 
@@ -93,7 +95,8 @@ class PolylingualTM(object):
         self._mallet_path = pathlib.Path(mallet_path)
         self._add_stops_path = pathlib.Path(add_stops_path)
         self._is_second_level = is_second_level
-
+        self._lang_lengths = {}
+        self._docs_lang = {}
         if logger:
             self._logger = logger
         else:
@@ -153,7 +156,9 @@ class PolylingualTM(object):
             df = pd.read_parquet(df_path)
             for lang in [self._lang1, self._lang2]:
                 df_lang = df.copy()
-                #import pdb; pdb.set_trace()
+                
+                self._docs_lang[lang] = df_lang[df_lang["lang"] == lang]
+                self._lang_lengths[lang] = len(self._docs_lang[lang])
                 
                 df_lang["lemmas"] = np.where(df_lang["lang"] != lang, df_lang["lemmas_tr"], df_lang["lemmas"])
 
@@ -248,8 +253,7 @@ class PolylingualTM(object):
         self._mallet_out_folder.mkdir(exist_ok=True)
 
         # Actual training of the model
-        mallet_input_files = [self._mallet_input_folder /
-                              f"corpus_{lang}.mallet" for lang in [self._lang1, self._lang2]]
+        mallet_input_files = [self._mallet_input_folder /  f"corpus_{lang}.mallet" for lang in [self._lang1, self._lang2]]
         language_inputs = ' '.join(
             [file.resolve().as_posix() for file in mallet_input_files])
         cmd = self._mallet_path.as_posix() + \
@@ -294,12 +298,10 @@ class PolylingualTM(object):
         self._logger.info(f"-- -- Getting thetas...")
         # Define file paths
         thetas_file = self._mallet_out_folder / "doc-topics.txt"
-        lang1_tr_data = self._train_data_folder / f"corpus_{self._lang1}.txt"
-        lang2_tr_data = self._train_data_folder / f"corpus_{self._lang2}.txt"
 
         # Get number of documents
-        lang1_nr_docs = file_lines(lang1_tr_data)
-        lang2_nr_docs = file_lines(lang2_tr_data)
+        lang1_nr_docs = self._lang_lengths[self._lang1]
+        lang2_nr_docs = self._lang_lengths[self._lang2]
 
         # Initialize theta matrices
         lang1_thetas = np.zeros((lang1_nr_docs, self._num_topics))
@@ -315,16 +317,32 @@ class PolylingualTM(object):
             for tpc in range(1, len(values), 2):
                 topic_id = int(values[tpc])
                 weight = float(values[tpc + 1])
-                if doc_id <= lang1_nr_docs:
-                    lang1_thetas[doc_id - 1, topic_id] = weight
+                if doc_id <= (lang1_nr_docs - 1):
+                    lang1_thetas[doc_id, topic_id] = weight if not np.isnan(weight) else 0
                 else:
-                    lang2_thetas[doc_id - 1, topic_id] = weight
+                    lang2_thetas[lang1_nr_docs - doc_id, topic_id] = weight
+                    
+        # Normalize the thetas
+        lang1_thetas = normalize(lang1_thetas, axis=1, norm='l1')
+        lang1_thetas = sparse.csr_matrix(lang1_thetas, copy=True)
+        
+        lang2_thetas = normalize(lang2_thetas, axis=1, norm='l1')
+        lang2_thetas = sparse.csr_matrix(lang2_thetas, copy=True)
+        
+        lang1_alphas = np.asarray(np.mean(lang1_thetas, axis=0)).ravel()
+        lang2_alphas = np.asarray(np.mean(lang1_thetas, axis=0)).ravel()
+        
+        # Save the thetas and alphas
+        sparse.save_npz(self._mallet_out_folder / f"thetas_{self._lang1}.npz", lang1_thetas)
+        sparse.save_npz(self._mallet_out_folder / f"thetas_{self._lang2}.npz", lang2_thetas)
+        np.save(self._mallet_out_folder / f"alphas_{self._lang1}.npy", lang1_alphas)
+        np.save(self._mallet_out_folder / f"alphas_{self._lang2}.npy", lang2_alphas)
 
-        # Convert to sparse matrices and save
-        sparse.save_npz(self._mallet_out_folder / f"thetas_{self._lang1}.npz", sparse.csr_matrix(lang1_thetas, copy=True))
-        sparse.save_npz(self._mallet_out_folder / f"thetas_{self._lang2}.npz", sparse.csr_matrix(lang2_thetas, copy=True))
-
-
+        thetas_dict = {
+            self._lang1: lang1_thetas,
+            self._lang2: lang2_thetas
+        }
+        
         ########################################################################
         # VOCABS
         ########################################################################
@@ -342,21 +360,43 @@ class PolylingualTM(object):
                 names=['docid', 'lang', 'wd_docid','wd_vocabid', 'wd', 'tpc'],
                 header=None, skiprows=1)
         
+        betas_dict = {}
         for lang, id_lang in tuples_lang:
             # Filter by lang
             df_lang = topic_state_df[topic_state_df.lang == id_lang]
             
-            # Keep first occurrence of each word
-            df_unique = df_lang.drop_duplicates(subset=['wd_vocabid'])
+            vocab_size = len(df_lang.wd_vocabid.unique())
+            num_topics = len(df_lang.tpc.unique())
+            betas = np.zeros((num_topics, vocab_size))
+            vocab = list(df_lang.wd.unique())
+            term_freq = np.zeros((vocab_size,))
             
-            # Create dictionary with wd_vocabid as keys and wd as values, sorted by wd_vocabid
-            wd_dict = dict(sorted(df_unique[['wd_vocabid', 'wd']].values.tolist()))
+            # Group by 'tpc' and 'wd_vocabid', and count occurrences
+            grouped = df_lang.groupby(['tpc', 'wd_vocabid']).size().reset_index(name='count')
+
+            # Populate the betas matrix with the counts
+            for _, row in grouped.iterrows():
+                tpc = row['tpc']
+                vocab_id = row['wd_vocabid']
+                count = row['count']
+                betas[tpc, vocab_id] = count
+                term_freq[vocab_id] += count
+            betas = normalize(betas, axis=1, norm='l1')
             
-            vocab_file = self._mallet_out_folder / f"vocab_{lang}.json"
-            with open(vocab_file, 'w') as json_file:
-                json.dump(wd_dict, json_file)
-
-
+            betas_dict[lang] = betas
+                
+            vocab_file = self._mallet_out_folder / f"vocab_{lang}.txt"
+            betas_file = self._mallet_out_folder / f"betas_{lang}.npy"
+            with vocab_file.open('w', encoding='utf8') as fout:
+                for el in zip(vocab, term_freq):
+                    term = str(el[0])
+                    try:
+                        freq = int(float(el[1]))  # Convert to float first, then int
+                        fout.write(f"{term}\t{freq}\n")
+                    except (ValueError, TypeError):
+                        print(f"Skipping invalid term_freq value: {el[1]}")
+            np.save(betas_file, betas)
+            
         ########################################################################
         # KEYS
         ########################################################################
@@ -380,13 +420,44 @@ class PolylingualTM(object):
                 # Iterate over each value in the column and write it to the file
                 for value in df_lang["topK"]:
                     file.write(str(value) + '\n')
+            
+        ########################################################################
+        # S3
+        ########################################################################
+        for lang, id_lang in tuples_lang:
+        
+            thetas = thetas_dict[lang].toarray()
+            betas = betas_dict[lang]
+            documents_texts = self._docs_lang[lang]["lemmas"].apply(lambda x: x.split()).tolist()
+            
+            vocab_w2id = {}
+            vocab_id2w = {}
+            with open(self._mallet_out_folder / f"vocab_{lang}.txt") as file:
+                for i, line in enumerate(file):
+                    # Strip leading and trailing whitespace
+                    stripped_line = line.strip()
+                    # Split the line into words and numbers
+                    parts = stripped_line.split()
+                    if parts:
+                        # Get the word (first part)
+                        wd = parts[0]
+                        # Populate the dictionaries
+                        vocab_w2id[wd] = i
+                        vocab_id2w[str(i)] = wd
+                        
+            D = len(thetas)
+            K = len(betas)
+            S3 = np.zeros((D, K))
+
+            for doc in range(D):
+                for topic in range(K):
+                    wd_ids = [vocab_w2id[word]
+                            for word in documents_texts[doc] if word in vocab_w2id]
+                    S3[doc, topic] = np.sum(betas[topic, wd_ids])
+            
+            S3 = sparse.csr_matrix(S3, copy=True)
+                    
+            s3_file = self._mallet_out_folder / f"s3_{lang}.npz"
+            sparse.save_npz(s3_file, S3)
 
         return
-        
-        
-                
-    """
-    ## Loading the dictionary from the JSON file
-    with open('wd_dict.json', 'r') as json_file:
-        loaded_dict = json.load(json_file)
-    """
