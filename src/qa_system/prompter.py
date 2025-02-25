@@ -11,7 +11,8 @@ ollama_client = Client(
     host='http://kumo01.tsc.uc3m.es:11434',
     headers={'x-some-header': 'some-value'}
 )
-memory = Memory(location='cache', verbose=0)
+#memory = Memory(location='cache_kumo01_tpc11', verbose=0)
+memory = Memory(location='cache_final', verbose=0)
 
 class Prompter:
     def __init__(
@@ -49,7 +50,9 @@ class Prompter:
             'llama3.1:8b-instruct-q8_0',
             'llama3.1:latest',
             'qwen:32b',
-            'llama3.3:70b'
+            'llama3.3:70b',
+            'qwen2.5:7b-instruct',
+            'qwen2.5:32b'
         ]
         
         self.params = {

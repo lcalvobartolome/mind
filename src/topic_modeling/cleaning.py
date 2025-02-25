@@ -1,4 +1,5 @@
 from collections import defaultdict
+import gzip
 import pandas as pd
 import pathlib
 import scipy.sparse as sparse
@@ -9,6 +10,7 @@ import numpy as np
 from itertools import combinations, product
 from scipy import spatial
 import sys
+from sklearn.preprocessing import normalize
 
 def kl2(p, q):
     """Kullback-Leibler divergence D(P || Q) for discrete distributions
@@ -79,15 +81,51 @@ def process_model_data(models, base_path, output_file):
                 print(f"Dispersion percentage for {lang}: {disp_perc}")
                 
             # calculate difference between maximum and minimum pairwise Jensen-Shannon similarities of the betas
-            path_betas = f"{base_path}/{model_name}/mallet_output/betas.npy"
-            betas = np.load(path_betas)
-            js_sim = js_similarity(betas,betas)
-            diff_max_min = np.max(js_sim) - np.min(js_sim)
-            print(f"Max-Min JS similarity: {diff_max_min}")
+            #path_betas = f"{base_path}/{model_name}/mallet_output/betas.npy"
+            #betas = np.load(path_betas)
+            
+            topic_state_model = f"{base_path}/{model_name}/mallet_output/output-state.gz"
+            with gzip.open(topic_state_model) as fin:
+                topic_state_df = pd.read_csv(
+                    fin, delim_whitespace=True,
+                    names=['docid', 'lang', 'wd_docid','wd_vocabid', 'wd', 'tpc'],
+                    header=None, skiprows=1)
+            
+            tuples_lang = [("EN", 0), ("ES", 1)]
+            
+            js_sims = []
+            mean_js_sims = []
+            for lang, id_lang in tuples_lang:
+                # Filter by lang
+                df_lang = topic_state_df[topic_state_df.lang == id_lang]
+                
+                vocab_size = len(df_lang.wd_vocabid.unique())
+                num_topics = len(df_lang.tpc.unique())
+                betas = np.zeros((num_topics, vocab_size))
+                vocab = list(df_lang.wd.unique())
+                term_freq = np.zeros((vocab_size,))
+                
+                # Group by 'tpc' and 'wd_vocabid', and count occurrences
+                grouped = df_lang.groupby(['tpc', 'wd_vocabid']).size().reset_index(name='count')
+
+                # Populate the betas matrix with the counts
+                for _, row in grouped.iterrows():
+                    tpc = row['tpc']
+                    vocab_id = row['wd_vocabid']
+                    count = row['count']
+                    betas[tpc, vocab_id] = count
+                    term_freq[vocab_id] += count
+                betas = normalize(betas, axis=1, norm='l1')
+            
+                js_sim = js_similarity(betas,betas)
+                diff_max_min = np.max(js_sim) - np.min(js_sim)
+                js_sims.append(js_sim)
+                print(f"Max-Min JS similarity in LANG {id_lang}: {diff_max_min}")
  
-            num_topics = betas.shape[0]
-            mean_js_sim = (np.sum(js_sim) - np.trace(js_sim)) / (num_topics * (num_topics - 1))  # Exclude self-similarity
-            print(f"Mean Pairwise JS Similarity: {mean_js_sim}")
+                num_topics = betas.shape[0]
+                mean_js_sim = (np.sum(js_sim) - np.trace(js_sim)) / (num_topics * (num_topics - 1))  # Exclude self-similarity
+                mean_js_sims.append(mean_js_sim)
+                print(f"Mean Pairwise JS Similarity in LANG {id_lang}: {mean_js_sim}")
                             
             # we use lang = EN for coherence calculation
             lang = "EN"
@@ -116,8 +154,10 @@ def process_model_data(models, base_path, output_file):
                 "Num_Topics": num_topics,
                 "Dispersion EN": disp_perc_list["EN"],
                 "Dispersion ES": disp_perc_list["ES"],
-                "Diff_Max_Min": diff_max_min,
-                "Mean_JS": mean_js_sim,
+                "Diff_Max_Min_EN": js_sims[0],
+                "Diff_Max_Min_ES": js_sims[1],
+                "Mean_JS_ES": mean_js_sim,
+                "Mean_JS_EN": mean_js_sims[0],
                 "Coherence": cohr_per_tpc,
                 "Average_Coherence": avg_cohr,
                 "Average_Topic_Overlap": avg_overlap
@@ -137,4 +177,4 @@ path_models = pathlib.Path(base_path)
 models = [dir.name for dir in path_models.iterdir() if dir.is_dir()]
 
 # Process for English and Spanish
-process_model_data(models, base_path, "cohrs_disp_betas_diff.csv")
+process_model_data(models, base_path, "cohrs_disp_betas_diff_v2.csv")

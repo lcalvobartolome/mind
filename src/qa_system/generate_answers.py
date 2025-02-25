@@ -3,6 +3,7 @@ import pandas as pd
 import ast
 from prompter import Prompter
 import re
+from tqdm import tqdm
 
 def extend_to_full_sentence(
     text: str,
@@ -43,7 +44,8 @@ _4_INSTRUCTIONS_PATH = "templates/discrepancy_detection.txt"
 llm_model = "qwen:32b"  #"qwen:32b" #"llama3.3:70b" #"llama3:70b-instruct" # llama3.1:8b-instruct-q8_0
 #####
 
-df= pd.read_excel("/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/src/qa_system/df_q_29jan_topic_15v2_es_model30tpc_thr__dynamic.xlsx")
+#df= pd.read_excel("/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/src/qa_system/df_q_29jan_topic_15v2_es_model30tpc_thr__dynamic.xlsx")
+df=pd.read_excel("/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/src/qa_system/questions_annotate_tpc15_qwen:32b_full_with_queries_results_model30tpc_thr_.xlsx")
 df = df[["question_id", "doc_id", "passage", "question", "full_doc", METHOD_EVAL]]
 
 raw = pd.read_parquet(PATH_SOURCE)
@@ -53,7 +55,7 @@ prompter = Prompter(
 )
 
 results = []
-for id_row, row in df.iterrows():
+for id_row, row in tqdm(df.iterrows(), total=len(df)):
     results_4_unweighted = ast.literal_eval(row["results_4_unweighted"])[0]
     top_docs = [el["doc_id"] for el in results_4_unweighted[:top_k]]
     
@@ -83,7 +85,7 @@ for id_row, row in df.iterrows():
         formatted_template = template.format(question=row.question, passage=passage_t,full_document=(extend_to_full_sentence(full_doc_t, 100)+ " [...]"))
         answer_t, _ = prompter.prompt(question=formatted_template)
         
-        #import pdb; pdb.set_trace()
+       #import pdb; pdb.set_trace()
         
         if answer_t != "I cannot answer given the context." and answer_t != "I cannot answer as the passage contains personal opinions.":
             # ---------------------------------------------------------------------#
@@ -101,7 +103,6 @@ for id_row, row in df.iterrows():
             else:
                 discrepancy = "I cannot answer given the context."
             
-        #import pdb; pdb.set_trace()
             
         results.append({
             "question_id": row.question_id,
@@ -114,6 +115,8 @@ for id_row, row in df.iterrows():
             "discrepancy": discrepancy
         })
         
+        
 df_results = pd.DataFrame(results)
+
         
 import pdb; pdb.set_trace()

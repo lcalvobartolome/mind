@@ -45,9 +45,9 @@ model = SentenceTransformer(model_name)
 # Paths
 NR_TPCS = 30
 PATH_SOURCE = pathlib.Path("/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/source/corpus_rosie/passages/26_jan/df_1.parquet")
-PATH_MODEL = pathlib.Path(f"/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/models/26_jan_no_dup/poly_rosie_1_{NR_TPCS}")
+PATH_MODEL = pathlib.Path("/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/models/28_jan/poly_rosie_1_30")
 LANG = "ES"
-FAISS_SAVE_DIR = pathlib.Path(f"faiss_indices_28_jan_{NR_TPCS}tpc_{LANG}")
+FAISS_SAVE_DIR = pathlib.Path(f"INDICES/NEW_MODEL/faiss_indices_28_jan_15tpc_ES")
 os.makedirs(FAISS_SAVE_DIR, exist_ok=True)
 
 # Load data
@@ -182,19 +182,16 @@ def topic_based_approximate_search(query, theta_query, top_k=10, thr=None, do_we
     return sorted(unique_results.values(), key=lambda x: x["score"], reverse=True)[:top_k], time_end - time_start
 
 # ---- Testing the Four Methods ----
-paths_ = os.listdir("GENERATIONS/OLD_MODEL/questions_queries")
+path_queries_ = "GENERATIONS/outs_good_model_tpc24/question_queries_100"
+paths_ = os.listdir(path_queries_)
+#paths_ = [x for x in paths_ if "qwen2.5" in x]
 for path_queries in paths_:
-
-    df_q = pd.read_excel("GENERATIONS/OLD_MODEL/questions_queries/" + path_queries)
+    df_q = pd.read_excel(path_queries_ + "/" + path_queries)
 
     # Calculate threshold dynamically
     thetas_es = sparse.load_npz(PATH_MODEL / "mallet_output" / "thetas_ES.npz").toarray()
     thrs_ = get_thresholds(thetas_es, poly_degree=3, smoothing_window=5)
-    if "llama" in path_queries:
-        thrs_keep = [thrs_]
-    else:
-        thrs_keep = [None, thrs_]
-    for thrs in thrs_keep:
+    for thrs in [None, thrs_]:
         
         print(f"Calculating results with thresholds: {thrs}")
         save_thr = "_dynamic" if thrs is not None else ""
@@ -264,9 +261,8 @@ for path_queries in paths_:
         # all (results_1, results_2, results_3_weighted, results_3_unweighted, results_4_weighted, results_4_unweighted) are of the same length. Explode the dataframe so each row contains a single query and its results
 
         # Save the dataframe
-        path_save = "GENERATIONS/OLD_MODEL/relevant/" + path_queries.replace(".xlsx", f"_results_model{NR_TPCS}tpc_thr_{save_thr}.parquet")
-        df_q.to_parquet(path_save)
-                
+        path_save = "GENERATIONS/outs_good_model_tpc11/relevant/" + path_queries.replace(".xlsx", f"_results_model{NR_TPCS}tpc_thr_{save_thr}.parquet")
+        df_q.to_parquet(path_save)        
         
         # Convert all result lists to individual rows in one step
         columns_to_explode = ["results_1", "results_2", "results_3_weighted", "results_3_unweighted", "results_4_weighted", "results_4_unweighted"]
@@ -297,6 +293,6 @@ for path_queries in paths_:
         df_q_eval["all_results_content"] = df_q_eval["all_results"].map(doc_map)
 
         # Save the processed dataframe
-        path_save = "GENERATIONS/OLD_MODEL/relevant/" + path_queries.replace(".xlsx", f"_results_model{NR_TPCS}tpc_thr_{save_thr}_combined_to_retrieve_relevant.parquet")
+        path_save = "GENERATIONS/outs_good_model_tpc24/relevant/" + path_queries.replace(".xlsx", f"_results_model{NR_TPCS}tpc_thr_{save_thr}_combined_to_retrieve_relevant.parquet")
         df_q_eval.to_parquet(path_save)
 

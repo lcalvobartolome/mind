@@ -25,10 +25,10 @@ model = SentenceTransformer(model_name)
 
 # Paths
 PATH_SOURCE = pathlib.Path("/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/source/corpus_rosie/passages/26_jan/df_1.parquet")
-PATH_MODEL = pathlib.Path("/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/models/26_jan_no_dup/poly_rosie_1_15")
+PATH_MODEL = pathlib.Path("/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/models/28_jan/poly_rosie_1_30")
 
 for LANG in ["EN", "ES"]:
-    FAISS_SAVE_DIR = pathlib.Path(f"faiss_indices_28_jan_15tpc_{LANG}")
+    FAISS_SAVE_DIR = pathlib.Path(f"INDICES/NEW_MODEL/faiss_indices_28_jan_15tpc_{LANG}")
 
     # Ensure save directory exists
     os.makedirs(FAISS_SAVE_DIR, exist_ok=True)

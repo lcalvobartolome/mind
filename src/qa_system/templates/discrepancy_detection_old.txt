@@ -2,11 +2,13 @@ You will be given a QUESTION along with two responses (ANSWER_1 and ANSWER_2). Y
 
 1. CULTURAL_DISCREPANCY: The answers reflect differences that stem from cultural norms, values, or societal perspectives rather than factual contradictions. This includes variations in common practices, traditions, or expectations that depend on cultural context. If both statements can be valid in different regions, societies, or traditions, classify them here rather than as CONTRADICTION.
 
-2. CONTRADICTION: The answers provide directly opposing factual information, meaning one explicitly denies what the other asserts. A contradiction occurs only if both statements cannot be true in any context. Differences in reasoning, examples, or perspectives do not count as contradictions unless they fundamentally conflict. If both statements could be true in different settings (e.g., due to geography, culture, or historical variation), classify them as CULTURAL_DISCREPANCY instead.
+2. FRAMING_DISCREPANCY: The answers do not contradict each other but differ in wording, emphasis, or supporting details. They may highlight different aspects of the same fact or express similar ideas in distinct ways. If both answers can logically coexist without implying conflict, use this category instead of CONTRADICTION.
 
-3. NOT_ENOUGH_INFO: There is insufficient information to determine whether a discrepancy exists. This applies when the answers are too vague, incomplete, require additional context to assess their relationship, or directly fail to answer the question asked.
+3. CONTRADICTION: The answers provide directly opposing factual information, meaning one explicitly denies what the other asserts. A contradiction occurs only if both statements cannot be true in any context. Differences in reasoning, examples, or perspectives do not count as contradictions unless they fundamentally conflict. If both statements could be true in different settings (e.g., due to geography, culture, or historical variation), classify them as CULTURAL_DISCREPANCY instead.
 
-4. NO_DISCREPANCY: The answers are fully consistent, presenting aligned or identical information without any conflict or variation in framing.
+4. NOT_ENOUGH_INFO: There is insufficient information to determine whether a discrepancy exists. This applies when the answers are too vague, incomplete, or require additional context to assess their relationship.
+
+5. NO_DISCREPANCY: The answers are fully consistent, presenting aligned or identical information without any conflict or variation in framing.
 
 Response Format:  
 - REASON: [Briefly explain why you selected this category]  
@@ -26,11 +28,11 @@ ANSWER_2: Yes, it is typically at ground level.
 REASON: The answers reflect differences in cultural practices and norms regarding the location of primary living spaces, rather than factual contradictions.
 DISCREPANCY_TYPE: CULTURAL_DISCREPANCY
 
-QUESTION: Does the rectangular fold method involve folding the diaper into a rectangle?	
-ANSWER_1: YES, the rectangular fold method involves folding the diaper into a rectangle. The passage describes this process in detail, mentioning to fold the diaper into a rectangle and potentially making an extra fold for added coverage in certain areas.	
-ANSWER_2: NO, the triangular fold method involves folding the diaper into a triangle, not a rectangle.	
-REASON: The two answers refer to different diaper-folding techniques (rectangular vs. triangular) rather than directly contradicting each other. ANSWER_2 does not dispute the first answer's claim about the rectangular fold but instead describes a separate method.
-DISCREPANCY_TYPE: NOT_ENOUGH_INFO
+QUESTION: How long does a typical pregnancy last?
+ANSWER_1: A normal pregnancy lasts around 10 months and consists of three trimesters.
+ANSWER_2: The average pregnancy length is 280 days, or 40 weeks, though most women give birth between 38 and 41 weeks.
+REASON: Both answers describe pregnancy duration using different but compatible conventions—months vs. weeks—without contradicting each other. The discrepancy arises from rounding differences and interpretation rather than conflicting facts.
+DISCREPANCY_TYPE: FRAMING_DISCREPANCY
 
 #### YOUR TASK ####  
 

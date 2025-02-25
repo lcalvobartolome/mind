@@ -61,7 +61,7 @@ raw_en["main_topic_thetas"] = raw_en["thetas"].apply(lambda x: np.argmax(x))
 print(f"English corpus loaded with {len(raw_en)} documents.")
 print(raw_en.head())
 
-for llm_model in ["qwen:32b","llama3.3:70b"]:
+for llm_model in ["qwen:32b","llama3.3:70b","gpt-4o-2024-08-06"]: #"qwen:32b",
     #llm_model = "qwen:32b"  #"qwen:32b" #"llama3.3:70b" #"llama3:70b-instruct" # llama3.1:8b-instruct-q8_0
     prompter = Prompter(
         model_type=llm_model,
@@ -75,6 +75,12 @@ for llm_model in ["qwen:32b","llama3.3:70b"]:
         print(f"Topic {topic}")
         for pass_id, pass_row in raw_en[raw_en.main_topic_thetas == topic].iterrows():#.head(10)
             print(f"{pass_row.text}")
+            
+            df_aux = pd.read_excel("/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/src/qa_system/questions_annotate_tpc15_llama3.3:70b_full_with_queries.xlsx")
+            
+            if not pass_row.doc_id in df_aux.doc_id.values.tolist():
+                print(f"Document {pass_row.doc_id} not in the annotated dataset")
+                continue
             
             with open(_1_INSTRUCTIONS_PATH, 'r') as file: template = file.read()
             
@@ -113,7 +119,7 @@ for llm_model in ["qwen:32b","llama3.3:70b"]:
                 
         # convert to dataframe
         df_info_topic = pd.DataFrame(info_topic)
-
+        import pdb; pdb.set_trace()
         # Create subdataFrame keeping the rows whose questions are not empty and transform it into a new DataFrame where each question is a new row, keeping the original pass_id and passage. We create a new column for the question_id
         df_info_topic = df_info_topic[df_info_topic.questions.apply(lambda x: len(x) > 0)]
         df_info_topic = df_info_topic.explode('questions').reset_index(drop=True)
@@ -138,4 +144,4 @@ for llm_model in ["qwen:32b","llama3.3:70b"]:
                 print(f"******Error extracting queries: {e}")
             
             df_info_topic.loc[question_id, 'queries'] = str(queries_clean)
-        df_info_topic.to_excel(f"questions_topic_tpc{topic}_{llm_model}_full.xlsx")
+        df_info_topic.to_excel(f"GENERATIONS/OLD_MODEL/questions_tpc{topic}_{llm_model}_sample100.xlsx")
