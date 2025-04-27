@@ -230,7 +230,7 @@ for path_queries in paths_:
                 r3_w, t3 = topic_based_exact_search(query, theta_query, corpus_embeddings, raw, top_k, thrs, do_weighting=True)
                 r3_unw, _ = topic_based_exact_search(query, theta_query, corpus_embeddings, raw, top_k,thrs,  do_weighting=False)
                 r4_w, t4 = topic_based_approximate_search(query, theta_query, top_k, thrs, do_weighting=True)
-                r4_unw, _ = topic_based_approximate_search(query, theta_query, top_k, thrs, do_weighting=False)
+                #r4_unw, _ = topic_based_approximate_search(query, theta_query, top_k, thrs, do_weighting=False)
                 
                 results_1.append(r1)
                 results_2.append(r2)
