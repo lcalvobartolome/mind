@@ -6,6 +6,7 @@ import numpy as np
 from scipy import sparse
 from src.mind.retriever import IndexRetriever
 from src.utils.utils import init_logger
+import pyarrow.parquet as pq
 
 
 class Chunk:
@@ -28,6 +29,7 @@ class Corpus:
         id_col="chunk_id",
         passage_col="chunk_text",
         full_doc_col="full_doc",
+        row_top_k = "top_k",
         config_path: Path = None,
         logger: logging.Logger = None,
         retriever: IndexRetriever = None
@@ -58,45 +60,68 @@ class Corpus:
         retriever: IndexRetriever
             The retriever to use for retrieving relevant chunks (default: None).
         """
+        
         for col in [id_col, passage_col, full_doc_col]:
             if col not in df.columns:
                 raise ValueError(f"Column {col} not found in dataframe")
         self.df = df.copy()
         # rename columns to "doc_id", "text", and "full_doc"
-        self.df.rename(columns={passage_col: "text", full_doc_col: "full_doc"}, inplace=True)
+        # rename the column passage_col to "text"
+        if full_doc_col == passage_col:
+            self.df["full_doc"] = self.df[passage_col] 
+            full_doc_col = "full_doc"
+        self.df = self.df.rename(columns={passage_col: "text", full_doc_col: "full_doc", id_col:"doc_id"})
         
+            
+        #self.df = self.df.rename(columns={passage_col: "text", full_doc_col: "full_doc", id_col:"doc_id"}, inplace=True)        
         self._logger = logger if logger else init_logger(config_path, __name__)
         self._logger.info(f"Corpus initialized with {len(df)} documents.")
         self.retriever = retriever
+        self.row_top_k = row_top_k
 
     @classmethod
     def from_parquet_and_thetas(
         cls,
         path_parquet,
-        path_thetas,
+        path_thetas = None,
         id_col="chunk_id",
         passage_col="chunk_text",
         full_doc_col="full_doc",
+        row_top_k = "row_top_k",
         config_path=None,
         logger=None,
         language_filter="EN",
-        retriever=None
+        retriever=None,
+        load_thetas = True
     ):
         logger = logger if logger else init_logger(config_path, __name__)
-        logger.info(f"Loading documents from {path_parquet}")
-        logger.info(f"Loading topic distribution from {path_thetas}")
 
-        df = pd.read_parquet(path_parquet)
+
+        #df = pd.read_parquet(path_parquet)
+        table = pq.read_table(path_parquet)  # Returns a PyArrow Table
+        df = table.to_pandas(self_destruct=True, ignore_metadata=True)
         if language_filter:
             df = df[df[id_col].str.contains(language_filter)].copy()
 
-        thetas = sparse.load_npz(path_thetas).toarray()
-        df["thetas"] = list(thetas)
-        df["top_k"] = df["thetas"].apply(lambda x: cls.get_doc_top_tpcs(x, topn=10))
-        df["main_topic_thetas"] = df["thetas"].apply(lambda x: int(np.argmax(x)))
-
+        if load_thetas:
+            logger.info(f"Loading documents from {path_parquet}")
+            logger.info(f"Loading topic distribution from {path_thetas}")
+            thetas = sparse.load_npz(path_thetas).toarray()
+            df["thetas"] = list(thetas)
+            df["top_k"] = df["thetas"].apply(lambda x: cls.get_doc_top_tpcs(x, topn=10))
+            df["main_topic_thetas"] = df["thetas"].apply(lambda x: int(np.argmax(x)))
+        else:
+            logger.info("Using precomputed thetas")
+            # get "main_topic_thetas" from row_top_k
+            """
+            (Pdb) df[row_top_k].iloc[0]
+            array([array([3.       , 0.7789458]), array([0.        , 0.07558145]),
+                array([2.        , 0.06667581]), array([1.        , 0.04908134]),
+                array([4.        , 0.02971561])], dtype=object)
+            """
+            df["main_topic_thetas"] = df[row_top_k].apply(lambda x: int(x[0][0]))
         logger.info(f"Loaded {len(df)} documents after filtering.")
-        return cls(df, config_path=config_path, logger=logger, retriever=retriever, id_col=id_col, passage_col=passage_col, full_doc_col=full_doc_col)
+        return cls(df, config_path=config_path, logger=logger, retriever=retriever, id_col=id_col, passage_col=passage_col, full_doc_col=full_doc_col, row_top_k=row_top_k)
 
     @staticmethod
     def get_doc_top_tpcs(doc_distr, topn=10):
@@ -104,7 +129,7 @@ class Corpus:
         top = sorted_tpc_indices[:topn].tolist()
         return [(k, float(doc_distr[k])) for k in top if doc_distr[k] > 0]
 
-    def chunks_with_topic(self, topic_id, sample_size=None):
+    def chunks_with_topic(self, topic_id, sample_size=None):   
         df_topic = self.df[self.df.main_topic_thetas == topic_id]
         if sample_size:
             self._logger.info(f"Sampling {sample_size} chunks for topic {topic_id}")
@@ -113,7 +138,7 @@ class Corpus:
         self._logger.info(f"Found {len(df_topic)} chunks for topic {topic_id}")
         
         for _, row in df_topic.iterrows():
-            metadata = {"top_k": row["top_k"]}
+            metadata = {"top_k": row[self.row_top_k]}
 
             if "questions" in row and pd.notna(row["questions"]):
                 q_raw = row["questions"]
@@ -166,9 +191,10 @@ class Corpus:
                     id=result["doc_id"],
                     text=row["text"],
                     full_doc=row.get("full_doc", ""),
-                    metadata={"score": result["score"], "top_k": row["top_k"]}
+                    metadata={"score": result["score"], "top_k": row[self.row_top_k]}
                 )
                 chunks.append(chunk)
+                #print(f"Chunk {chunk.id} with score {result['score']} retrieved.")
             except KeyError:
                 self._logger.warning(f"doc_id {result['doc_id']} not found in dataframe")
 

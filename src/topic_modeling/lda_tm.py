@@ -18,6 +18,7 @@ The input to the LDA Mallet Topic Model is a corpus of documents in the same for
 import logging
 import pathlib
 from subprocess import check_output
+from typing import List
 import pandas as pd
 import os
 import shutil
@@ -41,7 +42,8 @@ class LDATM(object):
         token_regexp: str = "[\p{L}\p{N}][\p{L}\p{N}\p{P}]*\p{L}",
         thetas_thr=0.003,
         mallet_path: str = "src/topic_modeling/Mallet-202108/bin/mallet",
-        logger: logging.Logger = None
+        logger: logging.Logger = None,
+        load_existing: bool = False
     ) -> None:
         """Initialize the LDATM object.
 
@@ -67,7 +69,10 @@ class LDATM(object):
             The regular expression to use for tokenization.
         mallet_path : str
             The path to the Mallet executable.
-
+        logger : logging.Logger
+            A logger object to log messages.
+        load_existing : bool
+            If True, load an existing model from the model folder.
         """
         self._langs = langs
         self._num_topics = num_topics
@@ -98,18 +103,34 @@ class LDATM(object):
         # Create folder for the model
         # If a model with the same name already exists, save a copy; then create a new folder
         if self._model_folder.exists():
-            self._logger.info(
-                f"-- -- Given model folder {self._model_folder} already exists. Saving a copy ..."
-            )
-            old_model_folder = self._model_folder.parent / \
-                (self._model_folder.name + "_old")
-            if not old_model_folder.is_dir():
-                os.makedirs(old_model_folder)
-                shutil.move(self._model_folder, old_model_folder)
+            if not load_existing:
+                self._logger.info(
+                    f"-- -- Given model folder {self._model_folder} already exists. Saving a copy ..."
+                )
+                old_model_folder = self._model_folder.parent / \
+                    (self._model_folder.name + "_old")
+                if not old_model_folder.is_dir():
+                    os.makedirs(old_model_folder)
+                    shutil.move(self._model_folder, old_model_folder)
+                self._model_folder.mkdir(exist_ok=True)
+        else:
+            self._model_folder.mkdir(parents=True, exist_ok=True)
 
         self._model_folder.mkdir(exist_ok=True)
 
         return
+    
+    @classmethod
+    def load_model(cls, model_folder: str, langs: List[str], **kwargs):
+        """
+        Loads an existing LDATM model from disk. Assumes the folder structure is intact.
+        """
+        return cls(
+            langs=langs,
+            model_folder=model_folder,
+            **kwargs
+        )
+
 
     def _create_mallet_input_corpus(self, df_path: pathlib.Path) -> int:
         self._train_data_folder = self._model_folder / "train_data"
@@ -233,8 +254,88 @@ class LDATM(object):
                 return
             
             self._get_more_info(mallet_out_folder_lang)
+            self._extract_pipe() # Extract pipe for later inference
 
         return self._mallet_out_folder
+
+    def _extract_pipe(self):
+        """
+        Extract a pipe for each language based on its training corpus.
+        """
+        for lang in self._langs:
+            lang_folder = self._mallet_out_folder / lang
+            path_corpus = self._mallet_input_folder / f"corpus_{lang}.mallet"
+            corpus_txt_path = self._train_data_folder / f"corpus_{lang}.txt"
+            path_aux = self._model_folder / f"corpus_aux_{lang}.txt"
+
+            with corpus_txt_path.open('r', encoding='utf8') as f:
+                first_line = f.readline()
+            with path_aux.open('w', encoding='utf8') as fout:
+                fout.write(first_line + '\n')
+
+            path_pipe = lang_folder / "import.pipe"
+            cmd = f'{self._mallet_path} import-file --use-pipe-from {path_corpus} --input {path_aux} --output {path_pipe}'
+
+            try:
+                self._logger.info(f'-- Extracting pipeline for language {lang}')
+                check_output(args=cmd, shell=True)
+            except:
+                self._logger.error(f'-- Failed to extract pipeline for language {lang}')
+            finally:
+                path_aux.unlink()
+
+    def infer(
+        self,
+        docs: List[str],
+        lang: str,
+        num_iterations: int = 1000,
+        doc_topic_thr: float = 0.0,
+    ) -> np.ndarray:
+        """Perform inference on unseen documents for a specific language."""
+
+        # Folder structure for the language
+        lang_folder = self._model_folder / "mallet_output" / lang
+        path_pipe = lang_folder / "import.pipe"
+        inferencer = lang_folder / "inferencer.mallet"
+
+        # Output folder
+        inference_folder = self._model_folder / "inference" / lang
+        inference_folder.mkdir(parents=True, exist_ok=True)
+
+        # Write test documents to .txt
+        corpus_txt = inference_folder / "corpus.txt"
+        with corpus_txt.open("w", encoding="utf8") as fout:
+            for i, t in enumerate(docs):
+                fout.write(f"{i} 0 {t}\n")
+
+        # Convert to Mallet format
+        corpus_mallet_inf = inference_folder / "corpus_inf.mallet"
+        doc_topics_file = inference_folder / "doc-topics-inf.txt"
+        cmd = f'{self._mallet_path} import-file --use-pipe-from {path_pipe} --input {corpus_txt} --output {corpus_mallet_inf}'
+        try:
+            self._logger.info(f'-- Running command {cmd}')
+            check_output(args=cmd, shell=True)
+        except:
+            self._logger.error('-- Mallet failed to import data. Revise command')
+            return
+
+        # Infer topic proportions
+        cmd = f'{self._mallet_path} infer-topics --inferencer {inferencer} --input {corpus_mallet_inf} ' \
+            f'--output-doc-topics {doc_topics_file} --doc-topics-threshold {doc_topic_thr} --num-iterations {num_iterations}'
+        try:
+            self._logger.info(f'-- Running command {cmd}')
+            check_output(args=cmd, shell=True)
+        except:
+            self._logger.error('-- Mallet inference failed. Revise command')
+            return
+
+        # Parse results
+        cols = [k for k in np.arange(2, self._num_topics + 2)]
+        thetas32 = np.loadtxt(doc_topics_file, delimiter='\t',
+                            dtype=np.float32, usecols=cols)
+        self._logger.info(f"-- -- Inferred thetas shape {thetas32.shape}")
+
+        return thetas32
 
     
     def _get_more_info(

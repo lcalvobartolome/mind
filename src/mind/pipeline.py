@@ -1,4 +1,5 @@
 from pathlib import Path
+import pandas as pd # type: ignore
 from colorama import Fore, Style
 from typing import Union
 from tqdm import tqdm # type: ignore
@@ -67,20 +68,24 @@ class MIND:
         if isinstance(corpus, Corpus):
             return corpus
 
-        required_keys = {"corpus_path", "thetas_path", "id_col", "passage_col", "full_doc_col"}
+        required_keys = {"corpus_path", "id_col", "passage_col", "full_doc_col"}
         
         if not required_keys.issubset(corpus.keys()):
             raise ValueError(f"Missing keys in corpus config dict: {required_keys - corpus.keys()}")
 
         corpus_obj = Corpus.from_parquet_and_thetas(
             path_parquet=corpus["corpus_path"],
-            path_thetas=Path(corpus["thetas_path"]),
+            path_thetas=Path(corpus["thetas_path"]) if corpus.get("thetas_path") else None,
             id_col=corpus["id_col"],
             passage_col=corpus["passage_col"],
             full_doc_col=corpus["full_doc_col"],
+            row_top_k=corpus.get("row_top_k", "top_k"),
             language_filter=corpus.get("language_filter", None),
-            logger=self._logger
+            logger=self._logger,
+            load_thetas=corpus.get("load_thetas", True),
         )
+        
+        self._logger.info(f"Corpus {corpus['corpus_path']} loaded with {len(corpus_obj.df)} documents.")
 
         if is_target:
             retriever = IndexRetriever(
@@ -93,7 +98,7 @@ class MIND:
             )
             retriever.build_or_load_index(
                 source_path=corpus["corpus_path"],
-                model_path=Path(corpus["thetas_path"]).parent.parent,
+                thetas_path=corpus["thetas_path"],
                 save_path_parent=corpus["index_path"],
                 method=corpus.get("method", "TB-ENN"),
                 col_to_index=corpus["passage_col"],
@@ -108,8 +113,11 @@ class MIND:
         for topic in topics:
             self._process_topic(topic, sample_size=sample_size)
 
-    def _process_topic(self, topic, sample_size=None):
-        for chunk in tqdm(self.source_corpus.chunks_with_topic(topic, sample_size), desc=f"Topic {topic}"):
+    def _process_topic(self, topic,sample_size=None):
+        for chunk in tqdm(self.source_corpus.chunks_with_topic(
+            topic_id=topic, 
+            sample_size=sample_size
+        ), desc=f"Topic {topic}"):
             self._process_chunk(chunk, topic)
 
     def _process_chunk(self, chunk, topic):
@@ -147,7 +155,7 @@ class MIND:
 
         # generate answer in target language for each subquery and target chunk
         for subquery in subqueries:
-            target_chunks = self.target_corpus.retrieve_relevant_chunks(subquery, source_chunk.metadata["top_k"])
+            target_chunks = self.target_corpus.retrieve_relevant_chunks(query=subquery, theta_query=source_chunk.metadata["top_k"])
             for target_chunk in target_chunks:
                 self._evaluate_pair(question, a_s, source_chunk, target_chunk, topic)
 
@@ -178,7 +186,7 @@ class MIND:
                 discrepancy_label,
                 reason
             )
-            self._print_result(discrepancy_label, question, a_s, a_t, reason)
+            self._print_result(discrepancy_label, question, a_s, a_t, reason, target_chunk.text)
             self.results.append({
                 "topic": topic,
                 "question": question,
@@ -190,7 +198,7 @@ class MIND:
                 "reason": reason,
             })
 
-    def _print_result(self, label, question, a_s, a_t, reason):
+    def _print_result(self, label, question, a_s, a_t, reason, target_text):
         color_map = {
             "CONTRADICTION": Fore.RED,
             "CULTURAL_DISCREPANCY": Fore.MAGENTA,
@@ -205,6 +213,7 @@ class MIND:
         print(f"{Fore.GREEN}Original Answer:{Style.RESET_ALL} {a_s}")
         print(f"{Fore.RED}Target Answer:{Style.RESET_ALL} {a_t}")
         print(f"{Fore.CYAN}Reason:{Style.RESET_ALL} {reason}")
+        print(f"{Fore.YELLOW}Target Chunk Text:{Style.RESET_ALL} {target_text}")
         print()
 
 
@@ -360,6 +369,7 @@ class MIND:
 if __name__ == "__main__":
     
     # Example usage
+    """
     mind = MIND(
         llm_model="qwen:32b",
         source_corpus={
@@ -379,8 +389,46 @@ if __name__ == "__main__":
         },
         dry_run=False
     )
+    """
+    
     
     # Run the pipeline
     topic = 0
-    mind.run_pipeline([topic], sample_size=2)
-    print(mind.results)
+    num_topics = 5
+    model_folder = f"/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/climate_fever/models/1_{num_topics}"
+    row_top_k = f"theta_{num_topics}_top_tpcs"
+    
+    source_corpus = {
+        "corpus_path": "/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/climate_fever/final_fever_for_mind.parquet",
+        "id_col": "claim_id",
+        "passage_col": "claim",
+        "full_doc_col": "claim",
+        "load_thetas": False,
+        "row_top_k": row_top_k,
+    }
+    
+    target_corpus = {
+        "corpus_path": "/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/climate_fever/corpus_train_chunked.parquet",
+        "thetas_path": f"{model_folder}/mallet_output/EN/thetas.npz",
+        "id_col": "chunk_id",
+        "passage_col": "chunk_text",
+        "full_doc_col": "full_doc",
+        "index_path": "/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/climate_fever/index_corpus_train_chunked",
+        "load_thetas": True,
+    }
+    
+    mind = MIND(
+        llm_model="qwen:32b",
+        source_corpus=source_corpus,
+        target_corpus=target_corpus,
+        retrieval_method="TB-ENN",
+        multilingual=False,
+        lang="en",
+        config_path=Path("config/config.yaml"),
+        logger=None,
+        dry_run=False
+    )
+    mind.run_pipeline([topic])
+    # save results as df
+    results = pd.DataFrame(mind.results)
+    results.to_parquet(f"/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/climate_fever/mind_results_{topic}.parquet")

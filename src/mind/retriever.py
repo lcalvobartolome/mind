@@ -64,12 +64,12 @@ class IndexRetriever:
             thrs.append(kneedle.elbow)
         return thrs
     
-    def load_indices(self, method: str, source_path: str, model_path: str, save_path_parent: str):
+    def load_indices(self, method: str, source_path: str, thetas_path: str, save_path_parent: str):
         self.index_method = method
         self.save_path = (
             Path(save_path_parent)
             / Path(source_path).stem
-            / Path(model_path).stem
+            / Path(thetas_path).parent.parent.stem
             / method
         )
 
@@ -103,7 +103,7 @@ class IndexRetriever:
         self,
         source_path:str,
         save_path_parent:str,
-        model_path:str=None,
+        thetas_path:str=None,
         col_to_index:str="chunk_text",
         col_id:str="chunk_id",
         lang:str=None, # if lang is given, it will be used to filter the dataframe
@@ -113,7 +113,7 @@ class IndexRetriever:
         save_path = (
             Path(save_path_parent)
             / Path(source_path).stem
-            / Path(model_path).stem
+            / Path(thetas_path).parent.parent.stem
             / method
         )
         save_path.mkdir(parents=True, exist_ok=True)
@@ -148,8 +148,11 @@ class IndexRetriever:
 
         elif method in ["TB-ENN", "TB-ANN"]:
         
-            thetas = sparse.load_npz(Path(model_path) / "mallet_output" / f"thetas_{lang}.npz").toarray()
+            thetas = sparse.load_npz(Path(thetas_path))# / "mallet_output" / f"thetas_{lang}.npz").toarray()
             
+            # check if thetas is a sparse matrix, if so convert to dense
+            if sparse.issparse(thetas):
+                thetas = thetas.toarray()
             df["thetas"] = list(thetas)
             df["top_k"] = df["thetas"].apply(lambda x: get_doc_top_tpcs(x, topn=self.top_k))
             
@@ -214,7 +217,7 @@ class IndexRetriever:
         self.load_indices(
             method=method,
             source_path=source_path,
-            model_path=model_path,
+            thetas_path=thetas_path,
             save_path_parent=save_path_parent
         )
             
@@ -223,7 +226,7 @@ class IndexRetriever:
     def build_or_load_index(
         self,
         source_path: str,
-        model_path: str,
+        thetas_path: str,
         save_path_parent: str,
         method: str = "TB-ENN",
         lang: str = "EN",
@@ -232,7 +235,7 @@ class IndexRetriever:
         save_path = (
             Path(save_path_parent)
             / Path(source_path).stem
-            / Path(model_path).stem
+            / Path(thetas_path).parent.parent.stem
             / method
         )
 
@@ -241,18 +244,18 @@ class IndexRetriever:
             doc_ids_path = save_path / "doc_ids.npy"
             if index_path.exists() and doc_ids_path.exists():
                 self._logger.info(f"Existing index found for {method}. Loading...")
-                return self.load_indices(method, source_path, model_path, save_path_parent)
+                return self.load_indices(method, source_path, thetas_path, save_path_parent)
 
         elif method in ["TB-ENN", "TB-ANN"]:
             any_index = list(save_path.glob("faiss_index_topic_*.index"))
             if any_index:
                 self._logger.info(f"Existing topic-based indices found for {method}. Loading...")
-                return self.load_indices(method, source_path, model_path, save_path_parent)
+                return self.load_indices(method, source_path, thetas_path, save_path_parent)
 
         self._logger.info(f"No existing index found for {method}. Building index...")
         self.index(
             source_path=source_path,
-            model_path=model_path,
+            thetas_path=thetas_path,
             save_path_parent=save_path_parent,
             method=method,
             lang=lang,

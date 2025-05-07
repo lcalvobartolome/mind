@@ -75,6 +75,8 @@ class RosieCorpus(object):
                 return f"{lang}_{index}_{row[column_id]}", pas_to_return
             elif level == "document":
                 return f"{lang}_{index}", "contents"
+            elif level == "none":
+                return row[column_id], pas_to_return
             else:
                 raise ValueError(f"Level {level} not recognized.")
 

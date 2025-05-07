@@ -60,7 +60,8 @@ def generate_chunk_dataframe(df: pd.DataFrame, max_words=200, overlap=1, include
             chunks.append({
                 "chunk_id": row["doc_id"] + "_" + str(chunk_id),
                 "chunk_text": chunk_text,
-                "source_title": title
+                "source_title": title,
+                "full_doc": text,
             })
 
     chunk_df = pd.DataFrame(chunks)

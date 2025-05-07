@@ -3,7 +3,6 @@ import pathlib
 
 import numpy as np
 from src.corpus_building.rosie_corpus import RosieCorpus
-from src.topic_modeling.polylingual_tm import PolylingualTM
 from src.topic_modeling.lda_tm import LDATM
 
 def main():
@@ -23,7 +22,7 @@ def main():
     
     
     print("-- -- Training PolyLingual Topic Model")
-    for k in np.arange(5, 51, 5):
+    for k in np.arange(10, 51, 5):
         model = LDATM(
             langs=["EN"],
             model_folder= pathlib.Path(f"data/climate_fever/models/{str(sample)}_{k}"),
