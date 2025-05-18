@@ -35,9 +35,16 @@ merged_df = pd.merge(
 )
 merged_df = merged_df.drop(columns='doc_id')
 
+nr_items = np.inf #1000
 df_correspondence = pd.read_json("/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/climate_fever/correspondence_claim_article.json", lines=True)
 df_fever_original = pd.read_json("/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/climate_fever/climate-fever-dataset-r1.jsonl", lines=True)
-df_transformed = pd.read_json("/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/climate_fever/questions_transformed.json", lines=True)
+#df_transformed = pd.read_json("/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/climate_fever/questions_transformed.json", lines=True)
+df_transformed = pd.read_json(f"/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/climate_fever/questions_transformed_{nr_items}.json", lines=True)
+#df_transformed['claim_group_index'] = df_transformed.groupby('claim_id').cumcount()
+#df_transformed['claim_evidence_id'] = df_transformed['claim_id'].astype(str) + '-' + df_transformed['claim_group_index'].astype(str)
+# save df_transformed back to json
+df_transformed = df_transformed.drop(columns=['claim_group_index'])
+#df_transformed.to_json(f"/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/climate_fever/questions_transformed_{nr_items}.json", orient="records", lines=True)
 
 final_df = pd.merge(
     df_transformed,
@@ -50,6 +57,7 @@ final_df = final_df.rename(columns={
     'question': 'questions',
     'answer': 'answers'
 })
+
 
 final_df = final_df.drop(columns=["top_sentences"])
 
@@ -80,6 +88,6 @@ for folder in folders:
 
     final_df[f"theta_{num_topics}_top_tpcs"] = list(map(get_doc_top_tpcs, thetas))
 # remove "top_sentences" column
-final_df.to_parquet("/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/climate_fever/final_fever_for_mind.parquet")
+final_df.to_parquet(f"/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/climate_fever/final_fever_for_mind_{len(df_transformed)}.parquet")
 
 import pdb; pdb.set_trace()

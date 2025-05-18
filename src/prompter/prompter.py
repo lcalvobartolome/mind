@@ -12,6 +12,8 @@ import requests
 from ollama import Client # type: ignore
 from openai import OpenAI # type: ignore
 
+from colorama import Fore, Style
+
 from src.utils.utils import init_logger, load_yaml_config_file
 
 memory = Memory(location='cache', verbose=0)
@@ -300,5 +302,11 @@ class Prompter:
         # Update context if necessary
         if use_context:
             self.context = cached_data["inputs"]["context"]
+            
+        if "<think>" in result:
+            # print in green that "thinking" model is used
+            print(f"{Fore.GREEN}<think> in reponse:{Style.RESET_ALL} {result}")
+            result = result.split("</think>")[-1].strip()
+            print(f"{Fore.RED}this is what was kept:{Style.RESET_ALL} {result}")
 
         return result, logprobs

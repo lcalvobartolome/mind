@@ -153,13 +153,14 @@ class Corpus:
                     questions = [q_raw]
                 metadata["questions"] = questions
 
+            
             if "answers" in row and pd.notna(row["answers"]):
                 a_raw = row["answers"]
                 try:
-                    if isinstance(a_raw, str):
+                    if isinstance(a_raw, str) and a_raw.startswith("["):
                         answers = ast.literal_eval(a_raw)  
                     else:
-                        answers = a_raw
+                        answers = [a_raw]
                 except:
                     answers = []
 
@@ -167,7 +168,7 @@ class Corpus:
                     metadata["answers"] = dict(zip(metadata["questions"], answers))
                 else:
                     raise ValueError(f"Answers are not a list or do not match the questions: {answers}")
-
+                        
             yield Chunk(
                 id=row["doc_id"],
                 text=row["text"],

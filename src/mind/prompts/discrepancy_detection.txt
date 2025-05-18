@@ -32,6 +32,14 @@ ANSWER_2: NO, the triangular fold method involves folding the diaper into a tria
 REASON: The two answers refer to different diaper-folding techniques (rectangular vs. triangular) rather than directly contradicting each other. ANSWER_2 does not dispute the first answer's claim about the rectangular fold but instead describes a separate method.
 DISCREPANCY_TYPE: NOT_ENOUGH_INFO
 
+
+QUESTION: Is global warming driving polar bears toward extinction?
+ANSWER_1: YES, global warming is driving polar bears toward extinction.
+ANSWER_2: Yes, environmental changes due to global warming are causing the extinction or relocation of many species, including those in the Arctic where polar bears live.
+REASON: Both answers agree that global warming is negatively impacting polar bears, contributing to their potential extinction. ANSWER_2 adds more context about broader environmental effects but does not contradict or conflict with ANSWER_1. They are consistent and complementary in their information.
+DISCREPANCY_TYPE: NO_DISCREPANCY
+
+
 #### YOUR TASK ####  
 
 QUESTION: {question}  

@@ -1,4 +1,6 @@
+from collections import defaultdict
 from pathlib import Path
+import numpy as np
 import pandas as pd # type: ignore
 from colorama import Fore, Style
 from typing import Union
@@ -41,6 +43,11 @@ class MIND:
 
         self._prompter = Prompter(
             model_type=llm_model,
+            config_path=config_path,
+        )
+        
+        self._prompter_answer = Prompter(
+            model_type="qwen3:32b",
             config_path=config_path,
         )
 
@@ -156,15 +163,18 @@ class MIND:
         # generate answer in target language for each subquery and target chunk
         for subquery in subqueries:
             target_chunks = self.target_corpus.retrieve_relevant_chunks(query=subquery, theta_query=source_chunk.metadata["top_k"])
+            # keep target chunks with similarity > 0.5
+            #target_chunks = [chunk for chunk in target_chunks if chunk.metadata["score"] > 0.5]
             for target_chunk in target_chunks:
                 self._evaluate_pair(question, a_s, source_chunk, target_chunk, topic)
 
     def _evaluate_pair(self, question, a_s, source_chunk, target_chunk, topic):
-        a_t, _ = self._generate_answer(question, target_chunk)
         is_relevant, _ = self._check_is_relevant(question, target_chunk)
 
         if is_relevant == 0:
             a_t = self.cannot_answer_dft
+        else:
+            a_t, _ = self._generate_answer(question, target_chunk)
 
         if "cannot answer the question" in a_t.lower():
             discrepancy_label = "NOT_ENOUGH_INFO"
@@ -175,28 +185,35 @@ class MIND:
         else:
             discrepancy_label, reason = self._check_contradiction(question, a_s, a_t)
 
-        if discrepancy_label in ["CONTRADICTION", "CULTURAL_DISCREPANCY", "NOT_ENOUGH_INFO"]:
-            self._log_contradiction(
-                topic,
-                source_chunk,
-                target_chunk,
-                question,
-                a_s,
-                a_t,
-                discrepancy_label,
-                reason
-            )
-            self._print_result(discrepancy_label, question, a_s, a_t, reason, target_chunk.text)
-            self.results.append({
-                "topic": topic,
-                "question": question,
-                "source_chunk": source_chunk.text,
-                "target_chunk": target_chunk.text,
-                "a_s": a_s,
-                "a_t": a_t,
-                "label": discrepancy_label,
-                "reason": reason,
-            })
+        #if discrepancy_label in ["CONTRADICTION", "CULTURAL_DISCREPANCY", "NOT_ENOUGH_INFO", "NO_DISCREPANCY"]:
+        self._log_contradiction(
+            topic,
+            source_chunk,
+            target_chunk,
+            question,
+            a_s,
+            a_t,
+            discrepancy_label,
+            reason
+        )
+        
+        #if discrepancy_label == "CONTRADICTION":
+        #    import pdb; pdb.set_trace()
+        
+        self._print_result(discrepancy_label, question, a_s, a_t, reason, target_chunk.text)
+        self.results.append({
+            "topic": topic,
+            "question": question,
+            "source_chunk": source_chunk.text,
+            "target_chunk": target_chunk.text,
+            "a_s": a_s,
+            "a_t": a_t,
+            "label": discrepancy_label,
+            "reason": reason,
+            # add original metadata
+            "source_chunk_id": getattr(source_chunk, "id", None),
+            "target_chunk_id": getattr(target_chunk, "id", None),
+        })
 
     def _print_result(self, label, question, a_s, a_t, reason, target_text):
         color_map = {
@@ -290,7 +307,7 @@ class MIND:
             full_document=(extend_to_full_sentence(chunk.full_doc, 100)+ " [...]")
         )
 
-        response, _ = self._prompter.prompt(
+        response, _ = self._prompter_answer.prompt(
             question=template_formatted,
             dry_run=self.dry_run
         )
@@ -309,8 +326,8 @@ class MIND:
         response, _ = self._prompter.prompt(
             question=template_formatted,
             dry_run=self.dry_run
-        )
-        
+        )        
+
         if self.dry_run:
             return response, ""
         
@@ -341,7 +358,7 @@ class MIND:
             elif line.startswith("REASON:"):
                 reason = line.split("REASON:")[1].strip()
         
-
+        #import pdb; pdb.set_trace()
         if label is None or reason is None:
             try:
                 discrepancy_split = response.split("\n")
@@ -393,42 +410,66 @@ if __name__ == "__main__":
     
     
     # Run the pipeline
-    topic = 0
-    num_topics = 5
-    model_folder = f"/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/climate_fever/models/1_{num_topics}"
-    row_top_k = f"theta_{num_topics}_top_tpcs"
+    for num_topics in [25]:#np.arange(5, 51, 5):
+        #num_topics = 10
+        model_folder = f"/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/climate_fever/models/1_{num_topics}"
+        row_top_k = f"theta_{num_topics}_top_tpcs"
+        
+        source_corpus = {
+            "corpus_path": "/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/climate_fever/final_fever_for_mind_7675.parquet",
+            "id_col": "claim_evidence_id",
+            "passage_col": "evidence", #"claim",
+            "full_doc_col": "evidence", #"claim",
+            "load_thetas": False,
+            "row_top_k": row_top_k,
+        }
+        
+        index_path = f"/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/climate_fever/index_corpus_train_chunked/{num_topics}k"
+        Path(index_path).mkdir(parents=True, exist_ok=True)
+        
+        target_corpus = {
+            "corpus_path": "/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/climate_fever/corpus_train_chunked.parquet",
+            "thetas_path": f"{model_folder}/mallet_output/EN/thetas.npz",
+            "id_col": "chunk_id",
+            "passage_col": "chunk_text",
+            "full_doc_col": "full_doc",
+            "index_path": index_path,
+            "load_thetas": True,
+        }
+        
+        results_per_model = defaultdict(list)
+        llm_models = ["qwen:32b"]#"qwen3:32b",
+        for llm_model in llm_models:
+            mind = MIND(
+                llm_model=llm_model,#"qwen:32b",
+                source_corpus=source_corpus,
+                target_corpus=target_corpus,
+                retrieval_method="TB-ENN",
+                multilingual=False,
+                lang="en",
+                config_path=Path("config/config.yaml"),
+                logger=None,
+                dry_run=False
+            )
+            all_results = []
+            topics = np.arange(0, num_topics)
+            for topic in topics:
+                # run pipeline for each topic
+                print(f"Running pipeline for topic {topic}")
+                mind.run_pipeline([topic])
+                # save results as df
+                results = pd.DataFrame(mind.results)
+                
+                # save intermediate results per topic
+                results.to_parquet(f"/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/climate_fever/results/mind_results_from_model_{num_topics}k_{llm_model}_upt_prompt_evidence_7675el_qwen3:32b_for_answer_topic_{topic}.parquet")
+
+                #results.to_parquet(f"/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/climate_fever/mind_results_{topic}_from_model_0.5{num_topics}k_{llm_model}.parquet")
+                all_results.append(results)
+            all_results = pd.concat(all_results)
+            all_results.to_parquet(f"/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/climate_fever/results/mind_results_from_model_{num_topics}k_{llm_model}_upt_prompt_evidence_7675el_qwen3:32b_for_answer.parquet")
+            # save results for each model
+            results_per_model[llm_model].append(results)
+    import pdb; pdb.set_trace()
     
-    source_corpus = {
-        "corpus_path": "/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/climate_fever/final_fever_for_mind.parquet",
-        "id_col": "claim_id",
-        "passage_col": "claim",
-        "full_doc_col": "claim",
-        "load_thetas": False,
-        "row_top_k": row_top_k,
-    }
     
-    target_corpus = {
-        "corpus_path": "/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/climate_fever/corpus_train_chunked.parquet",
-        "thetas_path": f"{model_folder}/mallet_output/EN/thetas.npz",
-        "id_col": "chunk_id",
-        "passage_col": "chunk_text",
-        "full_doc_col": "full_doc",
-        "index_path": "/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/climate_fever/index_corpus_train_chunked",
-        "load_thetas": True,
-    }
     
-    mind = MIND(
-        llm_model="qwen:32b",
-        source_corpus=source_corpus,
-        target_corpus=target_corpus,
-        retrieval_method="TB-ENN",
-        multilingual=False,
-        lang="en",
-        config_path=Path("config/config.yaml"),
-        logger=None,
-        dry_run=False
-    )
-    mind.run_pipeline([topic])
-    # save results as df
-    results = pd.DataFrame(mind.results)
-    results.to_parquet(f"/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/climate_fever/mind_results_{topic}.parquet")
