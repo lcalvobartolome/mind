@@ -1,34 +1,26 @@
-import logging
 import pathlib
-from src.corpus_building.rosie_corpus import RosieCorpus
-from src.topic_modeling.polylingual_tm import PolylingualTM
-from src.topic_modeling.lda_tm import LDATM
+import time
+
+from mind.topic_modeling.polylingual_tm import PolylingualTM
 
 def main():
     
-    path_corpus_es = "/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/source/corpus_rosie/corpus_pass_es_tr.parquet"
-    path_corpus_en = "/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/source/corpus_rosie/corpus_pass_en_tr.parquet"
-    #path_save_tr = "/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/source/corpus_rosie/passages/translated/df.parquet"
-    path_save_tr = "/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/source/corpus_rosie/passages/26_jan/df.parquet"
+    path_data = "/export/usuarios_ml4ds/lbartolome/Repos/alonso_mind/Data/polylingual_df.parquet"
     
-    # Generate training data
-    print("-- -- Generating training data")
-    sample=1
-    rosie_corpus = RosieCorpus(path_corpus_en, path_corpus_es)
-    path_save = rosie_corpus.generate_tm_tr_corpus(path_save_tr, level="passage", sample=sample)
     
     print("-- -- Training PolyLingual Topic Model")
     # Train PolyLingual Topic Model
-    for k in [100,200,300,400,500]:
+    today = time.strftime("%d_%m")
+    
+    for k in [5,10,15,20,25,30,40,50]:
         # model = LDATM(
         model = PolylingualTM(
             lang1="EN",
-            lang2="ES",
-            model_folder= pathlib.Path(f"/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/models/28_jan/poly_rosie_{str(sample)}_{k}"),
-            #model_folder = pathlib.Path(f"/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/models/29_dec/LDA/lda_rosie_{str(sample)}_{k}"),
+            lang2="DE",
+            model_folder= pathlib.Path(f"/export/usuarios_ml4ds/lbartolome/Repos/umd/mind/data/models/wiki/ende/poly_en_de_{today}_{k}"),
             num_topics=k
         )
-        model.train(path_save)
+        model.train(path_data)
     
 if __name__ == "__main__":
     main()

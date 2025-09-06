@@ -201,3 +201,6 @@ src/qa_system/INDICES/
 cache
 .vscode
 _old_dont_remove
+_old_not_remove_yet
+00.Mind_web
+test
