@@ -22,9 +22,10 @@ class IndexRetriever:
         top_k: int = 10,
         batch_size: int = 32,
         min_clusters: int = 8,
-        do_weighting: bool = True,
         n_clusters_ann: int = 100,
         nprobe: int = 10,
+        nprobe_fixed : bool = False,
+        do_norm: bool = False,
         logger: logging.Logger = None,
         config_path: Path = Path("config/config.yaml")
     ):
@@ -34,16 +35,36 @@ class IndexRetriever:
         self.batch_size = batch_size
         self.top_k = top_k
         self.min_clusters = min_clusters
-        self.do_weighting = do_weighting
         self.n_clusters_ann = n_clusters_ann
         self.nprobe = nprobe
+        self.nprobe_fixed = nprobe_fixed
+        self.do_norm = do_norm
+        
+        self.model_name = getattr(model, "name_or_path", "")
+        self.is_bge = "bge-m3" in self.model_name.lower() or "e5-large" in self.model_name.lower()
         
         self.faiss_index = None
         self.doc_ids = None
         self.topic_indices = None  # only for TB-ENN and TB-ANN
         self.index_method = None
         self.save_path = None
+        self.thrs = None 
         
+    def _prefix(self, texts, is_query: bool):
+        if not self.is_bge:
+            return texts
+        self._logger.debug("Using BGE/E5 model, adding prefixes to texts.")
+        pfx = "query: " if is_query else "passage: "
+        return [t if t.startswith(pfx) else (pfx + t) for t in texts]
+
+    def _safe_nprobe(self, nlist: int) -> int:
+        # Start around 10% of nlist. Clamp by [1, self.nprobe] and by nlist itself.
+        if self.nprobe_fixed:
+            return self.nprobe
+        else:
+            target = max(1, int(round(0.10 * max(1, nlist))))
+            return max(1, min(target, int(self.nprobe), int(max(1, nlist))))
+
     def dynamic_thresholds(
         self,
         mat_, 
@@ -59,7 +80,6 @@ class IndexRetriever:
             allvalues = np.sort(mat_[:, k].flatten())
             step = int(np.round(len(allvalues) / 1000))
             x_values = allvalues[::step]
-            x_values = (x_values - np.min(x_values)) / (np.max(x_values) - np.min(x_values))
             y_values = (100 / len(allvalues)) * np.arange(0, len(allvalues))[::step]
             y_values_smooth = uniform_filter1d(y_values, size=smoothing_window)
             kneedle = KneeLocator(x_values, y_values_smooth, curve='concave', direction='increasing', interp_method='polynomial', polynomial_degree=poly_degree)
@@ -82,7 +102,8 @@ class IndexRetriever:
                 self._logger.info(f"Loading FAISS index and doc_ids for method {method}...")
                 self.faiss_index = faiss.read_index(str(index_path))
                 if method == "ANN":
-                    self.faiss_index.nprobe = self.nprobe
+                    # cap nprobe by nlist if available
+                    self.faiss_index.nprobe = self._safe_nprobe(getattr(self.faiss_index, "nlist", 0))
                 self.doc_ids = np.load(doc_ids_path, allow_pickle=True)
             else:
                 raise FileNotFoundError(f"Index or doc_ids not found for method {method}.")
@@ -95,11 +116,16 @@ class IndexRetriever:
                 if doc_ids_path.exists():
                     index = faiss.read_index(str(index_file))
                     if method == "TB-ANN":
-                        index.nprobe = self.nprobe
+                        index.nprobe = self._safe_nprobe(getattr(index, "nlist", 0))
                     doc_ids = np.load(doc_ids_path, allow_pickle=True)
                     self.topic_indices[topic] = {"index": index, "doc_ids": doc_ids}
             if not self.topic_indices:
                 raise FileNotFoundError(f"No topic-based indices found in {self.save_path}.")
+
+            if self.thrs is None:  # <-- only compute if we don't already have thresholds
+                thetas = sparse.load_npz(Path(thetas_path))
+                thetas = thetas.toarray() if sparse.issparse(thetas) else thetas
+                self.thrs = self.dynamic_thresholds(thetas)
     
     def index(
         self,
@@ -108,7 +134,7 @@ class IndexRetriever:
         thetas_path:str=None,
         col_to_index:str="chunk_text",
         col_id:str="chunk_id",
-        lang:str=None, # if lang is given, it will be used to filter the dataframe
+        lang:str=None, # if lang is given, it will be used to filter the dataframe
         thr_assignment: Union[float, str] = "var",
         method:str = "TB-ENN"
     ):  
@@ -122,24 +148,35 @@ class IndexRetriever:
         
         df = pd.read_parquet(source_path)
         if lang:
-            df = df[df[col_id].str.contains(lang)].copy()
-        corpus_embeddings = self.model.encode(df[col_to_index].tolist(), show_progress_bar=True, convert_to_numpy=True, batch_size=self.batch_size)
-        
-        corpus_embeddings = corpus_embeddings / np.linalg.norm(corpus_embeddings, axis=1, keepdims=True)
+            if "lang" in df.columns:
+                df = df[df["lang"] == lang].copy()
+            else:
+                df = df[df[col_id].str.contains(lang)].copy()
+                
+        # calculate contextualized embeddings for the corpus
+        texts = self._prefix(df[col_to_index].tolist(), is_query=False)
+        #corpus_embeddings = self.model.encode(df[col_to_index].tolist(), show_progress_bar=True, convert_to_numpy=True, batch_size=self.batch_size)
+        corpus_embeddings = self.model.encode(texts, show_progress_bar=True, convert_to_numpy=True, batch_size=self.batch_size).astype("float32")
+        # normalize 
+        if self.do_norm:
+            corpus_embeddings = corpus_embeddings / np.linalg.norm(corpus_embeddings, axis=1, keepdims=True)
         embedding_size = corpus_embeddings.shape[1]
 
         if method in ["ENN", "ANN"]:            
             self._logger.info(f"Creating {method} indices")
             quantizer = faiss.IndexFlatIP(embedding_size)
             
+            N = len(corpus_embeddings)
+            n_clusters_ann =  max(int(4 * np.sqrt(N)), self.min_clusters) #self.n_clusters_ann
+            
             index = (
-                faiss.IndexIVFFlat(quantizer, embedding_size, self.n_clusters_ann, faiss.METRIC_INNER_PRODUCT)
+                faiss.IndexIVFFlat(quantizer, embedding_size, n_clusters_ann, faiss.METRIC_INNER_PRODUCT)
                 if method == 'ANN' else quantizer
             )
             
             if method == 'ANN':
                 index.train(corpus_embeddings)
-                index.nprobe = self.nprobe
+                index.nprobe = self._safe_nprobe(getattr(index, "nlist", 0))
         
             index.add(corpus_embeddings)
             
@@ -150,7 +187,7 @@ class IndexRetriever:
 
         elif method in ["TB-ENN", "TB-ANN"]:
         
-            thetas = sparse.load_npz(Path(thetas_path))# / "mallet_output" / f"thetas_{lang}.npz").toarray()
+            thetas = sparse.load_npz(Path(thetas_path))
             
             # check if thetas is a sparse matrix, if so convert to dense
             if sparse.issparse(thetas):
@@ -163,6 +200,7 @@ class IndexRetriever:
                 thrs = self.dynamic_thresholds(thetas)
             else:
                 thrs = thr_assignment * np.ones(thetas.shape[1])
+            self.thrs = thrs  # <-- persist thresholds for retrieval
             
             topic_indices = {}
             for topic in tqdm(range(thetas.shape[1]), desc="Creating index"):   
@@ -186,8 +224,9 @@ class IndexRetriever:
                     topic_embeddings = np.array(topic_embeddings).astype("float32")
                     
                     N = len(topic_embeddings)
-                    n_clusters = max(int(4 * np.sqrt(N)), self.min_clusters)
-                    
+                    #n_clusters = max(int(np.sqrt(N)), self.min_clusters)  # <-- avoid over-fragmenting IVF
+                    n_clusters = max(int(4 * np.sqrt(N)), self.min_clusters)  # <-- restore old heuristic
+
                     self._logger.info(f"-- TOPIC {topic}: {N} documents, {n_clusters} clusters")
                     
                     # Train IVF index
@@ -195,14 +234,13 @@ class IndexRetriever:
                     quantizer = faiss.IndexFlatIP(embedding_size)
 
                     index = (
-                        faiss.IndexIVFFlat(quantizer, embedding_size,n_clusters, faiss.METRIC_INNER_PRODUCT)
-                        if method == 'TB_ANN' else quantizer
+                        faiss.IndexIVFFlat(quantizer, embedding_size, n_clusters, faiss.METRIC_INNER_PRODUCT)
+                        if method == 'TB-ANN' else quantizer
                     )
                     
-                    if method == 'TB_ANN':
+                    if method == 'TB-ANN':
                         index.train(topic_embeddings)
-                        index.nprobe = self.nprobe
-                    
+                        index.nprobe = self._safe_nprobe(getattr(index, "nlist", 0))
                     # Add the topic embeddings to the index
                     index.add(topic_embeddings)
                     
@@ -232,6 +270,8 @@ class IndexRetriever:
         save_path_parent: str,
         method: str = "TB-ENN",
         lang: str = "EN",
+        col_to_index:str="chunk_text",
+        col_id:str="chunk_id",
         **index_kwargs
     ):
         save_path = (
@@ -258,6 +298,8 @@ class IndexRetriever:
         self.index(
             source_path=source_path,
             thetas_path=thetas_path,
+            col_to_index=col_to_index,
+            col_id=col_id,
             save_path_parent=save_path_parent,
             method=method,
             lang=lang,
@@ -269,7 +311,11 @@ class IndexRetriever:
         if self.faiss_index is None or self.doc_ids is None:
             raise ValueError("FAISS index or doc_ids not loaded. Make sure to call load_indices first.")
 
-        query_embedding = self.model.encode([query], normalize_embeddings=True)[0]  # shape: (dim,)
+        q = self._prefix([query], is_query=True)
+        if self.do_norm:
+            query_embedding = self.model.encode(q, normalize_embeddings=True)[0]  # shape: (dim,)
+        else:
+            query_embedding = self.model.encode(q, convert_to_numpy=True)[0]  # shape: (dim,)
         distances, indices = self.faiss_index.search(np.expand_dims(query_embedding, axis=0), top_k)
 
         return [
@@ -281,9 +327,12 @@ class IndexRetriever:
         if self.topic_indices is None:
             raise ValueError("Topic-based indices not loaded.")
 
-        query_embedding = self.model.encode([query], normalize_embeddings=True)[0]
-        results = []
+        if self.do_norm:
+            query_embedding = self.model.encode([query], normalize_embeddings=True)[0]
+        else:
+            query_embedding = self.model.encode([query], convert_to_numpy=True)[0]
 
+        results = []
         for topic, weight in theta_query:
             thr = thrs[topic] if thrs is not None else 0
             if weight > thr:
@@ -305,20 +354,29 @@ class IndexRetriever:
                 unique_results[doc_id] = result
 
         return sorted(unique_results.values(), key=lambda x: x["score"], reverse=True)[:top_k]
+
     
-    def retrieve(self, query: str, theta_query: list = None):
+    def retrieve(
+        self, 
+        query: str, 
+        theta_query: list = None, 
+        top_k: int = None, 
+        thrs_opt=None, #if var use self.thr
+        do_weighting: bool = False
+    ):  
+        top_k = top_k or self.top_k
         time_start = time.time()
         if self.index_method in ["ENN", "ANN"]:
-            results =  self.retrieve_enn_ann(query, self.top_k)
+            results =  self.retrieve_enn_ann(query, top_k)
         elif self.index_method in ["TB-ENN", "TB-ANN"]:
             if theta_query is None:
                 raise ValueError("theta_query must be provided for topic-based retrieval.")
-            
             results =  self.retrieve_topic_faiss(
                 query=query,
                 theta_query=theta_query,
-                top_k=self.top_k,
-                do_weighting=self.do_weighting,
+                top_k=top_k,
+                thrs=self.thrs if thrs_opt == "var" else thrs_opt,
+                do_weighting=do_weighting
             )
         else:
             raise ValueError(f"Unknown index method: {self.index_method}")
@@ -326,52 +384,3 @@ class IndexRetriever:
         time_end = time.time()
 
         return results, time_end - time_start
-
-if __name__ == "__main__":
-    
-    model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
-
-    # Create IndexRetriever instance
-    retriever = IndexRetriever(
-        model=model,
-        top_k=10,
-        batch_size=32,
-        min_clusters=8,
-    )
-
-    source_path = "data/climate_fever/outs/1000/wikipedia_chunks_1234_1000_partial_1470.parquet"
-    model_path = "data/climate_fever/models/1_10"
-    save_path_parent = "data/climate_fever/index"
-    lang = "EN"
-
-    df = pd.read_parquet(source_path)
-    thetas = sparse.load_npz(Path(model_path) / "mallet_output" / lang / "thetas.npz").toarray()
-    theta_query = get_doc_top_tpcs(thetas[0], topn=10) 
-    import pdb; pdb.set_trace()
-    
-    query = "The Nakba is the ethnic cleansing of Palestinian Arabs"
-
-
-    methods = ["ENN", "ANN", "TB-ENN", "TB-ANN"]
-    query_text = df.iloc[0]["chunk_text"]
-
-    for method in methods:
-        print(f"Testing method: {method}")
-        retriever.index(
-            source_path=source_path,
-            save_path_parent=save_path_parent,
-            model_path=model_path,
-            method=method,
-            lang=lang,
-        )
-
-        if method in ["TB-ENN", "TB-ANN"]:
-            results, elapsed = retriever.retrieve(query=query_text, theta_query=theta_query, top_k=5)
-        else:
-            results, elapsed = retriever.retrieve(query=query_text, top_k=5)
-
-        print(f"Time taken: {elapsed:.4f} seconds")
-        print(" Top results:")
-        for r in results:
-            info = f" (topic {r['topic']})" if 'topic' in r else ""
-            print(f"- doc_id: {r['doc_id']}, score: {r['score']:.4f}{info}, text: {df[df['chunk_id'] == r['doc_id']]['chunk_text'].values[0][:50]}...")

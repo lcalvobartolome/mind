@@ -101,7 +101,10 @@ class Corpus:
         table = pq.read_table(path_parquet)  # Returns a PyArrow Table
         df = table.to_pandas(self_destruct=True, ignore_metadata=True)
         if language_filter:
-            df = df[df[id_col].str.contains(language_filter)].copy()
+            if "lang" in df.columns:
+                df = df[df["lang"] == language_filter].copy()
+            else:
+                df = df[df[id_col].str.contains(language_filter)].copy()
 
         if load_thetas:
             logger.info(f"Loading documents from {path_parquet}")

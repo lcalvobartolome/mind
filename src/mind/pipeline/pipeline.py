@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Union
 
+import pandas as pd
 import torch
 from colorama import Fore, Style
 from mind.pipeline.corpus import Corpus
@@ -133,18 +134,18 @@ class MIND:
 
         return corpus_obj
     
-    def run_pipeline(self, topics, sample_size=None):
+    def run_pipeline(self, topics, sample_size=None, path_save="mind_results.parquet"):
         for topic in topics:
-            self._process_topic(topic, sample_size=sample_size)
+            self._process_topic(topic, path_save, sample_size=sample_size)
 
-    def _process_topic(self, topic,sample_size=None):
+    def _process_topic(self, topic, path_save, sample_size=None):
         for chunk in tqdm(self.source_corpus.chunks_with_topic(
             topic_id=topic, 
             sample_size=sample_size
         ), desc=f"Topic {topic}"):
-            self._process_chunk(chunk, topic)
+            self._process_chunk(chunk, topic, path_save)
 
-    def _process_chunk(self, chunk, topic):
+    def _process_chunk(self, chunk, topic, path_save):
         self._logger.info(f"Processing chunk {chunk.id} for topic {topic}")
         
         questions = chunk.metadata.get("questions")
@@ -158,9 +159,9 @@ class MIND:
             return
         self._logger.info(f"Generated questions: {questions}\n")
         for question in questions:
-            self._process_question(question, chunk, topic)
+            self._process_question(question, chunk, topic, path_save)
 
-    def _process_question(self, question, source_chunk, topic):
+    def _process_question(self, question, source_chunk, topic, path_save):
         # generate answer in source language
         a_s = None
         answers = source_chunk.metadata.get("answers")
@@ -199,9 +200,9 @@ class MIND:
             # keep target chunks with similarity > 0.5
             #target_chunks = [chunk for chunk in target_chunks if chunk.metadata["score"] > 0.5]
             for target_chunk in target_chunks:
-                self._evaluate_pair(question, a_s, source_chunk, target_chunk, topic)
+                self._evaluate_pair(question, a_s, source_chunk, target_chunk, topic, subquery, path_save)
 
-    def _evaluate_pair(self, question, a_s, source_chunk, target_chunk, topic):
+    def _evaluate_pair(self, question, a_s, source_chunk, target_chunk, topic, subquery, path_save):
         is_relevant, _ = self._check_is_relevant(question, target_chunk)
 
         if is_relevant == 0:
@@ -233,10 +234,11 @@ class MIND:
         #if discrepancy_label == "CONTRADICTION":
         #    import pdb; pdb.set_trace()
         
-        self._print_result(discrepancy_label, question, a_s, a_t, reason, target_chunk.text)
+        self._print_result(discrepancy_label, question, a_s, a_t, reason, target_chunk.text, source_chunk.text)
         self.results.append({
             "topic": topic,
             "question": question,
+            "subquery": subquery,
             "source_chunk": source_chunk.text,
             "target_chunk": target_chunk.text,
             "a_s": a_s,
@@ -247,8 +249,29 @@ class MIND:
             "source_chunk_id": getattr(source_chunk, "id", None),
             "target_chunk_id": getattr(target_chunk, "id", None),
         })
+        # save results every 10 entries
+        if len(self.results) % 10 == 0:
 
-    def _print_result(self, label, question, a_s, a_t, reason, target_text):
+            checkpoint = len(self.results) // 10
+            results_checkpoint_path = Path(f"{path_save}/results_topic_{topic}_{checkpoint}.parquet")
+            discarded_checkpoint_path = Path(f"{path_save}/discarded_topic_{topic}_{checkpoint}.parquet")
+
+            df = pd.DataFrame(self.results)
+            df_discarded = pd.DataFrame(self.discarded)
+            
+            df.to_parquet(results_checkpoint_path, index=False)
+            df_discarded.to_parquet(discarded_checkpoint_path, index=False)
+            
+            # delete previous checkpoints
+            old_results_checkpoint_path = Path(f"{path_save}/results_topic_{topic}_{checkpoint-1}.parquet")
+            old_discarded_checkpoint_path = Path(f"{path_save}/discarded_topic_{topic}_{checkpoint-1}.parquet")
+            
+            if old_results_checkpoint_path.exists():
+                old_results_checkpoint_path.unlink()
+            if old_discarded_checkpoint_path.exists():
+                old_discarded_checkpoint_path.unlink()
+
+    def _print_result(self, label, question, a_s, a_t, reason, target_text, source_text):
         color_map = {
             "CONTRADICTION": Fore.RED,
             "CULTURAL_DISCREPANCY": Fore.MAGENTA,
@@ -259,6 +282,7 @@ class MIND:
 
         print()
         print(f"{color}{Style.BRIGHT}== DISCREPANCY DETECTED: {label} =={Style.RESET_ALL}")
+        print(f"{Fore.BLUE}Source Chunk Text:{Style.RESET_ALL} {source_text}")
         print(f"{Fore.BLUE}Question:{Style.RESET_ALL} {question}")
         print(f"{Fore.GREEN}Original Answer:{Style.RESET_ALL} {a_s}")
         print(f"{Fore.RED}Target Answer:{Style.RESET_ALL} {a_t}")

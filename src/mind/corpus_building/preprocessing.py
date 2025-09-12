@@ -736,6 +736,11 @@ class DataPreparer:
 
         # final stack
         self.final_df = pd.concat([anc_orig, tgt_orig], ignore_index=True)
+        
+        # drop all rows where lemmas is None
+        df = df[~df.lemmas.isnull()]
+        # replace None in lemmas_tr with empty string
+        df["lemmas_tr"] = df["lemmas_tr"].fillna("")
 
         # Save unified parquet
         out_path = self.storing_path / "polylingual_df.parquet"

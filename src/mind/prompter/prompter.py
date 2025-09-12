@@ -128,7 +128,7 @@ class Prompter:
     ) -> dict:
         """Caching setup."""
 
-        print("Cache miss: computing results...")
+        #print("Cache miss: computing results...")
         
         if backend == "openai" or backend == "vllm":
             result, logprobs = Prompter._call_openai_api_vllm(
@@ -285,7 +285,7 @@ class Prompter:
             self.params["temperature"] = temperature
         params_tuple = tuple(sorted(self.params.items()))
         
-        print("Cache key:", hash_input(system_prompt_template, question, self.model_type, self.backend, params_tuple, self.context, use_context))
+        #print("Cache key:", hash_input(system_prompt_template, question, self.model_type, self.backend, params_tuple, self.context, use_context))
         cached_data = self._cached_prompt_impl(
             template=system_prompt_template,
             question=question,
