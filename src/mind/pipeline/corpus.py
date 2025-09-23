@@ -72,8 +72,7 @@ class Corpus:
             full_doc_col = "full_doc"
         self.df = self.df.rename(columns={passage_col: "text", full_doc_col: "full_doc", id_col:"doc_id"})
         
-            
-        #self.df = self.df.rename(columns={passage_col: "text", full_doc_col: "full_doc", id_col:"doc_id"}, inplace=True)        
+
         self._logger = logger if logger else init_logger(config_path, __name__)
         self._logger.info(f"Corpus initialized with {len(df)} documents.")
         self.retriever = retriever
@@ -92,13 +91,12 @@ class Corpus:
         logger=None,
         language_filter="EN",
         retriever=None,
+        filter_ids=None,
         load_thetas = True
     ):
         logger = logger if logger else init_logger(config_path, __name__)
 
-
-        #df = pd.read_parquet(path_parquet)
-        table = pq.read_table(path_parquet)  # Returns a PyArrow Table
+        table = pq.read_table(path_parquet)
         df = table.to_pandas(self_destruct=True, ignore_metadata=True)
         if language_filter:
             if "lang" in df.columns:
@@ -123,6 +121,12 @@ class Corpus:
                 array([4.        , 0.02971561])], dtype=object)
             """
             df["main_topic_thetas"] = df[row_top_k].apply(lambda x: int(x[0][0]))
+        
+        if filter_ids is not None:
+            # remove rows from df whose id_col is in filter_ids
+            df = df[~df[id_col].isin(filter_ids)].copy()
+            logger.info(f"Filtered out {len(filter_ids)} documents based on provided filter_ids.")
+            
         logger.info(f"Loaded {len(df)} documents after filtering.")
         return cls(df, config_path=config_path, logger=logger, retriever=retriever, id_col=id_col, passage_col=passage_col, full_doc_col=full_doc_col, row_top_k=row_top_k)
 
@@ -132,11 +136,23 @@ class Corpus:
         top = sorted_tpc_indices[:topn].tolist()
         return [(k, float(doc_distr[k])) for k in top if doc_distr[k] > 0]
 
-    def chunks_with_topic(self, topic_id, sample_size=None):   
+    def chunks_with_topic(self, topic_id, sample_size=None, previous_check=None):   
         df_topic = self.df[self.df.main_topic_thetas == topic_id]
         if sample_size:
             self._logger.info(f"Sampling {sample_size} chunks for topic {topic_id}")
             df_topic = df_topic.sample(n=sample_size, random_state=42).reset_index(drop=True)
+            
+            self._logger.info(f"Sampled {len(df_topic)} chunks for topic {topic_id}")
+            
+            # remove previous_check
+            if previous_check is not None:
+                # read previous check
+                df_check = pd.read_parquet(previous_check)
+                # filter df_check by topic
+                previous_check = df_check[df_check["topic"] == topic_id]["source_chunk_id"].tolist()
+                
+                # filter df_topic by previous_check
+                df_topic = df_topic[~df_topic["doc_id"].isin(previous_check)].reset_index(drop=True)
 
         self._logger.info(f"Found {len(df_topic)} chunks for topic {topic_id}")
         
@@ -187,6 +203,7 @@ class Corpus:
             query=query,
             theta_query=theta_query
         )
+        
         chunks = []
         for result in results:
             try:
@@ -198,7 +215,6 @@ class Corpus:
                     metadata={"score": result["score"], "top_k": row[self.row_top_k]}
                 )
                 chunks.append(chunk)
-                #print(f"Chunk {chunk.id} with score {result['score']} retrieved.")
             except KeyError:
                 self._logger.warning(f"doc_id {result['doc_id']} not found in dataframe")
 

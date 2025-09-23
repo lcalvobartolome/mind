@@ -119,12 +119,11 @@ def main():
     # thetas for query
     docid_to_theta_anchor = dict(zip(raw_en[ID_COL].tolist(), thetas_anchor))
 
-    # Use your configured column names
+    # adapt to the original ID_COL and TEXT_COL
     doc_map = raw.set_index(ID_COL)[TEXT_COL].to_dict()
 
-    # Iterate Excel files with queries
+    # iterate over excel files with questions; there is one file per LLM
     xlsx_files = [f for f in os.listdir(PATH_QUERIES_DIR) if f.endswith(".xlsx")]
-                  #if "gpt" in f]
     for filename in xlsx_files:
         df_q = pd.read_excel(PATH_QUERIES_DIR / filename)
 

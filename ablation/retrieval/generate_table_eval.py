@@ -184,8 +184,8 @@ def prepare_annotations(relevant_check_path: str, prepare=True) -> pd.DataFrame:
     keep = (
         (df["relevance_llama3.3:70b"] == 1)
         & (df["relevance_qwen:32b"] == 1)
-       #  & (df["relevance_llama3.3:70b-instruct-q5_K_M"] == 1)
-       & (df["relevance_llama3:70b-instruct"] == 1)
+        & (df["relevance_llama3.3:70b-instruct-q5_K_M"] == 1)
+       #& (df["relevance_llama3:70b-instruct"] == 1)
         & (df["relevance_llama3.1:8b-instruct-q8_0"] == 1)
     )
     df = df[keep].copy()
@@ -575,10 +575,10 @@ def main(group_label: str, experiment_paths, k_values=(3, 5)) -> None:
 
     relevant_check_path = experiment_paths[0][0]
     result_paths = experiment_paths[0][1]
-    annotations = prepare_annotations(relevant_check_path, prepare=True)
+    annotations = prepare_annotations(relevant_check_path, prepare=False)
     print(
-        f"Number of relevant passages for {group_label}: "
-        f"{annotations['num_relevant_docs'].mean():.3f}±{annotations['num_relevant_docs'].std():.3f}"
+        f"\nNumber of relevant passages for {group_label}: "
+        f"{annotations['num_relevant_docs'].mean():.3f}±{annotations['num_relevant_docs'].std():.3f}\n"
     )
 
     # ---- file 1 (baselines + epsilon = 0 --> static)

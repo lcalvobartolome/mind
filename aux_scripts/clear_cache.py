@@ -3,7 +3,7 @@ import os
 import shutil
 import time
 
-CACHE_DIR = "cache"  # Change this to your cache directory
+CACHE_DIR = "/export/usuarios_ml4ds/lbartolome/cache"  # Change this to your cache directory
 MAX_AGE = (3600 *2) # Delete files older than 1 hour (3600 seconds)
 
 def clear_old_cache(cache_dir=CACHE_DIR, max_age=MAX_AGE):

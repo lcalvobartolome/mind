@@ -16,7 +16,7 @@ from colorama import Fore, Style
 
 from mind.utils.utils import init_logger, load_yaml_config_file
 
-memory = Memory(location='cache', verbose=0)
+memory = Memory(location='../../../cache', verbose=0)
 
 def hash_input(*args):
     return hashlib.md5(str(args).encode()).hexdigest()
@@ -25,6 +25,7 @@ class Prompter:
     def __init__(
         self,
         model_type: str,
+        llm_server: str = None,
         logger: logging.Logger = None,
         config_path: pathlib.Path = pathlib.Path("config/config.yaml"),
         temperature: float = None,
@@ -82,9 +83,10 @@ class Prompter:
                     raise ValueError("OpenAI API key not found. Please set it in the .env file or pass it as an argument.")
             
         elif model_type in self.OLLAMA_MODELS:
-            ollama_host = self.config.get("ollama", {}).get(
+            ollama_host = llm_server or self.config.get("ollama", {}).get(
                 "host", "http://kumo01.tsc.uc3m.es:11434"
             )
+            self._logger.info(f"Using ollama host: {ollama_host}")
             os.environ['OLLAMA_HOST'] = ollama_host
             self.backend = "ollama"
             # Initialize as class-level variable to be able to use it in the cache function
@@ -96,7 +98,7 @@ class Prompter:
                 f"Using OLLAMA API with host: {ollama_host}"
             )
         elif model_type in self.VLLM_MODELS:
-            vllm_host = self.config.get("vllm", {}).get(
+            vllm_host = llm_server or self.config.get("vllm", {}).get(
                 "host", "http://localhost:6000/v1"
             )
             os.environ['VLLM_HOST'] = vllm_host
@@ -105,7 +107,7 @@ class Prompter:
                 f"Using VLLM API with host: {vllm_host}"
             )
         elif model_type == "llama_cpp":
-            self.llama_cpp_host = self.config.get("llama_cpp", {}).get(
+            self.llama_cpp_host = llm_server or self.config.get("llama_cpp", {}).get(
                 "host", "http://kumo01:11435/v1/chat/completions"
             )
             self.backend = "llama_cpp"

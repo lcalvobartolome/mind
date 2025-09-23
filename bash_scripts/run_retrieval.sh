@@ -5,12 +5,12 @@ MODEL_NAME="BAAI/bge-m3"
 PATH_SOURCE="/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/source/corpus_rosie/passages/26_jan/df_1.parquet"
 PATH_MODEL_DIR="/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/models/28_jan/poly_rosie_1_30"
 
-PATH_SAVE_INDICES="/export/usuarios_ml4ds/lbartolome/Repos/umd/mind/data/ablations/retrieval/v2/${MODEL_NAME}"
-PATH_OUT="/export/usuarios_ml4ds/lbartolome/Repos/umd/mind/data/ablations/retrieval/v2/${MODEL_NAME}"
+PATH_SAVE_INDICES="/export/usuarios_ml4ds/lbartolome/Repos/umd/mind/data/ablations/retrieval/v3/${MODEL_NAME}"
+PATH_OUT="/export/usuarios_ml4ds/lbartolome/Repos/umd/mind/data/ablations/retrieval/v3/${MODEL_NAME}"
 
 mkdir -p "$PATH_SAVE_INDICES" "$PATH_OUT"
 
-TOPICS=(11 15 24)
+TOPICS=(15)
 
 for TOPIC in "${TOPICS[@]}"; do
   mkdir -p "$PATH_SAVE_INDICES/topic_${TOPIC}" "$PATH_OUT/topic_${TOPIC}"

@@ -34,6 +34,8 @@ dependencies = [
     "sentencepiece==0.2.1",
     "scikit_posthocs",
     "openpyxl",
+    "krippendorff",
+    "irrCAC"
 ]
 
 [build-system]

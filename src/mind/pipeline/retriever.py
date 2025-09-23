@@ -26,6 +26,7 @@ class IndexRetriever:
         nprobe: int = 10,
         nprobe_fixed : bool = False,
         do_norm: bool = False,
+        do_weighting: bool = True,
         logger: logging.Logger = None,
         config_path: Path = Path("config/config.yaml")
     ):
@@ -39,6 +40,7 @@ class IndexRetriever:
         self.nprobe = nprobe
         self.nprobe_fixed = nprobe_fixed
         self.do_norm = do_norm
+        self.do_weighting = do_weighting
         
         self.model_name = getattr(model, "name_or_path", "")
         self.is_bge = "bge-m3" in self.model_name.lower() or "e5-large" in self.model_name.lower()
@@ -224,9 +226,8 @@ class IndexRetriever:
                     topic_embeddings = np.array(topic_embeddings).astype("float32")
                     
                     N = len(topic_embeddings)
-                    #n_clusters = max(int(np.sqrt(N)), self.min_clusters)  # <-- avoid over-fragmenting IVF
-                    n_clusters = max(int(4 * np.sqrt(N)), self.min_clusters)  # <-- restore old heuristic
-
+                    n_clusters = max(int(4 * np.sqrt(N)), self.min_clusters)
+                    
                     self._logger.info(f"-- TOPIC {topic}: {N} documents, {n_clusters} clusters")
                     
                     # Train IVF index
@@ -323,7 +324,10 @@ class IndexRetriever:
             for i, idx in enumerate(indices[0]) if idx != -1
         ]
         
-    def retrieve_topic_faiss(self, query, theta_query, top_k=10, thrs=None, do_weighting=True):
+    def retrieve_topic_faiss(self, query, theta_query, top_k=10, thrs=None, do_weighting=None):
+        
+        do_weighting = do_weighting if do_weighting is not None else self.do_weighting
+        
         if self.topic_indices is None:
             raise ValueError("Topic-based indices not loaded.")
 

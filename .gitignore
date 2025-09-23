@@ -206,3 +206,6 @@ _old_not_remove_yet
 test
 bash_scripts/runs_thesis
 figures/thesis
+notebooks/internal
+ablation/discrepancies/thesis
+.venv3
