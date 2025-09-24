@@ -43,6 +43,7 @@ import shutil
 import numpy as np
 from scipy import sparse
 import gzip
+import argparse
 import json
 
 from sklearn.preprocessing import normalize
@@ -104,8 +105,10 @@ class PolylingualTM(object):
             self._logger = logging.getLogger('PolylingualTM')
             # Add a console handler to output logs to the console
             console_handler = logging.StreamHandler()
-            console_handler.setLevel(logging.INFO)  # Set handler level to INFO or lower
-            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            # Set handler level to INFO or lower
+            console_handler.setLevel(logging.INFO)
+            formatter = logging.Formatter(
+                '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
             console_handler.setFormatter(formatter)
             self._logger.addHandler(console_handler)
 
@@ -149,24 +152,26 @@ class PolylingualTM(object):
         # Create 'train_data' folder
         self._train_data_folder = self._model_folder / "train_data"
         self._train_data_folder.mkdir(exist_ok=True)
-        
+
         if not self._is_second_level:
 
             # Read the dataframe and create the input files
             df = pd.read_parquet(df_path)
             for lang in [self._lang1, self._lang2]:
                 df_lang = df.copy()
-                
+
                 self._docs_lang[lang] = df_lang[df_lang["lang"] == lang]
                 self._lang_lengths[lang] = len(self._docs_lang[lang])
-                
-                df_lang["lemmas"] = np.where(df_lang["lang"] != lang, df_lang["lemmas_tr"], df_lang["lemmas"])
+
+                df_lang["lemmas"] = np.where(
+                    df_lang["lang"] != lang, df_lang["lemmas_tr"], df_lang["lemmas"])
 
                 if df_lang.empty:
                     self._logger.error(
                         f"-- -- No documents found for language {lang}.")
                     return 1
-                corpus_txt_path = self._train_data_folder / f"corpus_{lang}.txt"
+                corpus_txt_path = self._train_data_folder / \
+                    f"corpus_{lang}.txt"
                 self._logger.info(
                     f"-- -- Creating Mallet {corpus_txt_path.as_posix()}...")
                 with corpus_txt_path.open("w", encoding="utf8") as fout:
@@ -174,9 +179,9 @@ class PolylingualTM(object):
                         fout.write(f"{i} {lang.upper()} {t}\n")
                 self._logger.info(
                     f"-- -- Mallet {corpus_txt_path.as_posix()} created.")
-        
+
         if (self._train_data_folder / f"corpus_{self._lang1}.txt").exists() and (self._train_data_folder / f"corpus_{self._lang2}.txt").exists():
-            
+
             # if is second_level we need to add the number of documents in training corpus per language
             if self._is_second_level:
                 for lang in [self._lang1, self._lang2]:
@@ -186,10 +191,11 @@ class PolylingualTM(object):
                         lines = f.readlines()
                     print("Processing lang: ", lang)
                     print(path)
-                    
+
                     doc_ids = [line.split(f" {lang} ")[0] for line in lines]
                     doc_texts = [line.split(f" {lang} ")[1] for line in lines]
-                    self._docs_lang[lang] = pd.DataFrame({"doc_id": doc_ids, "lemmas": doc_texts})   
+                    self._docs_lang[lang] = pd.DataFrame(
+                        {"doc_id": doc_ids, "lemmas": doc_texts})
                     self._lang_lengths[lang] = sum(1 for line in lines)
             return 2
         else:
@@ -218,7 +224,7 @@ class PolylingualTM(object):
         for lang in [self._lang1, self._lang2]:
             corpus_txt_path = self._train_data_folder / f"corpus_{lang}.txt"
             corpus_mallet = self._mallet_input_folder / f"corpus_{lang}.mallet"
-            
+
             stw_file = self._add_stops_path / f"{lang.lower()}.txt"
 
             cmd = self._mallet_path.as_posix() + \
@@ -244,7 +250,7 @@ class PolylingualTM(object):
 
     def train(
         self,
-        df_path: pathlib.Path=None,
+        df_path: pathlib.Path = None,
     ) -> int:
         """Assuming there is a 'corpus_es.mallet' and 'corpus_en.mallet' files in the model folder, train the Mallet Polylingual Topic Model.
 
@@ -268,7 +274,8 @@ class PolylingualTM(object):
         self._mallet_out_folder.mkdir(exist_ok=True)
 
         # Actual training of the model
-        mallet_input_files = [self._mallet_input_folder /  f"corpus_{lang}.mallet" for lang in [self._lang1, self._lang2]]
+        mallet_input_files = [self._mallet_input_folder /
+                              f"corpus_{lang}.mallet" for lang in [self._lang1, self._lang2]]
         language_inputs = ' '.join(
             [file.resolve().as_posix() for file in mallet_input_files])
         cmd = self._mallet_path.as_posix() + \
@@ -293,20 +300,20 @@ class PolylingualTM(object):
         except:
             self._logger.error('-- -- Model training failed. Revise command')
             return
-        
+
         self._logger.info(f"-- -- Saving model information...")
         self.save_model_info()
         self._logger.info(f"-- -- Model information saved successfully.")
-        
+
         return
-        
+
     def save_model_info(self):
-        
+
         tuples_lang = [
             (self._lang1, 0),
             (self._lang2, 1)
         ]
-        
+
         ########################################################################
         # THETAS
         ########################################################################
@@ -322,7 +329,8 @@ class PolylingualTM(object):
         lang2_thetas = np.zeros((lang2_nr_docs, self._num_topics))
 
         # Read and parse the thetas file
-        with open(thetas_file, 'r') as file: lines = file.readlines()[1:]  # Skip the first line
+        with open(thetas_file, 'r') as file:
+            lines = file.readlines()[1:]  # Skip the first line
 
         for line in lines:
             values = line.split()
@@ -331,9 +339,11 @@ class PolylingualTM(object):
                 topic_id = int(values[tpc])
                 weight = float(values[tpc + 1])
                 if doc_id < lang1_nr_docs:
-                    lang1_thetas[doc_id, topic_id] = weight if not np.isnan(weight) else 0
+                    lang1_thetas[doc_id, topic_id] = weight if not np.isnan(
+                        weight) else 0
                 else:
-                    lang2_thetas[doc_id - lang1_nr_docs, topic_id] = weight if not np.isnan(weight) else 0
+                    lang2_thetas[doc_id - lang1_nr_docs,
+                                 topic_id] = weight if not np.isnan(weight) else 0
 
         # Normalize the thetas
         lang1_thetas = normalize(lang1_thetas, axis=1, norm='l1')
@@ -347,17 +357,20 @@ class PolylingualTM(object):
         lang2_alphas = np.asarray(np.mean(lang2_thetas, axis=0)).ravel()
 
         # Save the thetas and alphas
-        sparse.save_npz(self._mallet_out_folder / f"thetas_{self._lang1}.npz", lang1_thetas)
-        sparse.save_npz(self._mallet_out_folder / f"thetas_{self._lang2}.npz", lang2_thetas)
-        np.save(self._mallet_out_folder / f"alphas_{self._lang1}.npy", lang1_alphas)
-        np.save(self._mallet_out_folder / f"alphas_{self._lang2}.npy", lang2_alphas)
+        sparse.save_npz(self._mallet_out_folder /
+                        f"thetas_{self._lang1}.npz", lang1_thetas)
+        sparse.save_npz(self._mallet_out_folder /
+                        f"thetas_{self._lang2}.npz", lang2_thetas)
+        np.save(self._mallet_out_folder /
+                f"alphas_{self._lang1}.npy", lang1_alphas)
+        np.save(self._mallet_out_folder /
+                f"alphas_{self._lang2}.npy", lang2_alphas)
 
         thetas_dict = {
             self._lang1: lang1_thetas,
             self._lang2: lang2_thetas
         }
 
-        
         ########################################################################
         # VOCABS
         ########################################################################
@@ -372,7 +385,7 @@ class PolylingualTM(object):
         with gzip.open(topic_state_model) as fin:
             topic_state_df = pd.read_csv(
                 fin, delim_whitespace=True,
-                names=['docid', 'lang', 'wd_docid','wd_vocabid', 'wd', 'tpc'],
+                names=['docid', 'lang', 'wd_docid', 'wd_vocabid', 'wd', 'tpc'],
                 header=None, skiprows=1)
         """
         betas_dict = {}
@@ -420,7 +433,8 @@ class PolylingualTM(object):
         term_freq = np.zeros((vocab_size,))
 
         # Group by 'tpc' and 'wd_vocabid' to count occurrences
-        grouped = topic_state_df.groupby(['tpc', 'wd_vocabid']).size().reset_index(name='count')
+        grouped = topic_state_df.groupby(
+            ['tpc', 'wd_vocabid']).size().reset_index(name='count')
 
         # Populate the betas matrix with counts
         for _, row in grouped.iterrows():
@@ -454,22 +468,22 @@ class PolylingualTM(object):
         self._logger.info(f"-- -- Getting keys...")
         topic_keys = self._mallet_out_folder / "topickeys.txt"
         topic_keys_df = pd.read_csv(
-            topic_keys, delimiter="\t", 
-            names = ['lang', 'langTokensPerTopic', 'betas', 'topK'],
+            topic_keys, delimiter="\t",
+            names=['lang', 'langTokensPerTopic', 'betas', 'topK'],
             header=None
         ).dropna()
-        
+
         # Save keys in different files for each language
         for lang, id_lang in tuples_lang:
             # Filter by lang
             df_lang = topic_keys_df[topic_keys_df.lang == id_lang]
-            
+
             keys_file = self._mallet_out_folder / f"keys_{lang}.txt"
             with open(keys_file, 'w') as file:
                 # Iterate over each value in the column and write it to the file
                 for value in df_lang["topK"]:
                     file.write(str(value) + '\n')
-            
+
         ########################################################################
         # S3
         ########################################################################
@@ -499,7 +513,8 @@ class PolylingualTM(object):
                         vocab_id2w[str(i)] = wd
 
             # Prepare to compute S3
-            documents_texts = self._docs_lang[lang]["lemmas"].apply(lambda x: x.split()).tolist()
+            documents_texts = self._docs_lang[lang]["lemmas"].apply(
+                lambda x: x.split()).tolist()
             D = len(thetas)  # Number of documents
             K = betas.shape[0]  # Number of topics (shared across languages)
             S3 = np.zeros((D, K))
@@ -508,7 +523,8 @@ class PolylingualTM(object):
             for doc in range(D):
                 for topic in range(K):
                     # Get word IDs for the current document
-                    wd_ids = [vocab_w2id[word] for word in documents_texts[doc] if word in vocab_w2id]
+                    wd_ids = [vocab_w2id[word]
+                              for word in documents_texts[doc] if word in vocab_w2id]
                     # Sum beta values for the document's words under the current topic
                     S3[doc, topic] = np.sum(betas[topic, wd_ids])
 
@@ -517,5 +533,43 @@ class PolylingualTM(object):
             s3_file = self._mallet_out_folder / f"s3_{lang}.npz"
             sparse.save_npz(s3_file, S3)
 
-
         return
+
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(
+        description="Train a Mallet Polylingual Topic Model using PolylingualTM wrapper.")
+    parser.add_argument("--input", type=str, required=True,
+                        help="Path to input parquet file containing the corpus.")
+    parser.add_argument("--lang1", type=str, required=True,
+                        help="First language code (e.g. EN).")
+    parser.add_argument("--lang2", type=str, required=True,
+                        help="Second language code (e.g. ES).")
+    parser.add_argument("--model_folder", type=str, required=True,
+                        help="Directory to store model outputs.")
+    parser.add_argument("--num_topics", type=int, required=True,
+                        help="Number of topics to extract.")
+    parser.add_argument("--alpha", type=float, default=1.0,
+                        help="Alpha hyperparameter (default: 1.0).")
+    parser.add_argument("--mallet_path", type=str,
+                        default="externals/Mallet-202108/bin/mallet", help="Path to Mallet executable.")
+    parser.add_argument("--add_stops_path", type=str,
+                        default="src/mind/topic_modeling/stops", help="Path to stopwords directory.")
+    parser.add_argument("--is_second_level", action="store_true",
+                        help="Enable second-level topic modeling mode.")
+    args = parser.parse_args()
+
+    ptm = PolylingualTM(
+        lang1=args.lang1,
+        lang2=args.lang2,
+        model_folder=pathlib.Path(args.model_folder),
+        num_topics=args.num_topics,
+        alpha=args.alpha,
+        mallet_path=args.mallet_path,
+        add_stops_path=args.add_stops_path,
+        is_second_level=args.is_second_level
+    )
+    ptm.train(df_path=pathlib.Path(args.input))
+    print(
+        f"Polylingual Topic Model training complete. Outputs saved to {args.model_folder}")

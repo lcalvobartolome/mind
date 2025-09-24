@@ -1,15 +1,10 @@
-from typing import Dict, Optional, Tuple, List
-import subprocess
-import re
+import argparse
 from pathlib import Path
+
 import pandas as pd
-
-import time
-from tqdm import tqdm
-from transformers import pipeline, AutoTokenizer
-from datasets import Dataset
-
 from mind.utils.utils import init_logger
+from tqdm import tqdm
+
 
 class Segmenter():
     def __init__(
@@ -74,3 +69,27 @@ class Segmenter():
         seg_df.to_parquet(path_save, compression="gzip")
         self._logger.info(f"Saved segmented dataframe to {path_save}")
         return path_save
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Run the Segmenter to split documents into segments.")
+    parser.add_argument("--input", type=str, required=True,
+                        help="Path to input file (parquet or csv).")
+    parser.add_argument("--output", type=str, required=True,
+                        help="Path to save segmented output file.")
+    parser.add_argument("--text_col", type=str, default="text",
+                        help="Name of the text column to segment.")
+    parser.add_argument("--lang_col", type=str, default="lang",
+                        help="Name of the language column.")
+    args = parser.parse_args()
+
+    segmenter = Segmenter()
+    segmented_df = segmenter.segment(
+        input_path=args.input,
+        output_path=args.output,
+        text_col=args.text_col,
+        lang_col=args.lang_col
+    )
+    print(
+        f"Segmentation complete. Saved to {args.output}. Rows: {len(segmented_df)}")

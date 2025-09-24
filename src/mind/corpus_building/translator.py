@@ -1,15 +1,17 @@
+
 from typing import Dict, Optional, Tuple, List
 import subprocess
 import re
 from pathlib import Path
 import pandas as pd
-
+import argparse
 import time
 from tqdm import tqdm
 from transformers import pipeline, AutoTokenizer
 from datasets import Dataset
 
 from mind.utils.utils import init_logger
+
 
 class Translator:
     def __init__(
@@ -227,3 +229,33 @@ class Translator:
             self._logger.info(f"Saved translated DataFrame to {save_path}")
 
         return self.translated_df
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Translate a DataFrame using the Translator class.")
+    parser.add_argument("--input", type=str, required=True,
+                        help="Path to input parquet file.")
+    parser.add_argument("--output", type=str, required=True,
+                        help="Path to save translated parquet file.")
+    parser.add_argument("--src_lang", type=str, required=True,
+                        help="Source language code (e.g. 'en').")
+    parser.add_argument("--tgt_lang", type=str, required=True,
+                        help="Target language code (e.g. 'es').")
+    parser.add_argument("--text_col", type=str, default="text",
+                        help="Name of the text column.")
+    parser.add_argument("--lang_col", type=str, default="lang",
+                        help="Name of the language column.")
+    args = parser.parse_args()
+
+    translator = Translator()
+    translated_df = translator.translate(
+        path_df=args.input,
+        src_lang=args.src_lang,
+        tgt_lang=args.tgt_lang,
+        text_col=args.text_col,
+        lang_col=args.lang_col,
+        save_path=args.output
+    )
+    print(
+        f"Translation complete. Saved to {args.output}. Rows: {len(translated_df)}")

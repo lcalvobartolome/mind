@@ -75,23 +75,66 @@ To run the MIND pipeline, you need a collection of *loosely aligned* documents (
 
 **Steps for running the pipeline:**
 
-1. **Preprocess corpora:** There are different scripts available for segmenting, creation of loosely alignments (i.e., translation), NLP preprocessing and the creation of the final dataset in the format expected by the PLTM wrapper. These functionalities are available at the ``mind.corpus_building`` module.
-  
+1. **Preprocess corpora:** The `mind.corpus_building` module provides scripts for segmenting documents, creating loose alignments (translation), NLP preprocessing, and assembling the final dataset for the PLTM wrapper.
+
+    You can run these scripts directly from the command line with flexible arguments:
+
     ```bash
-    python3 src/mind/pipeline/preprocess.py
+    # Segment documents into passages
+    python3 src/mind/corpus_building/segmenter.py --input INPUT_PATH --output OUTPUT_PATH --text_col TEXT_COLUMN --lang_col LANG_COLUMN
+
+    # Translate passages from anchor to comparison language (and vice versa)
+    python3 src/mind/corpus_building/translator.py --input INPUT_PATH --output OUTPUT_PATH --src_lang SRC_LANG --tgt_lang TGT_LANG --text_col TEXT_COLUMN --lang_col LANG_COLUMN
+
+    # Preprocess and prepare the final DataFrame for the pipeline
+    python3 src/mind/corpus_building/data_preparer.py --anchor ANCHOR_PATH --comparison COMPARISON_PATH --output OUTPUT_PATH --schema SCHEMA_JSON_OR_PATH
     ```
 
+    - Replace `INPUT_PATH`, `OUTPUT_PATH`, `TEXT_COLUMN`, `LANG_COLUMN`, `SRC_LANG`, `TGT_LANG`, `ANCHOR_PATH`, `COMPARISON_PATH`, and `SCHEMA_JSON_OR_PATH` with your actual file paths and column names.
+    - The `--schema` argument for `data_preparer.py` can be a JSON string or a path to a JSON file mapping required columns.
+
+    Alternatively, you can import and use these modules programmatically. See the [Wikipedia use case](use_cases/wikipedia/generate_dtset.py) for a complete example of how to use all these scripts in a workflow.
+  
 2. **Train a PLTM model:** Train a Polylingual Topic Model on the prepared dataset.
 
     ```bash
-    python3 src/mind/topic_modeling/train_pltm.py
+    python3 src/mind/topic_modeling/polylingual_tm.py \
+      --input PREPARED_DATASET_PATH \
+      --lang1 LANG1 \
+      --lang2 LANG2 \
+      --model_folder MODEL_OUTPUT_DIR \
+      --num_topics NUM_TOPICS \
+      [+ additional optional params]
     ```
+
+    - Replace each argument (e.g., `PREPARED_DATASET_PATH`, `LANG1`, `LANG2`, `MODEL_OUTPUT_DIR`, `NUM_TOPICS`, etc.) with your actual file paths, language codes, and options.
+    - See `python3 src/mind/topic_modeling/polylingual_tm.py --help` for full details and all available options.
 
 3. **Run the MIND pipeline:** Detect discrepancies and perform downstream analysis.
 
     ```bash
-    python3 src/mind/pipeline/run_pipeline.py
+    python3 src/mind/pipeline/cli.py \
+        --src_corpus_path SRC_CORPUS_PATH \
+        --src_thetas_path SRC_THETAS_PATH \
+        --src_id_col SRC_ID_COL \
+        --src_passage_col SRC_PASSAGE_COL \
+        --src_full_doc_col SRC_FULL_DOC_COL \
+        --src_lang_filter SRC_LANG \
+        --tgt_corpus_path TGT_CORPUS_PATH \
+        --tgt_thetas_path TGT_THETAS_PATH \
+        --tgt_id_col TGT_ID_COL \
+        --tgt_passage_col TGT_PASSAGE_COL \
+        --tgt_full_doc_col TGT_FULL_DOC_COL \
+        --tgt_lang_filter TGT_LANG \
+        --topics TOPIC_IDS \
+        --path_save RESULTS_DIR \
+        [+ additional optional params]
     ```
+
+    - Replace each argument (e.g., ``SRC_CORPUS_PATH``, ``TGT_CORPUS_PATH``, ``TOPIC_IDS``, etc.) with your actual file paths, column names, and options.
+    - ``--topics`` should be a comma-separated list of topic IDs, e.g. ``--topics 15,17``.
+    - See ``python3 src/mind/pipeline/cli.py --help`` for full details and all available options.
+
 
 ## ROSIE-MIND
 

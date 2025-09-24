@@ -22,6 +22,8 @@ Output columns (plus any extra metadata preserved):
     - title, url, equivalence (if present)
 """
 
+import argparse
+import json
 import re
 import subprocess
 from pathlib import Path
@@ -213,7 +215,7 @@ class DataPreparer:
 
         # remove tmp file
         tmp_parq.unlink(missing_ok=True)
-        
+
         return merged
 
     @staticmethod
@@ -281,8 +283,10 @@ class DataPreparer:
         # Run preprocessing per language
         self._logger.info(
             "Running NLPipe preprocessing for anchor and comparison...")
-        anc_proc = self._preprocess_df(anc_norm, anchor_lang, tag="anchor", path_save=path_save)
-        comp_proc = self._preprocess_df(comp_norm, comp_lang, tag="comparison", path_save=path_save)
+        anc_proc = self._preprocess_df(
+            anc_norm, anchor_lang, tag="anchor", path_save=path_save)
+        comp_proc = self._preprocess_df(
+            comp_norm, comp_lang, tag="comparison", path_save=path_save)
 
         # Build pairing keys representing the original source chunk
         def add_pair_key(df: pd.DataFrame) -> pd.DataFrame:
@@ -372,3 +376,36 @@ class DataPreparer:
             self._logger.info(f"Saved: {path_save}")
 
         return final_df
+
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(
+        description="Run DataPreparer to build a polylingual dataset.")
+    parser.add_argument("--anchor", type=str, required=True,
+                        help="Path to anchor language parquet file.")
+    parser.add_argument("--comparison", type=str, required=True,
+                        help="Path to comparison language parquet file.")
+    parser.add_argument("--output", type=str, required=True,
+                        help="Path to save the output parquet file.")
+    parser.add_argument("--schema", type=str, required=True,
+                        help="JSON string or path to schema mapping required columns.")
+    args = parser.parse_args()
+
+    try:
+        if args.schema.endswith('.json'):
+            with open(args.schema, 'r') as f:
+                schema = json.load(f)
+        else:
+            schema = json.loads(args.schema)
+    except Exception as e:
+        raise ValueError(f"Failed to load schema: {e}")
+
+    preparer = DataPreparer(schema=schema)
+    final_df = preparer.format_dataframes(
+        anchor_path=Path(args.anchor),
+        comparison_path=Path(args.comparison),
+        path_save=Path(args.output)
+    )
+    print(
+        f"Polylingual dataset created and saved to {args.output}. Rows: {len(final_df)}")

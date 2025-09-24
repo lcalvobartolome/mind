@@ -7,7 +7,7 @@ from mind.corpus_building.segmenter import Segmenter
 from mind.corpus_building.translator import Translator
 from mind.corpus_building.data_preparer import DataPreparer
 from mind.utils.utils import init_logger
-from wikipedia.retriever import WikiRetriever
+from use_cases.wikipedia.retriever import WikiRetriever
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
