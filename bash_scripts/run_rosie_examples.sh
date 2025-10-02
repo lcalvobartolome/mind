@@ -1,36 +1,36 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-LLM_MODEL="llama3.3:70b" #"qwen:32b"
-TOPICS="24"
+LLM_MODEL="qwen:32b"
+TOPICS="15"
 SAMPLE_SIZE=348 #1000
-PATH_SAVE="data/mind_runs/rosie/results"
+PATH_SAVE="data/mind_runs/rosie/examples_ppt"
 
-SRC_CORPUS_PATH="/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/source/corpus_rosie/passages/26_jan/df_1.parquet"
+SRC_CORPUS_PATH="/export/usuarios_ml4ds/lbartolome/Repos/umd/mind/data/kept_rosie.parquet"
 SRC_THETAS_PATH="/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/models/28_jan/poly_rosie_1_30/mallet_output/thetas_EN.npz"
 SRC_ID_COL="doc_id"
 SRC_PASSAGE_COL="text"
 SRC_FULL_DOC_COL="full_doc"
 SRC_LANG_FILTER="EN"
 #SRC_FILTER_IDS_PATH="data/mind_runs/rosie/v1/src_filter_ids.txt"
-SRC_FILTER_IDS_PATH="data/mind_runs/rosie/results/src_filter_ids_tp24.txt"
+#SRC_FILTER_IDS_PATH="data/mind_runs/rosie/results/src_filter_ids_tp24.txt"
 
-TGT_CORPUS_PATH="/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/source/corpus_rosie/passages/26_jan/df_1.parquet"
+TGT_CORPUS_PATH="/export/usuarios_ml4ds/lbartolome/Repos/umd/mind/data/kept_rosie.parquet"
 TGT_THETAS_PATH="/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/models/28_jan/poly_rosie_1_30/mallet_output/thetas_ES.npz"
 TGT_ID_COL="doc_id"
 TGT_PASSAGE_COL="text"
 TGT_FULL_DOC_COL="full_doc"
 TGT_LANG_FILTER="ES"
-TGT_INDEX_PATH="data/mind_runs/rosie/indexes"
+TGT_INDEX_PATH="data/mind_runs/rosie/examples_ppt/indexes"
 #TGT_FILTER_IDS_PATH="data/mind_runs/rosie/v1/src_filter_ids.txt"
-TGT_FILTER_IDS_PATH="data/mind_runs/rosie/results/src_filter_ids_tp24.txt"
+#TGT_FILTER_IDS_PATH="data/mind_runs/rosie/results/src_filter_ids_tp24.txt"
 #PREVIOUS_CHECK="data/mind_runs/rosie/results/results_topic_15_504_check.parquet"
 # --previous_check "$PREVIOUS_CHECK"
 
 CMD=(python3 src/mind/cli.py
   --llm_model "$LLM_MODEL"
   --topics "$TOPICS"
-  --sample_size "$SAMPLE_SIZE"
+  #--sample_size "$SAMPLE_SIZE"
   --path_save "$PATH_SAVE"
   --src_corpus_path "$SRC_CORPUS_PATH"
   --src_thetas_path "$SRC_THETAS_PATH"
@@ -45,9 +45,8 @@ CMD=(python3 src/mind/cli.py
   --tgt_full_doc_col "$TGT_FULL_DOC_COL"
   --tgt_lang_filter "$TGT_LANG_FILTER"
   --tgt_index_path "$TGT_INDEX_PATH"
-  --src_filter_ids_path "$SRC_FILTER_IDS_PATH"
-  --tgt_filter_ids_path "$TGT_FILTER_IDS_PATH"
-  --load_thetas
+  #--src_filter_ids_path "$SRC_FILTER_IDS_PATH"
+  #--tgt_filter_ids_path "$TGT_FILTER_IDS_PATH"
 )
 
 # Show the exact command (quoted)

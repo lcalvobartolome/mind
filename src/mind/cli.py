@@ -62,6 +62,8 @@ def build_parser() -> argparse.ArgumentParser:
                            help="Path for saving the indexes.")
     argparser.add_argument("--tgt_filter_ids_path", default=None, type=str,
                            help="Path to a file with IDs to filter out from the target corpus.")
+    argparser.add_argument("--load_thetas", action="store_true",
+                           help="If set, loads the thetas from file (otherwise, assumes they are already in memory).")
 
     argparser.add_argument("--print_config", action="store_true",
                            help="Print resolved configuration before running.")
@@ -88,6 +90,7 @@ def main():
         "full_doc_col": args.src_full_doc_col,
         "language_filter": args.src_lang_filter,
         "filter_ids": src_filter_ids,
+        "load_thetas": args.load_thetas
     }
 
     target_corpus = {
@@ -98,6 +101,7 @@ def main():
         "full_doc_col": args.tgt_full_doc_col,
         "language_filter": args.tgt_lang_filter,
         "filter_ids": tgt_filter_ids,
+        "load_thetas": args.load_thetas
     }
     if args.tgt_index_path:
         target_corpus["index_path"] = args.tgt_index_path

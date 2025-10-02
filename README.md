@@ -1,4 +1,4 @@
-# MIND
+# MIND: Multilingual Inconsistent Notion Detection
 
 This repository contains the code and data for reproducing experiments from our paper Discrepancy Detection at the Data Level: Toward Consistent Multilingual Question Answering.
 
@@ -6,7 +6,7 @@ This repository contains the code and data for reproducing experiments from our 
   <img src="figures_tables/Raupi5.png" alt="MIND pipeline" width="100%">
 </p>
 
-- [MIND](#mind)
+- [MIND: Multilingual Inconsistent Notion Detection](#mind-multilingual-inconsistent-notion-detection)
   - [**Installation**](#installation)
     - [Steps for deployment with uv](#steps-for-deployment-with-uv)
   - [Run MIND pipeline](#run-mind-pipeline)

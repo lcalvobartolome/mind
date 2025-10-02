@@ -214,6 +214,7 @@ class MIND:
         self._logger.info(f"Processing chunk {chunk.id} for topic {topic}")
 
         questions = chunk.metadata.get("questions")
+        
 
         if questions:
             self._logger.info(
@@ -243,7 +244,7 @@ class MIND:
             # if not, discard the question
             if self._do_check_entailment:
                 _, _, entails = self._check_entailement(a_s, source_chunk.text)
-                if not entails:
+                if not entails or "cannot answer the question" in a_s.lower():
                     print(f"{Fore.RED}Discarding question '{question}' since the answer does not entail the original passage.{Style.RESET_ALL}\n ANSWER: {a_s}\nPASSAGE: {source_chunk.text}\n")
                     # self._logger.info(f"Discarding question '{question}' since the answer does not entail the original passage.\n ANSWER: {a_s}\nPASSAGE: {source_chunk.text}\n")
                     self.discarded.append({
@@ -275,13 +276,14 @@ class MIND:
             if tc.id not in unique_target_chunks:
                 unique_target_chunks[tc.id] = tc
         all_target_chunks = list(unique_target_chunks.values())
+        import pdb; pdb.set_trace()
         self._logger.info(
             f"Retrieved {len_target_chunks} target chunks, {len(all_target_chunks)} unique.")
 
         for target_chunk in all_target_chunks:
             src_id = getattr(source_chunk, "id", None)
             tgt_id = getattr(target_chunk, "id", None)
-            qkey = self._norm(question)
+            qkey = self._normalize(question)
 
             triplet = (qkey, src_id, tgt_id)
             if triplet in self.seen_triplets:
