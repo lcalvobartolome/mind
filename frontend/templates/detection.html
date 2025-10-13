@@ -1,0 +1,770 @@
+{% extends "base.html" %}
+{% block title %}Detection{% endblock %}
+
+{% block content %}
+<h1>MIND Cultural discrepancy detection</h1>
+<div class="jumbotron" style="min-height: 50vh; max-height: 50vh; overflow-y: auto; padding: 2rem;">
+    {% if status in ['idle', 'initializing'] %}
+        <p class="lead">MIND is currently idle. Start a session by selecting a dataset:</p>
+        
+        {% if ds_tuple and ds_tuple[0] %}
+            <ul class="list-group dataset-list">
+                {% for dataset in ds_tuple[1] %}
+                    <li class="list-group-item dataset-item hover-text-primary">
+                        {{ dataset }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="lead">No datasets found or error loading datasets.</p>
+        {% endif %}
+
+    {% elif status in ['initialized','topic_exploration']%}
+        {% if not mind_info %}
+            <p class="lead">MIND is initialized.</p>
+            <p>Inspect the available topics or start analysis.</p>
+        {% else %}
+            <div class="card shadow-sm mb-4" id="topic-list-card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Available topics for exploration</h5>
+                    
+                    <div>
+                        <a href="#" id="list-view-btn" class="text-white fw-bold me-3 active-view">List</a>
+                        <a href="#" class="text-white fw-bold" style="opacity: 0; pointer-events: none;"> | </a>
+                        <a href="#" id="graph-view-btn" class="text-white fw-bold" style="opacity: 0; pointer-events: none;">Graph</a>
+                    </div>
+                </div>
+
+                <div id="topic-list-view">
+                    <div class="card-body p-0" style="max-height: 400px; overflow-y: auto;">
+                        <ul class="list-group list-group-flush">
+                            {% for topic in mind_info %}
+                                <li class="list-group-item d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <strong>Topic {{ topic["Topic #"] }}:</strong>
+                                        <span class="text-muted">{{ topic["Key words"] }}</span>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-primary topic_button" data-topic-id="{{ topic['Topic #'] }}">Select</button>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- GRAPH VIEW -->
+                <div id="topic-graph-view" class="d-none">
+                    <div class="card-body" style="height: 400px; overflow: hidden;">
+                        <iframe id="pyldavis-frame" src="" style="border: none; width: 100%; height: 100%;"></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4 d-none" id="document-carousel-card">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">Documents for selected topic</h5>
+                </div>
+                <div class="card-body">
+                    <div id="document-carousel" class="carousel slide" data-ride="carousel">
+                        <div class="carousel-inner" id="carousel-inner">
+                            {% for doc in documents %}
+                            <div class="carousel-item {% if loop.first %}active{% endif %}">
+                                <div class="card shadow-sm border-0">
+                                    <div class="row g-0 align-items-center">
+                                        
+                                        <!-- Document text -->
+                                        <div class="col-md-8 p-3">
+                                            <div class="doc-text" style="max-height: 300px; overflow-y: auto;">
+                                                <p class="mb-0">{{ doc.raw_text }}</p>
+                                            </div>
+                                        </div>
+
+                                        <!-- Topic distribution chart -->
+                                        <div class="col-md-4 p-3 text-center">
+                                            <h6 class="text-muted mb-2">Topic Distribution</h6>
+                                            <canvas id="chart-doc-{{ doc.doc_id }}" style="max-width: 100%; height: auto;"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+    {% elif status == 'running' %}
+        <p class="lead">MIND is currently running...</p>
+    {% elif status == 'completed' %}
+    <div id="accordion" class="mt-4">
+        {% for dataset_dict in mind_info %}
+            {% set ds_index = loop.index %}
+            {% for dataset_name, records in dataset_dict.items() %}
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center" id="heading{{ ds_index }}">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse{{ ds_index }}"
+                                    aria-expanded="false" aria-controls="collapse{{ ds_index }}">
+                                {{ dataset_name }}
+                            </button>
+                        </h5>
+                        <!-- Download button placeholder -->
+                        <button class="btn btn-sm btn-outline-primary">Download Excel</button>
+                    </div>
+
+                    <div id="collapse{{ ds_index }}" class="collapse" aria-labelledby="heading{{ ds_index }}"
+                        data-parent="#accordion">
+                        <div class="card-body">
+
+                            <div class="table-responsive">
+                                <table class="table table-sm table-striped table-bordered">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>Passage T</th>
+                                            <th>Passage S</th>
+                                            <th>Discrepancy</th>
+                                            <th>Doc ID</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for row in records %}
+                                        {% set row_index = loop.index %}
+                                        <tr>
+                                            <td>{{ row.passage_t }}</td>
+                                            <td>{{ row.passage_s }}</td>
+                                            <td>
+                                                {% if row.discrepancy == 'CONTRADICTION' %}
+                                                    <span class="badge text-bg-danger" style="color:rgb(184, 62, 62)">{{ row.discrepancy }}</span>
+                                                {% elif row.discrepancy == 'CULTURAL_DISCREPANCY' %}
+                                                    <span class="badge text-bg-warning" style="color:rgb(227, 112, 40)">{{ row.discrepancy }}</span>
+                                                {% elif row.discrepancy == 'NOT_ENOUGH_INFO' %}
+                                                    <span class="badge text-bg-info" style="color:rgb(28, 128, 171)">{{ row.discrepancy }}</span>
+                                                {% elif row.discrepancy == 'NO_DISCREPANCY' %}
+                                                    <span class="badge text-bg-success" style="color:rgb(2, 130, 23)">{{ row.discrepancy }}</span>
+                                                {% else %}
+                                                    <span class="badge text-bg-secondary">{{ row.discrepancy }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="#" data-toggle="collapse" data-target="#rawText{{ ds_index }}_{{ row_index }}">
+                                                    {{ row.doc_id }}
+                                                </a>
+                                                <div id="rawText{{ ds_index }}_{{ row_index }}" class="collapse mt-2">
+                                                    <pre style="white-space: pre-wrap; word-wrap: break-word;">{{ row.raw_text }}</pre>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>No datasets available.</p>
+    {% endif %}
+
+
+
+
+
+</div>
+
+<div class="modal fade" id="docModal" tabindex="-1" role="dialog" aria-labelledby="docModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="docModalLabel">Document Content</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted">Loading document content...</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ul class="nav nav-pills mb-4 d-flex justify-content-between w-100" id="myTab" role="tablist">
+    <li class="nav-item ">
+        <a class="nav-link mode-selectors active " href="#input" data-toggle="tab">Explore topics</a>
+    </li>
+    <li class="nav-item ">
+        <a class="nav-link mode-selectors active" href="#output" data-toggle="tab">Analyze contradictions</a>
+    </li>
+</ul>
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+  <!-- Navigation Pills -->
+  <ul class="nav nav-pills mb-2 mb-md-0" id="myTab" role="tablist">
+      <li class="nav-item">
+          <a class="nav-link control active" id="prev-doc" data-toggle="tab">Previous</a>
+      </li>
+      <li class="nav-item">
+          <a class="nav-link control" id="next-doc" data-toggle="tab">Next</a>
+      </li>
+      <li class="nav-item">
+          <a class="nav-link control" id="return-btn" data-toggle="tab">Return</a>
+      </li>
+  </ul>
+    <form id="mind-number-form" class="form-inline d-flex align-items-center gap-2">
+    <label for="numberInput" class="mr-2 mb-0"></label>
+    <!-- Max input = ntopics -->
+    <input type="number" class="form-control mr-2" id="numberInput" name="n_samples" placeholder="0" min="0" style="width: 100px;">
+    <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+
+</div>
+
+<script>
+    console.log("✅ Script block is rendering.");
+</script>
+
+<!-- <script src="/static/js/mind.js"></script> -->
+<!-- 
+<script src="http://localhost:3000/static/js/mind.js" ></script>
+<script src="http://frontend:80/static/js/mind.js" ></script> 
+<script src="/static/js/mind.js" ></script>  -->
+
+
+<script>
+function plotTopicDistributions(documents) {
+    documents.forEach(doc => {
+        const canvas = document.getElementById(`chart-doc-${doc.doc_id}`);
+        if (!canvas) {
+            console.warn(`No canvas found for doc_id ${doc.doc_id}`);
+            return;
+        }
+
+        new Chart(canvas, {
+            type: 'pie',
+            data: {
+                labels: doc.topic_distribution.map((_, i) => `Topic ${i}`),
+                datasets: [{
+                    data: doc.topic_distribution,
+                    backgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', 
+                        '#4BC0C0', '#9966FF', '#FF9F40', '#66FF66'
+                    ]
+                }]
+            },
+            options: {
+                responsive: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { boxWidth: 12 }
+                    }
+                }
+            }
+        });
+    });
+}
+</script>
+
+
+<script>
+const topicColors = [
+    '#FF6384', '#36A2EB', '#FFCE56',
+    '#4BC0C0', '#9966FF', '#FF9F40',
+    '#66FF66', '#FF6666', '#6699FF', '#99FF99'
+];
+
+class MINDInterface {
+    constructor() {
+        this.datasetItems = document.querySelectorAll('.dataset-item');
+        this.modeSelectors = document.querySelectorAll('.mode-selectors');
+        this.form = document.getElementById('mind-number-form');
+        this.numberInput = document.getElementById('numberInput');
+        this.topicButtons = document.querySelectorAll('.topic_button') ?? [];
+        this.listViewBtn = document.getElementById('list-view-btn');
+        this.graphViewBtn = document.getElementById('graph-view-btn');
+        this.listView = document.getElementById('topic-list-view');
+        this.graphView = document.getElementById('topic-graph-view');
+
+        console.log(this.listView)
+
+        this.fetchMindStatus();
+        this.initEventListeners();
+        this.initCarouselControls();
+    }
+
+    initEventListeners() {
+        // Dataset selection
+        this.datasetItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const datasetName = item.textContent.trim();
+                this.handleDatasetSelection(datasetName);
+            });
+        });
+
+        // Form submission
+        if (this.form) {
+            this.form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const value = parseInt(this.numberInput.value, 10);
+                if (!isNaN(value)) {
+                    this.handleSubmitNumber(value);
+                }
+            });
+        }
+
+        // Mode selectors
+        this.modeSelectors.forEach(selector => {
+            selector.addEventListener('click', (e) => {
+                e.preventDefault();
+                const instruction = selector.textContent.trim();
+                this.handleInstruction(instruction);
+
+            });
+        });
+        // Topic buttons
+        if (this.topicButtons) {
+            console.log("Initializing topic buttons");
+            this.initTopicButtons();
+        }
+        this.form.addEventListener('submit', this.handleFormSubmit.bind(this));
+
+        if(this.listViewBtn){
+            this.listViewBtn.addEventListener('click', (e) => {
+                console.log("List view button clicked");
+                e.preventDefault();
+                console.log("listView is:", this.listView);
+                this.listView.classList.remove('d-none');
+                this.graphView.classList.add('d-none');
+                this.listViewBtn.classList.add('active-view');
+                this.graphViewBtn.classList.remove('active-view');
+            });
+        }
+
+        if(this.graphViewBtn){
+            this.graphViewBtn.addEventListener('click', (e) => {
+                console.log("Graph view button clicked");
+                e.preventDefault();
+                this.listView.classList.add('d-none');
+                this.graphView.classList.remove('d-none');
+                this.graphViewBtn.classList.add('active-view');
+                this.listViewBtn.classList.remove('active-view');
+
+
+                if (!this.graphView.dataset.loaded) {
+                    this.loadPyLDAvisGraph();
+                    this.graphView.dataset.loaded = "true";
+                }
+            });
+        }
+    }
+    initTopicButtons() {
+    this.topicButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const topicId = button.dataset.topicId;
+            this.handleTopicClick(topicId);
+            this.loadTopicDocuments(topicId); 
+        });
+    });
+    }
+    loadPyLDAvisGraph() {
+        fetch('/get_pyldavis')
+            .then(res => res.json())
+            .then(visData => {
+                const visContainer = document.createElement('div');
+                visContainer.id = 'pyldavis-container';
+                document.getElementById('topic-graph-view').innerHTML = '';
+                document.getElementById('topic-graph-view').appendChild(visContainer);
+
+                // Render PyLDAvis inside the container
+                // "ldavis" is the JS namespace exposed by the PyLDAvis JS lib
+                LDAvis.load(visData, '#pyldavis-container');
+            })
+            .catch(err => console.error("Error loading PyLDAvis data:", err));
+    }
+    initCarouselControls() {
+        const carousel = document.getElementById('document-carousel');
+        const prevBtn = document.getElementById('prev-doc');
+        const nextBtn = document.getElementById('next-doc');
+        // const returnBtn = document.getElementById('return-btn');
+
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                $('#document-carousel').carousel('prev'); // Bootstrap's carousel function
+            });
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                $('#document-carousel').carousel('next');
+            });
+        }
+    }
+
+    handleFormSubmit(event) {
+        event.preventDefault(); // Stop default form submission
+
+        const n_samples = this.numberInput.value;
+
+        fetch('/submit_analysis', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': this.getCSRFToken?.() || '', // if needed
+            },
+            body: JSON.stringify({
+                n_samples: parseInt(n_samples, 10)
+            })
+        })
+        .then(res => {
+            if (!res.ok) throw new Error("Failed to submit analysis");
+            return res.text(); // or .json() depending on your backend
+        })
+        .then(data => {
+            console.log("Analysis submitted:", data);
+            // Optional: Redirect, flash a message, reload UI
+            window.location.reload();
+        })
+        .catch(err => {
+            console.error("Submission error:", err);
+            alert("An error occurred while submitting the analysis.");
+        });
+        setTimeout(() => {
+            window.location.reload();
+        }, 1000);
+    }
+
+    loadTopicDocuments(topicId) {
+        fetch('/topic_selection', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': this.getCSRFToken()
+            },
+            body: JSON.stringify({ topic_id: topicId })
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log("Topic documents data:", data);
+            if (data.topic_documents && Array.isArray(data.topic_documents)) {
+                this.renderCarousel(data.topic_documents);
+            } else {
+                console.error("Error loading documents", data);
+            }
+        })
+        .catch(err => console.error("Error fetching topic documents:", err));
+    }
+
+    fetchMindStatus() {
+        fetch('http://localhost:93/status') 
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to fetch status");
+                }
+                return response.json();
+            })
+            .then(data => {
+                this.state = data.state; 
+                console.log("MIND status retrieved:", this.state);
+            })
+            .catch(error => {
+                console.error("Error fetching MIND status:", error);
+            });
+    }
+
+    fetchInstructions() {
+        return fetch('/get_instruction')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to fetch instructions");
+                }
+                return response.json();
+            })
+            .then(data => {
+                this.lastInstruction = data.instruction; 
+                console.log("Instructions retrieved:", data);
+            })
+            .catch(error => {
+                console.error("Error fetching instructions:", error);
+            });
+    }
+
+
+    getCSRFToken() {
+        const cookieValue = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('csrf_token='))
+            ?.split('=')[1];
+        return cookieValue || '';
+    }
+
+    renderCarousel(documents) {
+        const carouselContainer = document.getElementById('carousel-inner');
+        const topicListCard = document.getElementById('topic-list-card');
+        const carouselCard = document.getElementById('document-carousel-card');
+
+        // Clear previous content
+        carouselContainer.innerHTML = '';
+
+        documents.forEach((doc, index) => {
+            const activeClass = index === 0 ? 'active' : '';
+
+            carouselContainer.innerHTML += `
+                <div class="carousel-item ${activeClass}">
+                    <div class="card shadow-sm border-0">
+                        <div class="row g-0 align-items-center">
+                            
+                            <!-- Document text -->
+                            <div class="col-md-8 p-3">
+                                <div class="doc-text" style="max-height: 300px; overflow-y: auto;">
+                                    <p class="mb-0">${doc.raw_text || 'No content available'}</p>
+                                </div>
+                            </div>
+
+                            <!-- Topic distribution chart -->
+                            <div class="col-md-4 p-3 text-center">
+                                <h6 class="text-muted mb-2">Topic Distribution</h6>
+                                <canvas id="chart-doc-${doc.doc_id}" style="max-width: 100%; height: auto;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        // Show carousel, hide topic list
+        topicListCard.classList.add('d-none');
+        carouselCard.classList.remove('d-none');
+
+        // Re-initialize Bootstrap carousel
+        $('#document-carousel').carousel(0);
+
+        // Plot charts for each document
+        documents.forEach(doc => {
+            const ctx = document.getElementById(`chart-doc-${doc.doc_id}`);
+            if (ctx && doc.topic_distribution) {
+                new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: doc.topic_distribution.map((_, i) => `Topic ${i}`),
+                        datasets: [{
+                            data: doc.topic_distribution,
+                            backgroundColor: [
+                                '#FF6384', '#36A2EB', '#FFCE56', 
+                                '#4BC0C0', '#9966FF', '#FF9F40', '#66FF66'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { boxWidth: 12 }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+
+    handleDatasetSelection(datasetName) {
+        console.log("Selected dataset:", datasetName);
+
+        fetch('/detection', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': this.getCSRFToken?.() || ''
+            },
+            body: JSON.stringify({ dataset: datasetName })
+        })
+        .then(res => {
+            if (!res.ok) throw new Error("Backend error");
+            // We are not parsing the response, since it may be HTML
+            return res.text(); // or just do nothing
+        })
+        .then(data => {
+            console.log("Backend responded (likely HTML), reloading...");
+            setTimeout(() => {
+                window.location.reload();
+            }, 100); // shorter delay is fine
+        })
+        .catch(err => console.error("Dataset selection error:", err));
+    }
+
+
+    handleInstruction(instruction) {
+        console.log("Selected instruction:", instruction); 
+        fetch('/mode_selection', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': this.getCSRFToken() 
+            },
+            body: JSON.stringify({ instruction: instruction })
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log("Backend response:", data);
+        })
+        .catch(err => console.error("Dataset selection error:", err));    
+        setTimeout(() => {
+            window.location.reload();
+        }, 1000); // Adjust the timeout as needed
+    }
+
+    async handleTopicClick(topicId) {
+        await this.fetchInstructions(); 
+        console.log("Selected topic:", topicId);
+        console.log("Last instruction:", this.lastInstruction);
+        if (this.lastInstruction === 'Explore topics') {
+            fetch('/topic_selection', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': this.getCSRFToken() 
+                },
+                body: JSON.stringify({ topic_id: topicId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log("Backend response:", data);
+                if (data.topic_documents) {
+                    plotTopicDistributions(data.topic_documents);
+                }
+            }).catch(err => console.error("Topic selection error:", err));
+        }
+        else if (this.lastInstruction === 'Analyze contradictions') { // Not done yet
+            fetch('/analyze_topic', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': this.getCSRFToken() // if using Flask-WTF/CSRF
+                },
+                body: JSON.stringify({ topic_id: topicId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log("Backend response:", data);
+                if (data.topic_documents) {
+                    plotTopicDistributions(data.topic_documents);
+                }
+            })
+            .catch(err => console.error("Topic analysis error:", err));
+        } else {
+            console.error("Invalid instruction for topic selection:", this.lastInstruction);
+            return;
+        }
+
+    }
+
+}
+
+// Instantiate when DOM is fully loaded
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("MINDInterface initialized");
+    const mindInterface = new MINDInterface();
+    // const socket = new WebSocket(`ws://${window.location.host}/ws`);
+    
+});
+
+</script>
+
+{% if csrf_token %}
+<script>
+    document.cookie = "csrf_token={{ csrf_token }}";
+</script>
+{% endif %}
+<style>
+.hover-text-primary:hover {
+    color: #007bff;
+    cursor: pointer;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const modal = $('#docModal');
+    const modalTitle = modal.find('.modal-title');
+    const modalBody = modal.find('.modal-body');
+
+    document.querySelectorAll('.view-doc-link').forEach(link => {
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            const docId = this.getAttribute('data-doc-id');
+            const docContent = this.getAttribute('data-doc-content');
+
+            modalTitle.text(`Document ${docId}`);
+            modalBody.html(`<pre style="white-space: pre-wrap;">${docContent}</pre>`);
+
+            modal.modal('show');
+        });
+    });
+});
+</script>
+
+<!-- Load Chart.js (you can put this in your base template head) -->
+
+<script>
+async function loadTopicDistributions(topicId) {
+    try {
+        // Fetch data from your /topic_selection endpoint
+        const response = await fetch('/topic_selection', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ topic_id: topicId })
+        });
+        console.log(topicId);
+        const data = await response.json();
+        const documents = data.topic_documents;
+
+        documents.forEach(doc => {
+            const ctx = document.getElementById(`chart-doc-${doc.doc_id}`);
+            if (!ctx) return; 
+
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: doc.topic_distribution.map((_, i) => `Topic ${i}`),
+                    datasets: [{
+                        label: 'Topic Probability',
+                        data: doc.topic_distribution,
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1
+                        }
+                    }
+                }
+            });
+        });
+    } catch (err) {
+        console.error("Error loading topic distributions:", err);
+    }
+}
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/gh/bmabey/pyLDAvis@master/pyLDAvis/js/ldavis.js"></script>
+
+
+{% endblock %}
+
+

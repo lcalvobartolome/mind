@@ -1,0 +1,49 @@
+version: '3.9'
+
+services:
+  new_frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+
+    user: root
+    # network_mode: "host"
+    ports:
+      - "5000:5000"
+    volumes:
+      # - ./new_backend:/app
+      - ./data:/data
+      # - ./Data:/Data
+
+    environment:
+      - PYTHONUNBUFFERED=1
+    env_file:
+      ./.env
+
+  # new_backend:
+  #   build: ./app
+  #   ports:
+  #     - "3000:80"
+  #   depends_on:
+  #     - new_frontend
+    # volumes:
+    #   - ./app:/usr/share/nginx/html
+
+  # mind:
+  #   build: ./src
+  #   user: root
+  #   volumes:
+  #     - ./Data:/Data 
+
+  #     - ./Data_old:/Data_old
+  #   privileged: true
+  #   ports:
+  #     - "93:93"
+  #   depends_on:
+  #     - backend
+  #   environment:
+  #     - PYTHONUNBUFFERED=1
+  #   env_file:
+  #     ./.env
+
+#now with correct permissions

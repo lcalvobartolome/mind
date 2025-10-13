@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block title %}Preprocessing{% endblock %}
+
+{% block content %}
+<div class="container mt-5 text-center">
+    <h1 class="mb-5">Preprocess your datasets!</h1>
+
+    <div class="d-flex justify-content-center align-items-center flex-wrap">
+        <!-- Step 1 -->
+        <div class="step-box" data-toggle="modal" data-target="#stepModal" data-step="1">
+            Dataset selection<br><small>Click to tune</small>
+        </div>
+
+        <div class="arrow">&#8594;</div>
+
+        <!-- Step 2 -->
+        <div class="step-box" data-toggle="modal" data-target="#stepModal" data-step="2">
+            Preprocessing<br><small>Click to tune</small>
+        </div>
+
+        <div class="arrow">&#8594;</div>
+
+        <!-- Step 3 -->
+        <div class="step-box" data-toggle="modal" data-target="#stepModal" data-step="3">
+            Topic Modeling<br><small>Click to tune</small>
+        </div>
+
+        <div class="arrow">&#8594;</div>
+
+        <!-- Step 4 -->
+        <div class="step-box" data-toggle="modal" data-target="#stepModal" data-step="4">
+            Data<br><small>Download</small>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="stepModal" tabindex="-1" role="dialog" aria-labelledby="stepModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="stepModalLabel">Step Info</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <!-- Step 1: Data Selection -->
+      <div class="modal-body" id="modal-body-1">
+        <label for="optionsDatasets">Select an option: </label>
+        <select id="optionsDatasets">
+          {% if datasets %}
+          <option value="" disabled selected>-- Choose an avaible dataset --</option>
+            {% for ds in datasets %}
+            <option value="{{ names[loop.index - 1] }}">{{ names[loop.index - 1] }}</option> 
+            {% endfor %}
+          {% else %}
+          <p>No datasets available.</p>
+          {% endif %}
+        </select>
+
+        <button type="button" class="btn btn-secondary" id="confirmDataset">Accept Dataset</button>
+
+        <!-- <div id="resultDataset">
+          Actual selection: <b>None</b>
+        </div> -->
+      </div>
+
+      <!-- Ejemplo Base -->
+      <div class="modal-body" id="modal-body-base">
+        This is placeholder content. It will change depending on the step clicked.
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<style>
+    .step-box {
+        width: 150px;
+        height: 100px;
+        background-color: #f8f9fa;
+        border: 2px solid #28a745;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+        font-weight: bold;
+    }
+    .step-box:hover {
+        background-color: #e9f7ef;
+        transform: scale(1.05);
+    }
+    .arrow {
+        font-size: 2rem;
+        margin: 0 15px;
+        color: #28a745;
+    }
+</style>
+
+<script>
+let db_selected = "";
+
+document.addEventListener('DOMContentLoaded', function () {
+    const modal = document.getElementById('stepModal');
+    const modalTitle = modal.querySelector('.modal-title');
+    const bodyBase = document.getElementById('modal-body-base');
+    const bodyOne = document.getElementById('modal-body-1');
+
+    // Step 1
+    const selector = document.getElementById('optionsDatasets');
+    const datasetButton = document.getElementById('confirmDataset');
+    // const resultDiv = document.getElementById('resultDataset');
+    
+    function confirmarSeleccion() {
+        const dbSelected = selector.value;
+        if (dbSelected != "") {
+            // resultDiv.innerHTML = `Actual selection: <b>${dbSelected}`;
+            db_selected = dbSelected;
+        } else {
+            // resultDiv.innerHTML = `Actual selection: <b>None`;
+            alert('Please select an available dataset before accepting.');
+        }
+    }
+
+    if (datasetButton) {
+        datasetButton.addEventListener('click', confirmarSeleccion);
+    }
+    
+    document.querySelectorAll('.step-box').forEach(box => {
+        box.addEventListener('click', () => {
+            const step = box.getAttribute('data-step');
+            
+            if (step === "1") {
+                modalTitle.textContent = `Step ${step}: Data Selection`;
+                bodyOne.style.display = 'block';
+                bodyBase.style.display = 'none';
+            }
+            else {
+                modalTitle.textContent = `Step ${step} Details`;
+                bodyOne.style.display = 'none';
+                bodyBase.style.display = 'block';
+                
+                bodyBase.textContent = `This is where content for Step ${step} will go.`;
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
