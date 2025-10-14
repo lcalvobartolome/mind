@@ -24,6 +24,7 @@ class LastInstruction(str, Enum):
     analyze_contradictions = "Analyze contradictions"
 
 current_instruction = {"instruction": LastInstruction.idle, "last_updated": None}
+MIND_WORKER_URL = os.environ.get('MIND_WORKER_URL')
     
 
 @views.route('/')
@@ -114,13 +115,13 @@ def get_pyldavis():
         vis_inputs = read_mallet(pyLDAvis_path)
         print(vis_inputs)
 
-        visuals = vis.prepare(topic_term_dists=vis_inputs['topic_term_dists_en'],
-                            doc_topic_dists=vis_inputs['doc_topic_dists_en'],
-                            doc_lengths=vis_inputs['doc_lengths_en'],
-                            vocab=vis_inputs['vocab_en'],
-                            term_frequency=vis_inputs['term_frequency_en'])
+        # visuals = vis.prepare(topic_term_dists=vis_inputs['topic_term_dists_en'],
+        #                     doc_topic_dists=vis_inputs['doc_topic_dists_en'],
+        #                     doc_lengths=vis_inputs['doc_lengths_en'],
+        #                     vocab=vis_inputs['vocab_en'],
+        #                     term_frequency=vis_inputs['term_frequency_en'])
 
-        response = vis.prepared_data_to_json(visuals)
+        # response = vis.prepared_data_to_json(visuals)
 
 
     return jsonify(response.json())
@@ -182,6 +183,37 @@ def preprocessing():
         dataset_list, datasets_name, shapes = load_datasets(dataset_path)
     return render_template('preprocessing.html', datasets=dataset_list, names=datasets_name)
 
+@views.route('/confirm_preprocessing_step2', methods=['POST'])
+@login_required
+def confirm_preprocessing_step2():
+    """Recibe la petición del HTML y la reenvía al Worker."""
+    
+    # 2. Obtener los datos del frontend HTML
+    data = request.get_json()
+    
+    # 3. Hacer la llamada HTTP POST al servicio mind_worker
+    try:
+        worker_response = requests.post(
+            f"{MIND_WORKER_URL}/process/preprocessing",
+            json=data # Envía el JSON recibido directamente al worker
+        )
+        
+        # 4. Devolver la respuesta del worker (status code y contenido) al frontend
+        return jsonify(worker_response.json()), worker_response.status_code
+
+    except requests.exceptions.ConnectionError:
+        return jsonify({
+            "status": "error",
+            "message": "Error de conexión con el Worker de Procesamiento. Asegúrate de que el servicio 'mind_worker' está corriendo.",
+            "next_step_available": False
+        }), 503 # Service Unavailable
+
+    except Exception as e:
+        return jsonify({
+            "status": "error", 
+            "message": f"Error desconocido en el proxy: {str(e)}",
+            "next_step_available": False
+        }), 500
 
 @views.route('/mode_selection', methods=['GET', 'POST'])
 @login_required

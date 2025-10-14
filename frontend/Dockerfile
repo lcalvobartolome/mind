@@ -5,7 +5,7 @@ WORKDIR /frontend
 
 COPY ./frontend/ . 
 COPY .env ./frontend/.env 
-COPY ./data ./data 
+# COPY ./data ./data 
 
 ENV PYTHONPATH=/frontend
 

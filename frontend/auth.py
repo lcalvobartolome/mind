@@ -1,13 +1,10 @@
-from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for, current_app
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import login_user, logout_user, current_user, login_required
-
-from models import User
-from __init__ import db
-import re
+from flask import Blueprint, render_template, request, flash, redirect, url_for, current_app, session
+import requests
 
 auth = Blueprint('auth', __name__)
 
+# URL del microservicio auth desde Docker
+AUTH_API_URL = "http://auth:5002/auth"  # este nombre 'auth' viene del docker-compose
 
 def validate_password(password, password_rep):
     """Validate account strength."""
@@ -19,7 +16,7 @@ def validate_password(password, password_rep):
     elif password != password_rep:
         flash("Passwords do not match", "danger")
         veredict = (False, "Passwords do not match.")
-    elif not re.search(r'[!@#$%^&*(),.?":{}|<>_+=\-\[\]\\;\'\/~`]', password):
+    elif not any(c in '!@#$%^&*(),.?":{}|<>_+=-[]\\;/~`' for c in password):
         flash("Password must contain at least one special character", "danger")
         veredict = (False, "Password must contain a special character.")
     return veredict
@@ -30,48 +27,68 @@ def login():
         email = request.form.get('email')
         password = request.form.get('password')
 
-        user = User.query.filter_by(email=email).first()
-        if user and check_password_hash(user.password, password):
+        # Enviar login al microservicio auth
+        try:
+            response = requests.post(f"{AUTH_API_URL}/login", json={
+                "email": email,
+                "password": password
+            })
+        except requests.exceptions.RequestException:
+            flash("Authentication service unavailable.", "danger")
+            return render_template('login.html')
+
+        if response.status_code == 200:
+            data = response.json()
+            session['user_id'] = data.get('user_id')
             flash("Login successful", "success")
-            login_user(user, remember=True)
-            print(f"User {user.email} logged in successfully")
             return redirect(url_for('views.home'))
         else:
-            flash("Login failed. Check your email and password.", "danger")
-    return render_template('login.html', user=current_user)
+            flash(response.json().get('error', 'Login failed'), "danger")
 
-@auth.route('/logout', methods=['GET', 'POST'])
-@login_required
+    return render_template('login.html')
+
+
+@auth.route('/logout', methods=['GET'])
 def logout():
-    logout_user()
+    session.pop('user_id', None)
     flash("You have been logged out", "success")
     return redirect(url_for('auth.login'))
+
 
 @auth.route('/sign-up', methods=['GET', 'POST'])
 def sign_up():
     if request.method == 'POST':
         email = request.form.get('email')
+        username = request.form.get('username')
         password = request.form.get('password')
-        user = request.form.get('username')
         password_rep = request.form.get('password_rep')
-        
-        if validate_password(password, password_rep)[0] is True:
-            new_user = User(email=email, password=generate_password_hash(password, method='pbkdf2:sha256'), user=user)
-            try:
-                db.session.add(new_user)
-                db.session.commit()
-                # Query the user back to confirm insertion
-                confirmed_user = User.query.filter_by(email=email).first()
-                if confirmed_user:
-                    print(f"User {confirmed_user.email} successfully added to DB with ID {confirmed_user.id}")
-                else:
-                    print("User insertion failed: user not found after commit")
 
-                login_user(new_user, remember=True)
-                flash("Account created successfully", "success")
-            except Exception as e:
-                db.session.rollback()
-                flash(f"An error occurred while creating the account: {str(e)}", "danger")
+        if not validate_password(password, password_rep)[0]:
+            return render_template('sign_up.html')
+
+        # Enviar registro al microservicio auth
+        try:
+            response = requests.post(f"{AUTH_API_URL}/register", json={
+                "email": email,
+                "username": username,
+                "password": password,
+                "password_rep": password_rep
+            })
+        except requests.exceptions.RequestException:
+            flash("Authentication service unavailable.", "danger")
+            return render_template('sign_up.html')
+
+        if response.status_code == 201:
+            flash("Account created successfully", "success")
+            # Login automático tras registro
+            login_response = requests.post(f"{AUTH_API_URL}/login", json={
+                "email": email,
+                "password": password
+            })
+            if login_response.status_code == 200:
+                session['user_id'] = login_response.json().get('user_id')
             return redirect(url_for('views.home'))
+        else:
+            flash(response.json().get('error', 'Registration failed'), "danger")
 
-    return render_template('sign_up.html', user=current_user)
+    return render_template('sign_up.html')

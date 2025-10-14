@@ -65,12 +65,42 @@
         </div> -->
       </div>
 
+      <!-- Step 2: Preprocessing -->
+      <div class="modal-body" id="modal-body-2">
+        <div id="step2Container" class="step-container"> 
+          <div id="modal-body-2-1" class="step-slide">
+            <p>Ready to preprocess dataset:
+              <b id="dbSelectedStep2"></b>.
+            </p>
+            <p>Click Confirm to run the backend process.</p>
+          </div>
+
+          <div id="modal-body-step2-2" class="step-slide">
+              <p>Define the **data types** for key columns.</p>
+              <ul id="columnTypesList" class="mb-3">
+                  <li>Feature A: <input type="text" placeholder="Type (e.g., Categorical)"></li>
+              </ul> 
+          </div>
+
+          <div id="modal-body-step2-3" class="step-slide">
+              <p>Review the configuration and click **Accept Action** to run the preprocessor on: <b id="dbSelectedFinal"></b>.</p>
+              <p>Ready for final execution.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer" id="modal-footer-2">
+        <button type="button" class="btn btn-secondary" id="prevStep2">< Prev</button>
+        <button type="button" class="btn btn-primary" id="nextStep2" data-dismiss="">Next ></button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+
       <!-- Ejemplo Base -->
       <div class="modal-body" id="modal-body-base">
         This is placeholder content. It will change depending on the step clicked.
       </div>
 
-      <div class="modal-footer">
+      <div class="modal-footer" id="modal-footer-base">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
       </div>
 
@@ -102,16 +132,52 @@
         margin: 0 15px;
         color: #28a745;
     }
+
+    .step-container {
+        overflow: hidden;
+        position: relative;
+        height: 150px;
+    }
+
+    .step-slide {
+        width: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        transition: transform 0.5s ease-in-out;
+        transform: translateX(100%);
+        padding: 15px;
+    }
+
+    .step-slide.active-slide {
+        transform: translateX(0);
+    }
+
+    .step-slide.previous-slide {
+        transform: translateX(-100%);
+    }
 </style>
 
 <script>
 let db_selected = "";
+let step1Done = false, step2Done = false, step3Done = false;
+
+let currentSubStep = 1;
+const totalSubSteps = 3;
 
 document.addEventListener('DOMContentLoaded', function () {
     const modal = document.getElementById('stepModal');
     const modalTitle = modal.querySelector('.modal-title');
+
     const bodyBase = document.getElementById('modal-body-base');
     const bodyOne = document.getElementById('modal-body-1');
+    const bodyTwo = document.getElementById('modal-body-2');
+
+    const footerBase = document.getElementById('modal-footer-base');
+    const footerTwo = document.getElementById('modal-footer-2');
+
+    const prevButton = document.getElementById('prevStep2');
+    const nextButton = document.getElementById('nextStep2');
 
     // Step 1
     const selector = document.getElementById('optionsDatasets');
@@ -123,14 +189,158 @@ document.addEventListener('DOMContentLoaded', function () {
         if (dbSelected != "") {
             // resultDiv.innerHTML = `Actual selection: <b>${dbSelected}`;
             db_selected = dbSelected;
+            step1Done = true;
         } else {
             // resultDiv.innerHTML = `Actual selection: <b>None`;
+            step1Done = false;
             alert('Please select an available dataset before accepting.');
         }
     }
 
     if (datasetButton) {
         datasetButton.addEventListener('click', confirmarSeleccion);
+    }
+
+    // Función para ejecutar la acción de AJAX en el Step 2
+    function executeStep2Action() {
+        // const confirmButton = document.getElementById('confirmStep2');
+        // // Desactivar el botón para evitar múltiples envíos
+        // confirmButton.disabled = true;
+        // confirmButton.textContent = 'Processing...';
+    
+        const data_a_enviar = {
+            'dataset_name': db_selected,
+            // Puedes añadir más parámetros de configuración de preprocesamiento aquí
+        };
+
+        // LLAMADA AJAX
+        fetch("/confirm_preprocessing_step2", {
+            method: "POST", 
+            headers: {
+                "Content-Type": "application/json",
+            },
+            // Convertir el objeto JS a una cadena JSON para enviar al backend
+            body: JSON.stringify(data_a_enviar), 
+        })
+        .then(response => {
+            // El bloque then() inicial solo verifica el estado HTTP
+            if (!response.ok) {
+                // Si el status es 4xx o 5xx (ej. 500 Internal Server Error)
+                // Lanza un error para que el bloque .catch() lo maneje
+                return response.json().then(err => {
+                    throw new Error(err.message || `HTTP Error: ${response.status}`);
+                });
+            }
+            // Si la respuesta es OK (2xx), la convierte a JSON
+            return response.json();
+        })
+        .then(response => {
+            // Manejar la respuesta de éxito (response.status === "success")
+            alert('Éxito (' + response.status + '): ' + response.message);
+            step2Done = response.next_step_available;
+            
+            // Actualizar la interfaz usando innerHTML para inyectar etiquetas HTML
+            if (bodyTwo) {
+                bodyTwo.innerHTML = `<p class="text-success">✅ ${response.message}</p>`;
+            }
+
+            // 3. Volver a habilitar el botón y actualizar su texto
+            // confirmButton.disabled = false;
+            // confirmButton.textContent = 'Confirmar';
+        })
+        .catch(error => {
+            // Manejar errores de red, errores HTTP, o errores lanzados en el bloque .then()
+            console.error("Error en la solicitud Fetch/AJAX:", error.message);
+            
+            // Muestra el mensaje de error al usuario
+            alert('Error: ' + error.message);
+            
+            // 4. Volver a habilitar el botón y actualizar su texto
+            // confirmButton.disabled = false;
+            // confirmButton.textContent = 'Confirmar';
+
+            // Actualizar la interfaz con el mensaje de error
+            if (bodyTwo) {
+                bodyTwo.innerHTML = `<p class="text-danger">❌ ${error.message}</p>`;
+            }
+        });
+    }
+
+    // === Listener para el botón de Confirmar del Step 2 (DEBES CREAR ESTE BOTÓN EN TU HTML) ===
+    // Asumiendo que tienes un botón con id="confirmStep2" dentro del modal
+    // const confirmStep2Button = document.getElementById('confirmStep2');
+    // if (confirmStep2Button) {
+    //     // confirmStep2Button.addEventListener('click', executeStep2Action);
+    // }
+
+    function updateStepDisplay() {
+        footerBase.style.display = 'none';
+        footerTwo.style.display = 'block';
+        const slides = document.querySelectorAll('.step-slide');
+        
+        // 1. Aplicar clases para la animación
+        slides.forEach((slide, index) => {
+            const stepNum = index + 1;
+            
+            slide.classList.remove('active-slide', 'previous-slide');
+
+            if (stepNum === currentSubStep) {
+                slide.classList.add('active-slide');
+            } else if (stepNum < currentSubStep) {
+                slide.classList.add('previous-slide');
+            }
+        });
+        
+        // 2. Controlar la visibilidad y apariencia de los botones del footer
+        // Botón Previous: Visible desde el paso 2 en adelante
+        prevButton.style.display = currentSubStep > 1 ? 'block' : 'none';
+
+        if (currentSubStep === totalSubSteps) {
+            // Último paso: Cambiar a 'Accept Action'
+            nextButton.textContent = 'Accept Action';
+            nextButton.classList.remove('btn-primary');
+            nextButton.classList.add('btn-success');
+        } else {
+            // Pasos intermedios: Volver a 'Next'
+            nextButton.textContent = 'Next >';
+            nextButton.setAttribute('data-dismiss', '');
+            nextButton.classList.remove('btn-success');
+            nextButton.classList.add('btn-primary');
+        }
+        
+        // 3. Actualizar la información visual
+        if (document.getElementById('dbSelectedFinal')) {
+            document.getElementById('dbSelectedFinal').textContent = db_selected;
+        }
+    }
+    
+    // Listener para el botón 'Previous'
+    if (prevButton) {
+        prevButton.addEventListener('click', () => {
+            if (currentSubStep > 1) {
+                currentSubStep--;
+                updateStepDisplay();
+            }
+        });
+    }
+
+    // =========================================================================
+    // LÓGICA DEL BOTÓN 'Next / Accept Action'
+    // =========================================================================
+
+    if (nextButton) {
+        nextButton.addEventListener('click', () => {
+            if (currentSubStep < totalSubSteps) {
+                // AVANZAR AL SIGUIENTE PASO
+                currentSubStep++;
+                updateStepDisplay();
+            }
+            else {
+                // ÚLTIMO PASO: EJECUTAR LA ACCIÓN AJAX
+                executeStep2Action();
+                nextButton.setAttribute('data-dismiss', 'modal');
+            }
+        });
     }
     
     document.querySelectorAll('.step-box').forEach(box => {
@@ -139,13 +349,47 @@ document.addEventListener('DOMContentLoaded', function () {
             
             if (step === "1") {
                 modalTitle.textContent = `Step ${step}: Data Selection`;
+
                 bodyOne.style.display = 'block';
+                bodyTwo.style.display = 'none';
                 bodyBase.style.display = 'none';
+
+                footerTwo.style.display = 'none';
+                footerBase.style.display = 'block';
             }
+
+            else if (step === "2") {
+              modalTitle.textContent = `Step ${step}: Preprocessing`;
+
+              bodyOne.style.display = 'none';
+              bodyTwo.style.display = 'none';
+              bodyBase.style.display = 'block';
+              
+              footerTwo.style.display = 'none';
+              footerBase.style.display = 'block';
+
+              if (!step1Done) {
+                bodyBase.textContent = `Please do Step 1: Data Selection.`;
+              }
+              else {
+                // Mostrar la interfaz del Step 2 y el botón de Confirmar
+                bodyBase.style.display = 'none';
+                bodyTwo.style.display = 'block';
+                currentSubStep = 1;
+                document.getElementById('dbSelectedStep2').textContent = db_selected;
+                updateStepDisplay();
+              }
+            }
+
             else {
                 modalTitle.textContent = `Step ${step} Details`;
+
                 bodyOne.style.display = 'none';
+                bodyTwo.style.display = 'none';
                 bodyBase.style.display = 'block';
+
+                footerTwo.style.display = 'none';
+                footerBase.style.display = 'block';
                 
                 bodyBase.textContent = `This is where content for Step ${step} will go.`;
             }

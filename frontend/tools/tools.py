@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 import re
 from scipy.sparse import csr_matrix, vstack
-import pyLDAvis as vis
+# import pyLDAvis as vis
 
 def allowed_file(filename):
     allowed_extensions = os.getenv("ALLOWED_EXTENSIONS", "parquet,csv,xlsx").split(",")
