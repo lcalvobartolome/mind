@@ -28,15 +28,15 @@
                     <table class="table table-sm table-striped table-bordered">
                         <thead class="thead-light">
                             <tr>
-                                {% for col in ds.columns %}
+                                {% for col in ds[0] %}
                                     <th>{{ col }}</th>
                                 {% endfor %}
                             </tr>
                         </thead>
                         <tbody>
-                            {% for row in ds.head(5).values.tolist() %}
+                            {% for row in ds[:5] %}
                             <tr>
-                                {% for cell in row %}
+                                {% for cell in row.values() %}
                                     <td>{{ cell }}</td>
                                 {% endfor %}
                             </tr>

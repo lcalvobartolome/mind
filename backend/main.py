@@ -42,4 +42,6 @@ def handle_preprocessing():
 
 if __name__ == '__main__':
     # Usamos host='0.0.0.0' para que sea accesible dentro de Docker
+    from dataset import datasets_bp
+    app.register_blueprint(datasets_bp, url_prefix='/')
     app.run(host='0.0.0.0', port=PORT)

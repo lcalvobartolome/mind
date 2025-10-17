@@ -1,14 +1,11 @@
 from flask import Blueprint, render_template, request,flash, jsonify, session, send_file
-from werkzeug.security import generate_password_hash, check_password_hash 
 from werkzeug.utils import secure_filename
 from functools import wraps
 from enum import Enum
-import glob
 
 import dotenv
 import os
 import pandas as pd
-import numpy as np
 import requests
 from tools.tools import *
 from auth import validate_password
@@ -50,19 +47,23 @@ def about_us():
 @login_required_custom
 def datasets():
     user_id = session.get('user_id')
-    dataset_path = os.getenv("DATASET_PATH", "/data/3_joined_data")
-    dataset_list = []
-    if not os.path.exists(dataset_path):
-        flash(f"Dataset path {dataset_path} does not exist.", "danger")
-        return render_template("datasets.html", user_id=user_id, datasets=[])
-    else:
-        # try:
-        dataset_list, datasets_name, shapes = load_datasets(dataset_path)
-        if dataset_list:
+
+    try:
+        response = requests.get(f"{MIND_WORKER_URL}/datasets")
+        if response.status_code == 200:
+            data = response.json()
+            datasets = data.get("datasets", [])
+            names = data.get("names", [])
+            shapes = data.get("shapes", [])
             flash(f"Datasets loaded successfully!", "success")
         else:
-            flash(f"No datasets found in {dataset_path}.", "warning")
-        return render_template("datasets.html", user_id=user_id, datasets=dataset_list, names=datasets_name, shape=shapes)
+            flash(f"Error loading datasets: {response.text}", "danger")
+            datasets, names, shapes = [], [], []
+    except requests.exceptions.RequestException:
+        flash("Backend service unavailable.", "danger")
+        datasets, names, shapes = [], [], []
+
+    return render_template("datasets.html", user_id=user_id, datasets=datasets, names=names, shape=shapes)
 
 @views.get('/get_instruction')
 def get_last_instruction():
@@ -181,50 +182,6 @@ def submit_analysis():
 
     return jsonify({"message": "Sample recieved, starting analysis."})
 
-@views.route('/preprocessing', methods=['GET', 'POST'])
-@login_required_custom
-def preprocessing():
-    user_id = session.get('user_id')
-    dataset_path = os.getenv("DATASET_PATH", "/data/3_joined_data")
-    dataset_list = []
-    if not os.path.exists(dataset_path):
-        flash(f"Dataset path {dataset_path} does not exist.", "danger")
-    else:
-        dataset_list, datasets_name, shapes = load_datasets(dataset_path)
-    return render_template('preprocessing.html', user_id=user_id, datasets=dataset_list, names=datasets_name)
-
-@views.route('/confirm_preprocessing_step2', methods=['POST'])
-@login_required_custom
-def confirm_preprocessing_step2():
-    """Recibe la petición del HTML y la reenvía al Worker."""
-    
-    # 2. Obtener los datos del frontend HTML
-    data = request.get_json()
-    
-    # 3. Hacer la llamada HTTP POST al servicio mind_worker
-    try:
-        worker_response = requests.post(
-            f"{MIND_WORKER_URL}/process/preprocessing",
-            json=data # Envía el JSON recibido directamente al worker
-        )
-        
-        # 4. Devolver la respuesta del worker (status code y contenido) al frontend
-        return jsonify(worker_response.json()), worker_response.status_code
-
-    except requests.exceptions.ConnectionError:
-        return jsonify({
-            "status": "error",
-            "message": "Error de conexión con el Worker de Procesamiento. Asegúrate de que el servicio 'mind_worker' está corriendo.",
-            "next_step_available": False
-        }), 503 # Service Unavailable
-
-    except Exception as e:
-        return jsonify({
-            "status": "error", 
-            "message": f"Error desconocido en el proxy: {str(e)}",
-            "next_step_available": False
-        }), 500
-
 @views.route('/mode_selection', methods=['GET', 'POST'])
 @login_required_custom
 def mode_selection():
@@ -324,41 +281,17 @@ def detection():
             topic_id = session.get('selected_topic') or 5 #Just for testing
             n_samples = session.get('n_samples') or 5
             og_dataset = session.get('dataset') or 'en_2025_06_05_matched'
-            og_dataset_path = os.path.join(os.getenv("DATASET_PATH", "/Data/3_joined_data"), og_dataset, 'polylingual_df')
-            og_ds = pd.read_parquet(og_dataset_path)
-            shapes = og_ds.shape
-            og_ds = og_ds.drop(columns=['index'])
-
-            # 🔹 Load ALL files in final_results (recursively)
-            final_results_path = os.path.join(dataset_path, "final_results")
-            mind_info = []
-
-            all_datasets = {}
-
-            for file in glob.glob(os.path.join(final_results_path, "**", "*.*"), recursive=True):
-                if file.endswith((".parquet", ".csv", ".xlsx")):
-                    try:
-                        if file.endswith(".parquet"):
-                            df = pd.read_parquet(file)
-                        elif file.endswith(".csv"):
-                            df = pd.read_csv(file)
-                        elif file.endswith(".xlsx"):
-                            df = pd.read_excel(file)
-
-                        # Add raw_text from original dataset
-                        if "doc_id" in df.columns and "doc_id" in og_ds.columns:
-                            df = df.merge(
-                                og_ds[["doc_id", "raw_text"]],
-                                on="doc_id",
-                                how="left"
-                            )
-
-                        dataset_name = os.path.relpath(file, final_results_path)
-                        mind_info.append({dataset_name: df.to_dict(orient="records")})
-
-
-                    except Exception as e:
-                        print(f"⚠️ Failed to load {file}: {e}")
+            try:
+                response = requests.get(f"{MIND_WORKER_URL}/final_results/{og_dataset}")
+                if response.status_code == 200:
+                    data = response.json()
+                    results = data.get("results", [])
+                else:
+                    flash(f"Error loading final results: {response.text}", "danger")
+                    results = []
+            except requests.exceptions.RequestException:
+                flash("Backend service unavailable.", "danger")
+                results = []
 
             print(mind_info)
             # ds_tuple = (og_ds, [og_dataset], [shapes])
