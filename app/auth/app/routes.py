@@ -1,9 +1,13 @@
+import os, requests
+
+from database import db
+from models import User
 from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import User
-from database import db
 
 auth_bp = Blueprint("auth", __name__)
+MIND_WORKER_URL = os.getenv("MIND_WORKER_URL")
+
 
 @auth_bp.route("/register", methods=["POST"])
 def register():
@@ -22,6 +26,20 @@ def register():
     new_user = User(email=email, username=username, password=hashed_pw)
     db.session.add(new_user)
     db.session.commit()
+
+    try:
+        response = requests.post(
+            f"{MIND_WORKER_URL}/create_user_folders",
+            json={"email": email},
+            timeout=10
+        )
+        if response.status_code != 200:
+            raise Exception(f"Error from backend: {response.text}")
+
+    except Exception as e:
+        db.session.delete(new_user)
+        db.session.commit()
+        return jsonify({"error": f"Failed to create user folders: {str(e)}"}), 500
 
     return jsonify({"message": "User created successfully"}), 201
 
@@ -59,6 +77,7 @@ def update_user(user_id):
     if email and email != user.email:
         user.email = email
         updated = True
+        # En caso de ser actualizado el mail es necesario cambiar las rutas en database
 
     # Actualizar username
     if username and username != user.username:

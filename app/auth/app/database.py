@@ -1,8 +1,10 @@
-from flask_sqlalchemy import SQLAlchemy
-from flask import Flask
 import os
 
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+
 db = SQLAlchemy()
+
 
 def init_db(app: Flask):
     db_uri = os.getenv("DATABASE_URL", "postgresql://auth_user:auth_pass@db:5432/auth_db")

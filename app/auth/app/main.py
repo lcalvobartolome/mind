@@ -1,6 +1,7 @@
 from flask import Flask
-from database import init_db, db
 from routes import auth_bp
+from database import init_db, db
+
 
 def create_app():
     app = Flask(__name__)

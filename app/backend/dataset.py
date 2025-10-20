@@ -5,6 +5,25 @@ import numpy as np
 
 datasets_bp = Blueprint("datasets", __name__)
 
+@datasets_bp.route("/create_user_folders", methods=["POST"])
+def create_user_folders():
+    data = request.get_json()
+    email = data.get("email")
+    if not email:
+        return jsonify({"error": "Missing email"}), 400
+
+    base_path = f"/data/{email}"
+    folders = ["1_Preprocess", "2_TopicModelling", "3_Download"]
+
+    try:
+        os.makedirs(base_path, exist_ok=True)
+        for folder in folders:
+            os.makedirs(os.path.join(base_path, folder), exist_ok=True)
+    except Exception as e:
+        return jsonify({"error": f"Failed to create folders: {str(e)}"}), 500
+
+    return jsonify({"message": "Folders created successfully"}), 200
+
 @datasets_bp.route("/datasets", methods=["GET"])
 def get_datasets():
     email = request.args.get("email")
