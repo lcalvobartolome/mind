@@ -1,9 +1,10 @@
 from flask import Blueprint, jsonify, request
-import os, glob
+import os, glob, shutil
 import pandas as pd
 import numpy as np
 
 datasets_bp = Blueprint("datasets", __name__)
+
 
 @datasets_bp.route("/create_user_folders", methods=["POST"])
 def create_user_folders():
@@ -23,6 +24,47 @@ def create_user_folders():
         return jsonify({"error": f"Failed to create folders: {str(e)}"}), 500
 
     return jsonify({"message": "Folders created successfully"}), 200
+
+@datasets_bp.route("/update_user_folders", methods=["POST"])
+def update_user_folders():
+    data = request.get_json()
+    old_email = data.get("old_email")
+    new_email = data.get("new_email")
+
+    if not old_email or not new_email:
+        return jsonify({"error": "Missing emails"}), 400
+
+    old_path = f"/data/{old_email}"
+    new_path = f"/data/{new_email}"
+    folders = ["1_Preprocess", "2_TopicModelling", "3_Download"]
+    parquet_path = "/data/datasets_stage_preprocess.parquet"
+
+    try:
+        # Crear la carpeta nueva
+        os.makedirs(new_path, exist_ok=True)
+
+        # Mover subcarpetas
+        for folder in folders:
+            old_folder = os.path.join(old_path, folder)
+            new_folder = os.path.join(new_path, folder)
+            if os.path.exists(old_folder):
+                shutil.move(old_folder, new_folder)
+
+        # Eliminar la carpeta vieja si quedó vacía
+        if os.path.exists(old_path) and not os.listdir(old_path):
+            os.rmdir(old_path)
+
+        # Actualizar el parquet
+        if os.path.exists(parquet_path):
+            df = pd.read_parquet(parquet_path, engine="pyarrow")
+            print(df.keys())
+            df["Usermail"] = df["Usermail"].replace(old_email, new_email)
+            df.to_parquet(parquet_path, index=False)
+
+    except Exception as e:
+        return jsonify({"error": f"Failed to update folders/parquet: {str(e)}"}), 500
+
+    return jsonify({"message": "User folders and parquet updated successfully"}), 200
 
 @datasets_bp.route("/datasets", methods=["GET"])
 def get_datasets():

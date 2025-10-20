@@ -58,7 +58,7 @@ def login():
 @auth_bp.route("/user/<user_id>", methods=["PUT"])
 def update_user(user_id):
     """
-    Actualiza email, username y/o contraseña del usuario.
+    Update User
     """
     data = request.get_json()
     email = data.get("email")
@@ -66,25 +66,33 @@ def update_user(user_id):
     password = data.get("password")
     password_rep = data.get("password_rep")
 
-    # Obtener usuario
     user = User.query.filter_by(email=user_id).first()
     if not user:
         return jsonify({"error": "User not found"}), 404
 
     updated = False
 
-    # Actualizar email
     if email and email != user.email:
+        old_email = user.email
         user.email = email
         updated = True
-        # En caso de ser actualizado el mail es necesario cambiar las rutas en database
+        try:
+            response = requests.post(
+                f"{MIND_WORKER_URL}/update_user_folders",
+                json={"old_email": old_email, "new_email": email},
+                timeout=10
+            )
+            if response.status_code != 200:
+                raise Exception(response.text)
+        except Exception as e:
+            user.email = old_email
+            db.session.commit()
+            return jsonify({"error": f"Failed to update backend: {str(e)}"}), 500
 
-    # Actualizar username
     if username and username != user.username:
         user.username = username
         updated = True
 
-    # Actualizar contraseña
     if password or password_rep:
         if not password or not password_rep:
             return jsonify({"error": "Both password and password_rep are required"}), 400

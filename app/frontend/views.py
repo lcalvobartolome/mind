@@ -386,19 +386,21 @@ def profile():
             update_payload['email'] = new_email
         if new_username and new_username != session.get('username'):
             update_payload['username'] = new_username
-        if new_password == new_password_rep and validate_password(new_password, new_password_rep)[0]:
-            update_payload['password'] = new_password
-            update_payload['password_rep'] = new_password_rep
+        if new_password == new_password_rep and new_password != '' and new_password_rep != '':
+            if validate_password(new_password, new_password_rep)[0]:
+                update_payload['password'] = new_password
+                update_payload['password_rep'] = new_password_rep
 
         if update_payload:
             try:
                 response = requests.put(f"{AUTH_API_URL}/user/{session['user_id']}", json=update_payload)
                 if response.status_code == 200:
-                    # Actualizamos la sesión para reflejar cambios
                     if 'email' in update_payload:
                         session['user_id'] = update_payload['email']
+                        user_id = update_payload['email']
                     if 'username' in update_payload:
                         session['username'] = update_payload['username']
+                        username = update_payload['username']
                     flash("Profile updated successfully!", "success")
                 else:
                     flash(response.json().get('error', 'Error updating profile'), "danger")

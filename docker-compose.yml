@@ -39,7 +39,8 @@ services:
     volumes:
       - ./app/backend:/backend
       - ./src/mind:/src/mind
-      - ./app/data:/data
+      - backend_data:/data
+      # - ./app/data:/data
     
     environment:
       - PYTHONUNBUFFERED=1
@@ -94,6 +95,8 @@ services:
 
 volumes:
   auth_db_data:
+
+  backend_data:
 
   # new_backend:
   #   build: ./app

@@ -10,7 +10,7 @@ numpy<2.0.0,>=1.18.5
 # openai==1.106.1
 pandas==2.3.2
 # protobuf>=4.25.8
-# pyarrow==16.1.0
+pyarrow==16.1.0
 # pyLDAvis==3.4.1
 # python-dotenv==1.1.1
 # PyYAML==6.0.2
