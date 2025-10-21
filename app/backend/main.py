@@ -2,29 +2,27 @@ import os
 import json
 from flask import Flask, request, jsonify
 
-# Importamos las funciones de procesamiento que están montadas en /usr/src/mind
-# from mind.processing_functions import run_heavy_preprocessing
-
-# Configuraciones
 app = Flask(__name__)
-PORT = 5001 # Puerto de escucha del worker
+PORT = 5001 
+
 
 @app.route('/process/preprocessing', methods=['POST'])
 def handle_preprocessing():
     """Ruta que recibe la petición del Frontend y ejecuta el proceso pesado."""
     try:
         data = request.get_json()
-        
-        # 1. Extraer los parámetros necesarios para la función
         dataset_name = data.get('dataset_name')
+        email = data.get('email')
+        segmenter_data = data.get('segmenter_data')
+        translator_data = data.get('translator_data')
+        preparer_data = data.get('preparer_data')
         
-        if not dataset_name:
-            return jsonify({"status": "error", "message": "Falta 'dataset_name'."}), 400
+        if not dataset_name or not email or not segmenter_data or not translator_data or not preparer_data:
+            return jsonify({"status": "error", "message": "Not found at least one of the arguments arguments"}), 400
 
-        print(f"WORKER: Iniciando preprocesamiento para el dataset: {dataset_name}")
+        print(f"WORKER: Preprocessing {dataset_name}...")
 
-        # 2. Ejecutar la función pesada de tu módulo src/mind
-        # run_heavy_preprocessing(dataset_name) es una función hipotética
+        # Teniendo la info
         results = "llego"
 
         print(f"WORKER: Preprocesamiento completado exitosamente.")
@@ -41,7 +39,10 @@ def handle_preprocessing():
         return jsonify({"status": "error", "message": f"Fallo interno del Worker: {str(e)}", "next_step_available": False}), 500
 
 if __name__ == '__main__':
-    # Usamos host='0.0.0.0' para que sea accesible dentro de Docker
     from dataset import datasets_bp
+    from preprocessing import preprocessing_bp
+    
     app.register_blueprint(datasets_bp, url_prefix='/')
+    app.register_blueprint(preprocessing_bp, url_prefix='/')
+    
     app.run(host='0.0.0.0', port=PORT)
