@@ -15,13 +15,11 @@ def create_app():
 
     from views import views
     from auth import auth
-    from API import preprocess_bp
     from preprocessing import preprocess
 
     app.register_blueprint(preprocess, url_prefix='/')
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
-    app.register_blueprint(preprocess_bp)
 
     @app.after_request
     def add_cache_control(response):

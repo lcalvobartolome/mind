@@ -238,9 +238,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             console.log(data)
 
-            const loadingSpinner = document.getElementById('loadingSpinner');
-            loadingSpinner.style.display = 'inline-block';
-
             // LLAMADA AJAX
             fetch("/preprocess/Stage1", {
                 method: "POST", 
@@ -259,15 +256,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 return response.json();
             })
             .then(response => {
-                // alert('Success (' + response.status + '): ' + response.message);
-                step2Done = response.next_step_available;
+                console.log('Success (' + response.status + '): ' + response.message);
+                updateProgressBar();
+                // step2Done = response.next_step_available;
             })
             .catch(error => {
                 console.error("Error in Fetch/AJAX:", error.message);
                 // alert('Error: ' + error.message);
-            })
-            .finally(() => {
-                loadingSpinner.style.display = 'none';
             });
 
         } else {

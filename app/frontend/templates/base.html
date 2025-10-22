@@ -81,18 +81,6 @@
     <div id="dynamic-progress-bars" class="container"></div>
 </div>
 
-<div class="card shadow-sm mb-4">
-    <div class="card-body text-center py-5">
-        <button 
-            id="startButton" 
-            class="btn btn-primary btn-lg" 
-            onclick="startPreprocessTask()">
-            <span id="buttonText">Lanzar Preprocesamiento</span>
-            <span id="loadingSpinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
-        </button>
-    </div>
-</div>
-
 <div class="container mt-5">
     {% block content %}{% endblock %}
 </div>
@@ -123,7 +111,6 @@
     // Elementos del DOM para actualizar
     const startButton = document.getElementById('startButton');
     const buttonText = document.getElementById('buttonText');
-    const loadingSpinner = document.getElementById('loadingSpinner');
     // NOTA: Se eliminó el elemento 'statusMessage' ya que no se quieren mensajes.
 
     /**
@@ -131,9 +118,6 @@
      * La respuesta visual se gestiona en la barra de progreso de base.html.
      */
     function startPreprocessTask() {
-        // 1. Deshabilitar el botón y mostrar el spinner
-        loadingSpinner.style.display = 'inline-block';
-        
         // 2. Llamada AJAX (Fetch API)
         fetch(START_API_ENDPOINT, {
             method: 'POST',
@@ -158,9 +142,6 @@
             // startButton.disabled = false; 
         })
         .finally(() => {
-            // Ocultar spinner siempre
-            loadingSpinner.style.display = 'none';
-            
             // Si hubo un fallo (el botón se re-habilitó), restauramos el texto
             if (startButton.disabled === false) {
                  buttonText.textContent = 'Lanzar Preprocesamiento';
@@ -215,10 +196,7 @@
     // Función llamada cuando el usuario hace clic en 'X'
     window.dismissTask = function(taskId) {
         dismissedTaskIds.add(taskId);
-        // Opcional: Si quieres que el usuario pueda reactivar el botón de lanzamiento 
-        // eliminando tareas activas, deberías forzar una actualización del conteo aquí
     }
-
 
     function updateProgressBar() {
         fetch(PROGRESS_API_ENDPOINT)
@@ -235,24 +213,18 @@
                 // Actualiza la variable global para el control del botón
                 window.currentRunningTaskCount = data.running_count || 0;
                 
-                // 1. Limpiar el contenedor: Borrar solo las tareas que ya no están activas en el backend
                 const activeTaskIds = tasks.map(t => t.id);
                 const currentAlerts = Array.from(container.children);
                 
-                // Remover alertas de tareas finalizadas o errores permanentes
                 currentAlerts.forEach(alertDiv => {
                     const taskId = alertDiv.getAttribute('data-task-id');
-                    // Si la tarea ya no está en la lista activa Y no ha sido cerrada por el usuario, la eliminamos.
-                    // Si la tarea ya no está en la lista activa Y YA FUE CERRADA, ignoramos.
                     if (!activeTaskIds.includes(taskId) && !dismissedTaskIds.has(taskId)) {
-                        $(alertDiv).alert('close'); // Usa el método de Bootstrap para un cierre suave
+                        $(alertDiv).alert('close'); 
                     }
                 });
 
-                // 2. Renderizar o Actualizar las tareas activas
                 let tasksToRender = [];
                 tasks.forEach(task => {
-                    // Si el usuario no ha cerrado esta tarea, la procesamos
                     if (!dismissedTaskIds.has(task.id)) {
                         const existingAlert = document.getElementById(`alert-${task.id}`);
                         
@@ -290,7 +262,23 @@
                                     setTimeout(() => {
                                         // Cierra la alerta si no ha sido cerrada manualmente
                                         if (!dismissedTaskIds.has(task.id)) {
-                                            $(existingAlert).alert('close'); 
+                                            function closeAlert(taskId) {
+                                                const alertElement = document.getElementById(`alert-${taskId}`);
+                                                if (alertElement) {
+                                                    // Bootstrap 5: crear instancia de alerta y cerrar
+                                                    const alertInstance = bootstrap.Alert.getOrCreateInstance(alertElement);
+                                                    alertInstance.close();
+                                                }
+                                            }
+
+                                            closeAlert(task.id);
+
+                                            setTimeout(() => {
+                                                if (!dismissedTaskIds.has(task.id)) {
+                                                    closeAlert(task.id);
+                                                    dismissedTaskIds.add(task.id);
+                                                }
+                                            }, 8000); 
                                             dismissedTaskIds.add(task.id);
                                         }
                                     }, 8000); // Se muestra el 100% por 8 segundos
@@ -323,7 +311,9 @@
     }
 
     // Iniciar la función de actualización al cargar la página
-    document.addEventListener('DOMContentLoaded', updateProgressBar);
+    document.addEventListener('DOMContentLoaded', () => {
+        updateProgressBar();
+    });
 </script>
 
 </body>

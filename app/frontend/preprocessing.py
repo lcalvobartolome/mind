@@ -21,6 +21,38 @@ TASK_COUNTER = 0
 tasks_lock = threading.Lock()
 
 
+@preprocess.route('/api/preprocess_status', methods=['GET'])
+def get_preprocess_status():
+    """
+    Devuelve el estado de todas las tareas activas para las barras de progreso del frontend.
+    Cada tarea tiene:
+    - id: identificador único
+    - name: nombre de la tarea
+    - percent: 0-100, o -1 si hay error
+    - message: mensaje informativo
+    """
+    global RUNNING_TASKS, tasks_lock
+
+    with tasks_lock:
+        tasks_list = []
+        for task in RUNNING_TASKS:
+            percent = task.get('percent', 0)
+            message = task.get('message', '')
+            name = task.get('name', 'Unknown')
+
+            tasks_list.append({
+                'id': task['id'],
+                'name': name,
+                'percent': percent,
+                'message': message
+            })
+
+    return jsonify({
+        'tasks': tasks_list,
+        'running_count': len(tasks_list),
+        'max_limit': MAX_CONCURRENT_TASKS
+    })
+
 @preprocess.route('/preprocessing', methods=['GET'])
 @login_required_custom
 def preprocessing():
@@ -162,7 +194,7 @@ def start_preprocess():
 
         TASK_COUNTER += 1
         new_task_id = str(uuid.uuid4())
-        new_task_name = f"Task-{TASK_COUNTER}"
+        new_task_name = f"Preprocessing {dataset} to {segmentor_data['output']}"
 
         new_task_state = {
             'id': new_task_id,
