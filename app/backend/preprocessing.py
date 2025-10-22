@@ -110,15 +110,15 @@ def translator():
             # Translator
             print(f"Translating dataset {dataset}...")
 
-            # trans = Translator(config_path="/src/config/config.yaml")
-            # trans.translate(
-            #     path_df=dataset_path,
-            #     save_path=output_dir,
-            #     src_lang=translator_data['src_lang'],
-            #     tgt_lang=translator_data['tgt_lang'],
-            #     text_col=translator_data['text_col'],
-            #     lang_col=translator_data['lang_col'],
-            # )
+            trans = Translator(config_path="/src/config/config.yaml")
+            trans.translate(
+                path_df=dataset_path,
+                save_path=output_dir,
+                src_lang=translator_data['src_lang'],
+                tgt_lang=translator_data['tgt_lang'],
+                text_col=translator_data['text_col'],
+                lang_col=translator_data['lang_col'],
+            )
 
             time.sleep(5)
             print(f'Finalize translating dataset {output_dir}')

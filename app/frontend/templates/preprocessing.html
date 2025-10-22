@@ -58,6 +58,8 @@
 
         <hr>
 
+        <!-- Section: Segmentor -->
+        <h5>Segmentor</h5>
         <div class="form-group mt-3">
             <label for="TextColumn-Segmentor">Text Column:</label>
             <input type="text" id="TextColumn-Segmentor" class="form-control" placeholder="Enter text column name">
@@ -72,8 +74,43 @@
             <label for="Separator-Segmentor">Separator:</label>
             <input type="text" id="Separator-Segmentor" class="form-control" placeholder="\\n" value="\n">
         </div>
+
+        <hr>
+
+        <!-- Translator Section -->
+        <h5>Translator</h5>
+        <div class="form-group mt-3">
+            <label for="SourceLanguage">Source Language:</label>
+            <select id="SourceLanguage" class="form-control">
+                <option value="" disabled selected>-- Select source language --</option>
+                <option value="en">English (en)</option>
+                <option value="es">Spanish (es)</option>
+                <option value="de">German (de)</option>
+                <option value="it">Italian (it)</option>
+            </select>
+        </div>
+
+        <div class="form-group mt-3">
+            <label for="TargetLanguage">Target Language:</label>
+            <select id="TargetLanguage" class="form-control">
+                <option value="" disabled selected>-- Select target language --</option>
+                <option value="en">English (en)</option>
+                <option value="es">Spanish (es)</option>
+                <option value="de">German (de)</option>
+                <option value="it">Italian (it)</option>
+            </select>
+        </div>
+
+        <div class="form-group mt-3">
+            <label for="LanguageColumnTranslator">Language Column:</label>
+            <input type="text" id="LanguageColumnTranslator" class="form-control" placeholder="Enter language column name">
+        </div>
+
+        <hr>
         
         <button type="button" class="btn btn-secondary mt-3" id="confirmDatasetPreprocess">Accept Dataset to Preprocess</button>
+
+        <hr>
 
       <!-- Step 2: Preprocessing -->
       <div class="modal-body" id="modal-body-2">
@@ -191,7 +228,39 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Step 1
     const selector = document.getElementById('optionsDatasets');
-    const datasetButton = document.getElementById('confirmDatasetPreprocess');
+    const datasetPreprocessButton = document.getElementById('confirmDatasetPreprocess');
+
+    function validateInputsTranslator() {
+        const textCol = document.getElementById('TextColumnTranslator').value.trim();
+        const langCol = document.getElementById('LanguageColumnTranslator').value.trim();
+        const sourceLang = document.getElementById('SourceLanguage').value;
+        const targetLang = document.getElementById('TargetLanguage').value;
+
+        // Valid combinations
+        const validCombinations = [
+            ["en", "es"],
+            ["es", "en"],
+            ["en", "de"],
+            ["de", "en"],
+            ["en", "it"],
+            ["it", "en"]
+        ];
+
+        if (!textCol || !langCol) {
+            alert("Text Column and Language Column cannot be empty.");
+            return false;
+        }
+
+        const isValidCombo = validCombinations.some(
+            combo => combo[0] === sourceLang && combo[1] === targetLang
+        );
+
+        if (!isValidCombo) {
+            alert("Invalid Source and Target language combination.");
+            return false;
+        }
+        return true;
+    }
     
     function Stage1Selection() {
         const selector = document.getElementById("optionsDatasets");
@@ -209,6 +278,8 @@ document.addEventListener('DOMContentLoaded', function () {
             db_selected = dbSelected;
             step1Done = true;
 
+            if (!validateInputsTranslator()) return;
+
             const textColumn = textColumnInput.value.trim();
             const OutputPath = OutputPathInput.value.trim();
             const minLength = minLengthInput.value ? parseInt(minLengthInput.value) : defaultMinLength;
@@ -222,7 +293,11 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             const translator_data = {
-                "output": OutputPath
+                "output": OutputPath,
+                "text_col": textColumn,
+                "lang_col": document.getElementById('LanguageColumnTranslator').value.trim(),
+                "src_lang": document.getElementById('SourceLanguage').value,
+                "tgt_lang": document.getElementById('TargetLanguage').value
             }
 
             const preparer_data = {
@@ -271,8 +346,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    if (datasetButton) {
-        datasetButton.addEventListener('click', Stage1Selection);
+    if (datasetPreprocessButton) {
+        datasetPreprocessButton.addEventListener('click', Stage1Selection);
     }
 
     // === Listener para el botón de Confirmar del Step 2 (DEBES CREAR ESTE BOTÓN EN TU HTML) ===

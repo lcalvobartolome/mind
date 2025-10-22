@@ -40,7 +40,6 @@ services:
       - ./app/backend:/backend
       - ./src/mind:/src/mind
       - backend_data:/data
-      # - ./app/data:/data
     
     environment:
       - PYTHONUNBUFFERED=1
@@ -75,7 +74,8 @@ services:
       - ./app/.env
     
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   db:
     image: postgres:15
@@ -93,35 +93,14 @@ services:
     ports:
       - "5432:5432"
 
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U auth_user -d auth_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
 volumes:
   auth_db_data:
 
   backend_data:
 
-  # new_backend:
-  #   build: ./app
-  #   ports:
-  #     - "3000:80"
-  #   depends_on:
-  #     - new_frontend
-    # volumes:
-    #   - ./app:/usr/share/nginx/html
-
-  # mind:
-  #   build: ./src
-  #   user: root
-  #   volumes:
-  #     - ./Data:/Data 
-
-  #     - ./Data_old:/Data_old
-  #   privileged: true
-  #   ports:
-  #     - "93:93"
-  #   depends_on:
-  #     - backend
-  #   environment:
-  #     - PYTHONUNBUFFERED=1
-  #   env_file:
-  #     ./.env
-
-#now with correct permissions
