@@ -114,7 +114,7 @@ def upload_dataset():
         "Usermail": email,
         "Dataset": dataset_name,
         "Stage": int(stage),
-        "Path": f'{output_dir}/dataset'
+        "Path": f'{output_dir}dataset'
     }
 
     df = pd.read_parquet('/data/datasets_stage_preprocess.parquet')

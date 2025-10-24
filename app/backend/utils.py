@@ -8,6 +8,7 @@ def validate_and_get_dataset(email: str, dataset: str, output: str, phase: str):
     try:
         parquet_path = "/data/datasets_stage_preprocess.parquet"
         if not os.path.exists(parquet_path):
+            print('No paths found')
             return jsonify({
                 "status": "error",
                 "message": f"Parquet file not found at {parquet_path}"
@@ -22,15 +23,30 @@ def validate_and_get_dataset(email: str, dataset: str, output: str, phase: str):
         ]
 
         if row.empty:
+            print('No dataset found')
             return jsonify({
                 "status": "error",
                 "message": f"No dataset found for user '{email}', dataset '{dataset}', stage 1."
             }), 404
 
-        dataset_path = row.iloc[0]["Path"]
-
-        if phase == '3_Preparer': output_dir = f"/data/{email}/2_TopicModelling/{output}/dataset"
-        else: output_dir = f"/data/{email}/1_Preprocess/{dataset}/{phase}/{output}"
+        if phase == '1_Segmenter':
+            dataset_path = f"/data/{email}/1_Preprocess/{dataset}/dataset"
+            output_dir = f"/data/{email}/1_Preprocess/{dataset}/{phase}/{output}"
+        
+        elif phase == '2_Translator':
+            dataset_path = f"/data/{email}/1_Preprocess/{dataset}/1_Segmenter/{output}/dataset"
+            output_dir = f"/data/{email}/1_Preprocess/{dataset}/{phase}/{output}"
+        
+        elif phase == '3_Preparer':
+            dataset_path = f"/data/{email}/1_Preprocess/{dataset}/2_Translator/{output}/dataset"
+            output_dir = f"/data/{email}/2_TopicModelling/{output}/dataset"
+        
+        else:
+            print('No phase found')
+            return jsonify({
+                "status": "error",
+                "message": f"No dataset found for user '{email}', dataset '{dataset}', stage 1."
+            }), 404
         
         if os.path.exists(f"{output_dir}/dataset"):
             return jsonify({
@@ -39,7 +55,41 @@ def validate_and_get_dataset(email: str, dataset: str, output: str, phase: str):
             }), 400
         os.makedirs(output_dir)
 
-        return dataset_path, f"{output_dir}/dataset"
+        return dataset_path, output_dir
+
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Validation error: {e}"
+        }), 500
+    
+def get_download_dataset(email: str, dataset: str):
+    try:
+        parquet_path = "/data/datasets_stage_preprocess.parquet"
+        if not os.path.exists(parquet_path):
+            print('No paths found')
+            return jsonify({
+                "status": "error",
+                "message": f"Parquet file not found at {parquet_path}"
+            }), 404
+
+        df = pd.read_parquet(parquet_path)
+
+        row = df[
+            (df["Usermail"] == email) &
+            (df["Dataset"] == dataset) &
+            (df["Stage"] == 3)
+        ]
+
+        if row.empty:
+            print('No dataset found')
+            return jsonify({
+                "status": "error",
+                "message": f"No dataset found for user '{email}', dataset '{dataset}', stage 1."
+            }), 404
+
+        dataset_path = f"/data/{email}/3_Download/{dataset}/dataset"
+        return dataset_path
 
     except Exception as e:
         return jsonify({

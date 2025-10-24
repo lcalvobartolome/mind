@@ -5,9 +5,10 @@ import dotenv
 import requests
 import threading
 
+from io import BytesIO
 from tools.tools import *
 from views import login_required_custom
-from flask import Blueprint, render_template, request, flash, jsonify, session
+from flask import Blueprint, render_template, request, flash, jsonify, session, send_file
 
 
 preprocess = Blueprint('preprocess', __name__)
@@ -23,14 +24,6 @@ tasks_lock = threading.Lock()
 
 @preprocess.route('/api/preprocess_status', methods=['GET'])
 def get_preprocess_status():
-    """
-    Devuelve el estado de todas las tareas activas para las barras de progreso del frontend.
-    Cada tarea tiene:
-    - id: identificador único
-    - name: nombre de la tarea
-    - percent: 0-100, o -1 si hay error
-    - message: mensaje informativo
-    """
     global RUNNING_TASKS, tasks_lock
 
     with tasks_lock:
@@ -217,4 +210,29 @@ def start_preprocess():
         'message': f"Process preprocessing dataset '{dataset}' iniciado correctamente.",
         'task_id': new_task_id
     }), 202 
+
+@preprocess.route("/preprocess/download", methods=["POST"])
+def download_file():
+    data = request.get_json()
+    dataset = data.get("dataset")
+    output = data.get("output")
+
+    if not dataset or not output:
+        return jsonify({"message": "Missing fields"}), 400
+
+    response = requests.post(f"{MIND_WORKER_URL}/download", json={"dataset": dataset, "email": session['user_id']})
+
+    if response.status_code != 200:
+        return jsonify({"message": "Error from backend"}), 500
+
+    file_content = response.content
+    file_io = BytesIO(file_content)
+    file_io.seek(0)
+
+    return send_file(
+        file_io,
+        as_attachment=True,
+        download_name=output,
+        mimetype="application/octet-stream"
+    )
     

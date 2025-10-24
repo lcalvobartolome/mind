@@ -107,50 +107,93 @@
             <label for="LanguageColumnTranslator">Language Column:</label>
             <input type="text" id="LanguageColumnTranslator" class="form-control" placeholder="Enter language column name">
         </div>
-
-        <hr>
-        
-        <button type="button" class="btn btn-secondary mt-3" id="confirmDatasetPreprocess">Accept Dataset to Preprocess</button>
-
-        <hr>
+      </div>
 
       <!-- Step 2: Preprocessing -->
       <div class="modal-body" id="modal-body-2">
-        <div id="step2Container" class="step-container"> 
-          <div id="modal-body-2-1" class="step-slide">
-            <p>Ready to preprocess dataset:
-              <b id="dbSelectedStep2"></b>.
-            </p>
-            <p>Click Confirm to run the backend process.</p>
-          </div>
+        <label for="optionsDatasets2">Select an option: </label>
+        <select id="optionsDatasets2">
+        {% if datasets %}
+            <option value="" disabled selected>-- Choose an avaible dataset --</option>
+            {% for ds, name, stage in zip(datasets, names, stages) %}
+                {% if stage == 2 or stage == '2' %}
+                    <option value="{{ name }}">{{ name }}</option> 
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <option value="" disabled>No datasets available.</option>
+        {% endif %}
+        </select>
 
-          <div id="modal-body-step2-2" class="step-slide">
-              <p>Define the **data types** for key columns.</p>
-              <ul id="columnTypesList" class="mb-3">
-                  <li>Feature A: <input type="text" placeholder="Type (e.g., Categorical)"></li>
-              </ul> 
-          </div>
+        <div class="form-group mt-3">
+            <label for="outputPath">Output Path:</label>
+            <input type="text" id="outputPath2" class="form-control" placeholder="Enter name of the topic modeling">
+        </div>
 
-          <div id="modal-body-step2-3" class="step-slide">
-              <p>Review the configuration and click **Accept Action** to run the preprocessor on: <b id="dbSelectedFinal"></b>.</p>
-              <p>Ready for final execution.</p>
-          </div>
+        <hr>
+
+        <div class="form-group mt-3">
+            <label for="lang1">Lang 1:</label>
+            <select id="lang1" class="form-control">
+                <option value="" disabled selected>-- Select lang1 --</option>
+                <option value="en">English (en)</option>
+                <option value="es">Spanish (es)</option>
+                <option value="de">German (de)</option>
+                <option value="it">Italian (it)</option>
+            </select>
+        </div>
+
+        <div class="form-group mt-3">
+            <label for="lang2">Lang 2:</label>
+            <select id="lang2" class="form-control">
+                <option value="" disabled selected>-- Select lang2 --</option>
+                <option value="en">English (en)</option>
+                <option value="es">Spanish (es)</option>
+                <option value="de">German (de)</option>
+                <option value="it">Italian (it)</option>
+            </select>
+        </div>
+
+        <div class="form-group mt-3">
+            <label for="kTopics">K Topics:</label>
+            <input type="number" id="kTopics" class="form-control" value="5" min="1">
         </div>
       </div>
 
-      <div class="modal-footer" id="modal-footer-2">
-        <button type="button" class="btn btn-secondary" id="prevStep2">< Prev</button>
-        <button type="button" class="btn btn-primary" id="nextStep2" data-dismiss="">Next ></button>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-      </div>
+      <!-- Step 3: Download -->
+      <div class="modal-body" id="modal-body-3">
+        <label for="optionsDatasets3">Select an option: </label>
+        <select id="optionsDatasets3">
+        {% if datasets %}
+            <option value="" disabled selected>-- Choose an avaible dataset --</option>
+            {% for ds, name, stage in zip(datasets, names, stages) %}
+                {% if stage == 3 or stage == '3' %}
+                    <option value="{{ name }}">{{ name }}</option> 
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <option value="" disabled>No datasets available.</option>
+        {% endif %}
+        </select>
 
-      <!-- Ejemplo Base -->
-      <div class="modal-body" id="modal-body-base">
-        This is placeholder content. It will change depending on the step clicked.
+        <div class="form-group mt-3">
+            <label for="outputPath">Output Path:</label>
+            <input type="text" id="outputPath3" class="form-control" placeholder="Enter new name for the dataset to download">
+        </div>
       </div>
 
       <div class="modal-footer" id="modal-footer-base">
+        <!-- Close -->
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+        <!-- Button Preprocess Dataset -->
+        <button class="btn btn-primary" id="confirmDatasetPreprocess">Accept Dataset to Preprocess</button>
+
+        <!-- Button Topic Modelling -->
+        <button id="confirmTopicModelling" class="btn btn-primary">Confirm Topic Modeling</button>
+
+        <!-- Button Download -->
+        <button id="confirmDownload" class="btn btn-primary">Download Dataset</button>
       </div>
 
     </div>
@@ -232,7 +275,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const datasetPreprocessButton = document.getElementById('confirmDatasetPreprocess');
 
     function validateInputsTranslator() {
-        const textCol = document.getElementById('TextColumnTranslator').value.trim();
+        const textCol = document.getElementById('TextColumn-Segmentor').value.trim();
         const langCol = document.getElementById('LanguageColumnTranslator').value.trim();
         const sourceLang = document.getElementById('SourceLanguage').value;
         const targetLang = document.getElementById('TargetLanguage').value;
@@ -284,7 +327,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const textColumn = textColumnInput.value.trim();
             const OutputPath = OutputPathInput.value.trim();
             const minLength = minLengthInput.value ? parseInt(minLengthInput.value) : defaultMinLength;
-            const separator = separatorInput.value.trim() !== "" ? separatorInput.value : defaultSeparator;
+            const separator = separatorInput.value;
             
             const segmentor_data = {
                 "output": OutputPath,
@@ -351,134 +394,120 @@ document.addEventListener('DOMContentLoaded', function () {
         datasetPreprocessButton.addEventListener('click', Stage1Selection);
     }
 
-    // === Listener para el botón de Confirmar del Step 2 (DEBES CREAR ESTE BOTÓN EN TU HTML) ===
-    // Asumiendo que tienes un botón con id="confirmStep2" dentro del modal
-    // const confirmStep2Button = document.getElementById('confirmStep2');
-    // if (confirmStep2Button) {
-    //     // confirmStep2Button.addEventListener('click', executeStep2Action);
-    // }
+    // Click on boxes
+    const stepBoxes = document.querySelectorAll('.step-box');
 
-    function updateStepDisplay() {
-        footerBase.style.display = 'none';
-        footerTwo.style.display = 'block';
-        const slides = document.querySelectorAll('.step-slide');
-        
-        // 1. Aplicar clases para la animación
-        slides.forEach((slide, index) => {
-            const stepNum = index + 1;
-            
-            slide.classList.remove('active-slide', 'previous-slide');
+    function showCorrectModalBody(event) {
+        const stepNumber = event.currentTarget.dataset.step;
+        const targetId = 'modal-body-' + stepNumber;
 
-            if (stepNum === currentSubStep) {
-                slide.classList.add('active-slide');
-            } else if (stepNum < currentSubStep) {
-                slide.classList.add('previous-slide');
-            }
+        const allModalBodies = document.querySelectorAll('[id^="modal-body-"]');
+        allModalBodies.forEach(body => {
+            body.style.display = 'none';
         });
-        
-        // 2. Controlar la visibilidad y apariencia de los botones del footer
-        // Botón Previous: Visible desde el paso 2 en adelante
-        prevButton.style.display = currentSubStep > 1 ? 'block' : 'none';
 
-        if (currentSubStep === totalSubSteps) {
-            // Último paso: Cambiar a 'Accept Action'
-            nextButton.textContent = 'Accept Action';
-            nextButton.classList.remove('btn-primary');
-            nextButton.classList.add('btn-success');
-        } else {
-            // Pasos intermedios: Volver a 'Next'
-            nextButton.textContent = 'Next >';
-            nextButton.setAttribute('data-dismiss', '');
-            nextButton.classList.remove('btn-success');
-            nextButton.classList.add('btn-primary');
+        const targetBody = document.getElementById(targetId);
+        if (targetBody) {
+            targetBody.style.display = 'block';
         }
-        
-        // 3. Actualizar la información visual
-        if (document.getElementById('dbSelectedFinal')) {
-            document.getElementById('dbSelectedFinal').textContent = db_selected;
+
+        const stepModalLabel = document.getElementById('stepModalLabel');
+        if (stepNumber == 1) {
+            stepModalLabel.textContent = 'Step 1: Preprocess info';
+            document.getElementById('confirmDatasetPreprocess').style.display = 'block';
+            document.getElementById('confirmTopicModelling').style.display = 'none';
+            document.getElementById('confirmDownload').style.display = 'none';
+        }
+        else if (stepNumber == 2) {
+            stepModalLabel.textContent = 'Step 2: Topic Modeling info';
+            document.getElementById('confirmDatasetPreprocess').style.display = 'none';
+            document.getElementById('confirmTopicModelling').style.display = 'block';
+            document.getElementById('confirmDownload').style.display = 'none';
+        }
+        else if (stepNumber == 3) {
+            stepModalLabel.textContent = 'Step 3: Download info';
+            document.getElementById('confirmDatasetPreprocess').style.display = 'none';
+            document.getElementById('confirmTopicModelling').style.display = 'none';
+            document.getElementById('confirmDownload').style.display = 'block';
         }
     }
-    
-    // Listener para el botón 'Previous'
-    if (prevButton) {
-        prevButton.addEventListener('click', () => {
-            if (currentSubStep > 1) {
-                currentSubStep--;
-                updateStepDisplay();
-            }
-        });
-    }
 
-    // =========================================================================
-    // LÓGICA DEL BOTÓN 'Next / Accept Action'
-    // =========================================================================
-
-    if (nextButton) {
-        nextButton.addEventListener('click', () => {
-            if (currentSubStep < totalSubSteps) {
-                // AVANZAR AL SIGUIENTE PASO
-                currentSubStep++;
-                updateStepDisplay();
-            }
-            else {
-                // ÚLTIMO PASO: EJECUTAR LA ACCIÓN AJAX
-                nextButton.setAttribute('data-dismiss', 'modal');
-            }
-        });
-    }
-    
-    document.querySelectorAll('.step-box').forEach(box => {
-        box.addEventListener('click', () => {
-            const step = box.getAttribute('data-step');
-            
-            if (step === "1") {
-                modalTitle.textContent = `Step ${step}: Data Selection`;
-
-                bodyOne.style.display = 'block';
-                bodyTwo.style.display = 'none';
-                bodyBase.style.display = 'none';
-
-                footerTwo.style.display = 'none';
-                footerBase.style.display = 'block';
-            }
-
-            else if (step === "2") {
-              modalTitle.textContent = `Step ${step}: Preprocessing`;
-
-              bodyOne.style.display = 'none';
-              bodyTwo.style.display = 'none';
-              bodyBase.style.display = 'block';
-              
-              footerTwo.style.display = 'none';
-              footerBase.style.display = 'block';
-
-              if (!step1Done) {
-                bodyBase.textContent = `Please do Step 1: Data Selection.`;
-              }
-              else {
-                // Mostrar la interfaz del Step 2 y el botón de Confirmar
-                bodyBase.style.display = 'none';
-                bodyTwo.style.display = 'block';
-                currentSubStep = 1;
-                document.getElementById('dbSelectedStep2').textContent = db_selected;
-                updateStepDisplay();
-              }
-            }
-
-            else {
-                modalTitle.textContent = `Step ${step} Details`;
-
-                bodyOne.style.display = 'none';
-                bodyTwo.style.display = 'none';
-                bodyBase.style.display = 'block';
-
-                footerTwo.style.display = 'none';
-                footerBase.style.display = 'block';
-                
-                bodyBase.textContent = `This is where content for Step ${step} will go.`;
-            }
-        });
+    stepBoxes.forEach(box => {
+        box.addEventListener('click', showCorrectModalBody);
     });
 });
 </script>
+
+<script>
+document.getElementById("confirmTopicModelling").addEventListener("click", function() {
+    const dataset = document.getElementById("optionsDatasets2").value;
+    const outputPath = document.getElementById("outputPath2").value.trim();
+    const lang1 = document.getElementById("lang1").value;
+    const lang2 = document.getElementById("lang2").value;
+    const kTopics = document.getElementById("kTopics").value;
+
+    if (!dataset || !outputPath || !lang1 || !lang2 || !kTopics) {
+        alert("Please fill in all fields before continuing.");
+        return;
+    }
+
+    if (lang1 === lang2) {
+        alert("Lang1 and Lang2 cannot be the same.");
+        return;
+    }
+
+    // Logic of calling frontend to backend
+});
+</script>
+
+<script>
+document.getElementById("confirmDownload").addEventListener("click", function() {
+    const dataset = document.getElementById("optionsDatasets3").value;
+    const outputPath = document.getElementById("outputPath3").value.trim();
+
+    if (!dataset || !outputPath) {
+        alert("Please fill in all fields before continuing.");
+        return;
+    }
+
+    const data = {
+        "dataset": dataset,
+        "output": outputPath + ".parquet"
+    }
+
+    // Logic of calling frontend to backend
+    console.log(data)
+
+    // LLAMADA AJAX
+    fetch("/preprocess/download", {
+        method: "POST", 
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data), 
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => { throw new Error(err.message || `HTTP Error: ${response.status}`); });
+        }
+        return response.blob(); // Recibimos el archivo como blob
+    })
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = data.output;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+        console.log("Descarga iniciada.");
+        updateProgressBar();
+    })
+    .catch(error => {
+        console.error("Error in Fetch/AJAX:", error.message);
+    });
+});
+</script>
+
 {% endblock %}

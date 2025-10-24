@@ -81,16 +81,16 @@ def upload_dataset():
 
     file = request.files['file']
 
-    action = request.form.get('action')
-    if not action:
-        return jsonify({'error': 'No action selected'}), 400
+    stage = request.form.get('action')
+    if not stage:
+        return jsonify({'error': 'No stage selected'}), 400
 
     filename = file.filename
     temp_path = f"temp_{filename}"
     file.save(temp_path)
 
     email = session.get("user_id") 
-    output_dir = f'{email}/{action}'
+    output_dir = f'{email}/{stage}'
     output_file_path = os.path.join(output_dir, filename.split(".")[0])
 
     try:
@@ -99,8 +99,8 @@ def upload_dataset():
             data = {
                 'path': output_file_path,
                 'email': email,
-                'stage': int(action.split('_')[0]),
-                'dataset_name': filename 
+                'stage': int(stage.split('_')[0]),
+                'dataset_name': filename.replace('.parquet', '')
             }
             resp = requests.post(f"{MIND_WORKER_URL}/upload_dataset", files=files, params=data)
 

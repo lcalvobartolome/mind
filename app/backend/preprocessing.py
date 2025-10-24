@@ -1,7 +1,8 @@
+import os
 import time
 import uuid
 
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify, current_app, send_file
 
 
 preprocessing_bp = Blueprint('preprocessing', __name__, url_prefix='/preprocessing')
@@ -64,7 +65,7 @@ def segmenter():
             seg = Segmenter(config_path="/src/config/config.yaml")
             seg.segment(
                 path_df=dataset_path,
-                path_save=output_dir,
+                path_save=f'{output_dir}/dataset',
                 text_col=segmenter_data['text_col'],
                 min_length=segmenter_data['min_length'],
                 sep=segmenter_data['sep']
@@ -101,16 +102,31 @@ def translator():
                 dataset_path, output_dir = validation
             else:
                 raise Exception("Validation failed")
+            
+            # To operate correctly
+            translator_data['text_col'] = "full_doc"
 
             # Translator
             print(f"Translating dataset {dataset}...")
 
             trans = Translator(config_path="/src/config/config.yaml")
+            
+            # First src -> tgt
             trans.translate(
                 path_df=dataset_path,
-                save_path=output_dir,
+                save_path=f'{output_dir}/dataset_{translator_data["tgt_lang"]}2{translator_data["src_lang"]}',
                 src_lang=translator_data['src_lang'],
                 tgt_lang=translator_data['tgt_lang'],
+                text_col=translator_data['text_col'],
+                lang_col=translator_data['lang_col'],
+            )
+
+            # Second tgt -> src
+            trans.translate(
+                path_df=dataset_path,
+                save_path=f'{output_dir}/dataset_{translator_data["src_lang"]}2{translator_data["tgt_lang"]}',
+                src_lang=translator_data['tgt_lang'],
+                tgt_lang=translator_data['src_lang'],
                 text_col=translator_data['text_col'],
                 lang_col=translator_data['lang_col'],
             )
@@ -121,7 +137,7 @@ def translator():
         return jsonify({"step_id": step_id, "message": "Segmenter task started"}), 200
 
     except Exception as e:
-        print(e)
+        print(str(e))
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
@@ -159,16 +175,7 @@ def preparer():
             #         "en": "en_core_web_sm",
             #         "de": "de_core_news_sm",
             #         "es": "es_core_news_sm"},
-            #     schema={
-            #         "chunk_id": "id_preproc",
-            #         "doc_id": "id",
-            #         "text": "text",
-            #         "full_doc": "summary",
-            #         "lang": "lang",
-            #         "title": "title",
-            #         "url": "url",
-            #         "equivalence": "equivalence",
-            #     },
+            #     schema=preparer_data['schema'],
             # )
 
             # prep.format_dataframes(
@@ -186,3 +193,29 @@ def preparer():
 
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+
+@preprocessing_bp.route("/download", methods=["POST"])
+def generate_dataset():
+    data = request.get_json()
+    email = data.get("email")
+    dataset = data.get("dataset")
+
+    if not dataset:
+        return jsonify({"message": "Dataset missing"}), 400
+
+    try:
+        from utils import get_download_dataset
+        dataset_path = get_download_dataset(email, dataset)
+
+        if not dataset_path or not os.path.exists(dataset_path):
+            return jsonify({"message": "Failed to generate dataset"}), 500
+
+        return send_file(
+            dataset_path,
+            as_attachment=True,
+            download_name=os.path.basename(dataset_path),
+            mimetype='application/octet-stream'
+        )
+
+    except Exception as e:
+        return jsonify({"message": f"Error generating dataset: {str(e)}"}), 500
