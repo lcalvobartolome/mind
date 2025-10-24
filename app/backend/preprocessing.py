@@ -193,6 +193,50 @@ def preparer():
 
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+    
+@preprocessing_bp.route('/topicmodeling', methods=['POST'])
+def topicmodelling():
+    try:
+        data = request.get_json()
+        email = data.get("email")
+        dataset = data.get("dataset")
+        output = data.get('output')
+        lang1 = data.get('lang1')
+        lang2 = data.get('lang2')
+        k = data.get('k')
+
+        def train_topicmodel():
+            from utils import validate_and_get_datasetTM
+            from mind.topic_modeling.polylingual_tm import PolylingualTM
+            
+            validation = validate_and_get_datasetTM(
+                email=email,
+                dataset=dataset,
+                output=output
+            )
+            if isinstance(validation, tuple):
+                dataset_path, output_dir = validation
+            else:
+                raise Exception("Validation failed")
+
+            print(f'Training model for dataset {output_dir}...')
+            model = PolylingualTM(
+                lang1=lang1,
+                lang2=lang2,
+                model_folder=output_dir,
+                num_topics=int(k)
+            )
+
+            model.train(dataset_path)
+
+            print('Finalize train model')
+
+        step_id = run_step("Segmenting", train_topicmodel, app=current_app._get_current_object())
+        return jsonify({"step_id": step_id, "message": "Segmenter task started"}), 200
+
+    except Exception as e:
+        print(e)
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 @preprocessing_bp.route("/download", methods=["POST"])
 def generate_dataset():

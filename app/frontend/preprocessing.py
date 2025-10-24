@@ -209,7 +209,101 @@ def start_preprocess():
         'success': True, 
         'message': f"Process preprocessing dataset '{dataset}' iniciado correctamente.",
         'task_id': new_task_id
-    }), 202 
+    }), 202
+
+def preprocess_stage2(task_id, task_name, email, dataset, output, lang1, lang2, k):
+    global RUNNING_TASKS
+
+    with tasks_lock:
+        task_state = next((t for t in RUNNING_TASKS if t['id'] == task_id), None)
+
+    if not task_state:
+        print(f"ERROR: Task {task_id} not found or was deleted")
+        return
+
+    print(f"Starting task: {task_name}")
+
+    try:
+        percent = 0
+        task_state['percent'] = percent
+
+        step_name = "Topic Modeling"
+        task_state['message'] = f"Topic Modeling {dataset}..."
+        response = requests.post(
+            f"{MIND_WORKER_URL}/topicmodeling",
+            json={
+                "email": email,
+                "dataset": dataset,
+                "output": output,
+                "lang1": lang1,
+                "lang2": lang2,
+                "k": k
+            }
+        )
+        response.raise_for_status()
+        data = response.json()
+        print(data.get("message"))
+        step_id = data.get("step_id")
+        if step_id:
+            wait_for_step_completion(step_id, step_name)
+
+        task_state['message'] = f"¡{task_name} completed! Results saved."
+        task_state['percent'] = 100
+        print(f"Completed task: {task_name}")
+
+    except Exception as e:
+        task_state['message'] = f"FATAL ERROR in {task_name}: {e}"
+        task_state['percent'] = -1
+
+    finally:
+        time.sleep(3)
+        with tasks_lock:
+            RUNNING_TASKS = [t for t in RUNNING_TASKS if t['id'] != task_id]
+        print(f"Task: {task_name} removed from the active tasks")
+
+
+@preprocess.route('/preprocess/Stage2', methods=['POST'])
+def start_topicModelling():
+    global RUNNING_TASKS, TASK_COUNTER
+
+    data = request.get_json()
+    dataset = data.get('dataset')
+    output = data.get('output')
+    lang1 = data.get('lang1')
+    lang2 = data.get('lang2')
+    k = data.get('k')
+
+    with tasks_lock:
+        if len(RUNNING_TASKS) >= MAX_CONCURRENT_TASKS:
+            return jsonify({
+                'success': False,
+                'message': f'Límite de {MAX_CONCURRENT_TASKS} procesos concurrentes alcanzado.'
+            }), 409
+
+        TASK_COUNTER += 1
+        new_task_id = str(uuid.uuid4())
+        new_task_name = f"Training Topic Model ({k} topics) of {dataset}"
+
+        new_task_state = {
+            'id': new_task_id,
+            'name': new_task_name,
+            'percent': 0,
+            'message': "Training Topic Model...",
+            'thread': None
+        }
+        RUNNING_TASKS.append(new_task_state)
+
+    thread = threading.Thread(
+        target=preprocess_stage2, 
+        args=(new_task_id, new_task_name, session['user_id'], dataset, output, lang1, lang2, k)
+    )
+    thread.start()
+    
+    return jsonify({
+        'success': True, 
+        'message': f"Process preprocessing dataset '{dataset}' iniciado correctamente.",
+        'task_id': new_task_id
+    }), 202
 
 @preprocess.route("/preprocess/download", methods=["POST"])
 def download_file():

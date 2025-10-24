@@ -353,11 +353,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 'segmentor_data': segmentor_data,
                 'translator_data': translator_data,
                 'preparer_data': preparer_data
-            };
+            }
 
-            console.log(data)
+            console.log(data);
 
-            // LLAMADA AJAX
             fetch("/preprocess/Stage1", {
                 method: "POST", 
                 headers: {
@@ -377,11 +376,9 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(response => {
                 console.log('Success (' + response.status + '): ' + response.message);
                 updateProgressBar();
-                // step2Done = response.next_step_available;
             })
             .catch(error => {
                 console.error("Error in Fetch/AJAX:", error.message);
-                // alert('Error: ' + error.message);
             });
 
         } else {
@@ -456,7 +453,39 @@ document.getElementById("confirmTopicModelling").addEventListener("click", funct
         return;
     }
 
-    // Logic of calling frontend to backend
+    const data = {
+        "dataset": dataset,
+        "output": outputPath,
+        "lang1": lang1,
+        "lang2": lang2,
+        "k": kTopics
+    }
+
+    console.log(data);
+
+    fetch("/preprocess/Stage2", {
+        method: "POST", 
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data), 
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => {
+                throw new Error(err.message || `HTTP Error: ${response.status}`);
+            });
+        }
+
+        return response.json();
+    })
+    .then(response => {
+        console.log('Success (' + response.status + '): ' + response.message);
+        updateProgressBar();
+    })
+    .catch(error => {
+        console.error("Error in Fetch/AJAX:", error.message);
+    });
 });
 </script>
 
@@ -475,10 +504,8 @@ document.getElementById("confirmDownload").addEventListener("click", function() 
         "output": outputPath + ".parquet"
     }
 
-    // Logic of calling frontend to backend
-    console.log(data)
+    console.log(data);
 
-    // LLAMADA AJAX
     fetch("/preprocess/download", {
         method: "POST", 
         headers: {
@@ -490,7 +517,7 @@ document.getElementById("confirmDownload").addEventListener("click", function() 
         if (!response.ok) {
             return response.json().then(err => { throw new Error(err.message || `HTTP Error: ${response.status}`); });
         }
-        return response.blob(); // Recibimos el archivo como blob
+        return response.blob();
     })
     .then(blob => {
         const url = window.URL.createObjectURL(blob);
