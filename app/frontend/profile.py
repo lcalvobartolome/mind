@@ -81,9 +81,11 @@ def upload_dataset():
 
     file = request.files['file']
 
-    stage = request.form.get('action')
+    stage = request.form.get('stage')
     if not stage:
         return jsonify({'error': 'No stage selected'}), 400
+
+    sep = request.form.get('sep')
 
     filename = file.filename
     temp_path = f"temp_{filename}"
@@ -100,7 +102,9 @@ def upload_dataset():
                 'path': output_file_path,
                 'email': email,
                 'stage': int(stage.split('_')[0]),
-                'dataset_name': filename.replace('.parquet', '')
+                'dataset_name': "".join(filename.split('.')[:-1]),
+                'extension': filename.split('.')[-1],
+                'sep': sep
             }
             resp = requests.post(f"{MIND_WORKER_URL}/upload_dataset", files=files, params=data)
 

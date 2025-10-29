@@ -11,11 +11,11 @@
 {% for group in combined_data | groupby(3) %}
     <h2 class="mt-4">
         {% if group.grouper == 1 %}
-            1. Preprocess
+            1. Raw Data
         {% elif group.grouper == 2 %}
-            2. Topic Modelling
+            2. Preprocessed Data
         {% elif group.grouper == 3 %}
-            3. Download
+            3. Topic Models
         {% else %}
             Datasets - Unknown {{ group.grouper }}
         {% endif %}
@@ -39,6 +39,7 @@
                     </h5>
                 </div>
 
+                {% if group.grouper != 3 %}
                 <div id="collapse-{{ unique_id_base }}" class="collapse" 
                      aria-labelledby="heading-{{ unique_id_base }}"
                      data-parent="#accordion-stage-{{ group.grouper }}">
@@ -69,6 +70,7 @@
 
                     </div>
                 </div>
+                {% endif %}
             </div>
         {% endfor %}
     </div>

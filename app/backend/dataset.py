@@ -107,6 +107,8 @@ def upload_dataset():
     path = data.get('path')
     email = data.get('email')
     stage = data.get('stage')
+    extension = data.get('extension')
+    sep = data.get('sep')
     dataset_name = data.get('dataset_name')
     output_dir = f"/data/{path}/"
 
@@ -137,6 +139,16 @@ def upload_dataset():
     # Save file
     with open(f'{output_dir}/dataset', 'wb') as f:
         f.write(file.read())
+
+    # In case dataset is CSV
+    if extension == 'csv':
+        try:
+            df_csv = pd.read_csv(f'{output_dir}/dataset', sep=sep)
+            df_csv.to_parquet(f'{output_dir}/dataset', engine='pyarrow')
+        except Exception as e:
+            print(e)
+            shutil.rmtree(output_dir)
+            return jsonify({'error': 'Couldn\'t save csv file'}), 400
 
     try:
         df_new_data = pd.DataFrame([new_data])

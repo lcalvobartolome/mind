@@ -19,12 +19,12 @@
     {% endif %}
 
 <h2 class="mt-3">My Datasets</h2>
-<p class="text-muted">Upload your dataset files (.parquet)</p>
+<p class="text-muted">Upload your dataset files (.parquet, .csv)</p>
 
 <form id="upload-form" enctype="multipart/form-data">
     <div class="border rounded p-4 text-center bg-light" id="drop-zone">
         <p class="mb-2">Drag & drop your file here, or click to select</p>
-        <input type="file" name="dataset_file" id="file-input" class="d-none" accept=".parquet" required>
+        <input type="file" name="dataset_file" id="file-input" class="d-none" accept=".parquet,.csv" required>
         <button type="button" class="btn btn-outline-primary btn-sm" id="browse-btn">Choose File</button>
         <p class="mt-2 text-muted" id="file-name"></p>
     </div>
@@ -33,11 +33,22 @@
         <label for="action-select">Choose a Stage:</label>
         <select id="action-select" name="action" class="form-select" required>
             <option value="" disabled selected>Select an option</option>
-            <option value="1_Preprocess">Preprocess</option>
-            <option value="2_TopicModelling">TopicModelling</option>
-            <option value="3_Download">Download</option>
+            <option value="1_Preprocess">Raw Data</option>
+            <option value="2_TopicModelling">Preprocessed Data</option>
+            <!-- <option value="3_Download">Download</option> -->
         </select>
     </div>
+
+    <div id="sep-csv" style="display: none;" class="mt-3">
+        <label for="sep-select">Indicate a separator for csv:</label>
+        <select id="sep-select" name="sep-csv" class="form-select" required>
+            <option value="" disabled selected>Select an option</option>
+            <option value=",">,</option>
+            <option value=";">;</option>
+        </select>
+    </div>
+
+    <hr>
 
     <div class="text-right mt-3">
         <button type="submit" class="btn btn-success" id="btn-success-files">Upload Dataset</button>
@@ -74,10 +85,24 @@ document.addEventListener('DOMContentLoaded', function () {
     const uploadForm = document.getElementById('upload-form');
     const actionSelect = document.getElementById('action-select');
 
+    const sepCsvDiv = document.getElementById('sep-csv');
+    const separatorSelect = document.getElementById('sep-select');
+    const csvSeparatorSelect = document.querySelector('#sep-csv select[name="sep-csv"]');
+
+    function csvSeparatorDisplay(file) {
+        if (file && file.name.toLowerCase().endsWith('.csv')) {
+            sepCsvDiv.style.display = 'block';
+        } else {
+            sepCsvDiv.style.display = 'none';
+        }
+    }
+
     browseBtn.addEventListener('click', () => fileInput.click());
 
     fileInput.addEventListener('change', () => {
-        fileNameDisplay.textContent = fileInput.files[0]?.name || '';
+        const file = fileInput.files[0];
+        fileNameDisplay.textContent = file?.name || '';
+        csvSeparatorDisplay(file);
     });
 
     // Drag & Drop
@@ -93,9 +118,12 @@ document.addEventListener('DOMContentLoaded', function () {
     dropZone.addEventListener('drop', (e) => {
         e.preventDefault();
         dropZone.classList.remove('border-primary');
-        if (e.dataTransfer.files.length) {
+        const file = e.dataTransfer.files[0];
+        
+        if (file) {
             fileInput.files = e.dataTransfer.files;
-            fileNameDisplay.textContent = e.dataTransfer.files[0].name;
+            fileNameDisplay.textContent = file.name;
+            csvSeparatorDisplay(file);
         }
     });
 
@@ -116,7 +144,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('action', stage);
+        formData.append('stage', stage);
+        
+        const esCsv = file.name.toLowerCase().endsWith('.csv');
+        if (esCsv) {
+            const separator = csvSeparatorSelect.value;
+            if (!separator) {
+                alert("Please select a separator for the CSV file.");
+                buttonSubmit.disabled = false;
+                buttonSubmit.textContent = 'Upload Dataset';
+                return;
+            }
+            formData.append('sep', separator);
+        }
 
         fetch('/upload_dataset', {
             method: 'POST',

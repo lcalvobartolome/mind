@@ -26,8 +26,13 @@ def register():
 
     hashed_pw = generate_password_hash(password)
     new_user = User(email=email, username=username, password=hashed_pw)
-    db.session.add(new_user)
-    db.session.commit()
+    
+    try:
+        db.session.add(new_user)
+        db.session.commit()
+    except Exception as e:
+        print(str(e))
+        return jsonify({"error": f"Failed to insert user: User already exists"}), 500        
 
     try:
         response = requests.post(
