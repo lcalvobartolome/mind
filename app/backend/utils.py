@@ -1,5 +1,6 @@
 import os
 import shutil
+import zipfile
 import pandas as pd
 
 from flask import jsonify
@@ -90,7 +91,7 @@ def validate_and_get_datasetTM(email: str, dataset: str, output: str):
             }), 404
 
         dataset_path = f"/data/{email}/2_TopicModelling/{dataset}/dataset"
-        output_dir = f"/data/{email}/2_TopicModelling/{dataset}/{output}/"
+        output_dir = f"/data/{email}/3_Download/{output}"
         
         if os.path.exists(f"{output_dir}"):
             return jsonify({
@@ -150,7 +151,7 @@ def aggregate_row(email: str, dataset: str, stage: int, output: str):
                 "message": str(e)
             }), 404
     
-def get_download_dataset(email: str, dataset: str):
+def get_download_dataset(stage: int, email: str, dataset: str):
     try:
         parquet_path = "/data/datasets_stage_preprocess.parquet"
         if not os.path.exists(parquet_path):
@@ -165,17 +166,36 @@ def get_download_dataset(email: str, dataset: str):
         row = df[
             (df["Usermail"] == email) &
             (df["Dataset"] == dataset) &
-            (df["Stage"] == 3)
+            (df["Stage"] == stage)
         ]
 
         if row.empty:
             print('No dataset found')
             return jsonify({
                 "status": "error",
-                "message": f"No dataset found for user '{email}', dataset '{dataset}', stage 1."
+                "message": f"No dataset found for user '{email}', dataset '{dataset}', stage {stage}."
             }), 404
 
-        dataset_path = f"/data/{email}/3_Download/{dataset}/dataset"
+        if stage == 1:
+            stage_str = "1_Preprocess"
+            dataset_path = f"/data/{email}/{stage_str}/{dataset}/dataset"
+
+        elif stage == 2:
+            stage_str = "2_TopicModelling"
+            dataset_path = f"/data/{email}/{stage_str}/{dataset}/dataset"
+
+        elif stage == 3:
+            stage_str = "3_Download"
+            dataset_path = f"/data/{email}/{stage_str}/{dataset}"
+            zip_path = f"{dataset_path}.zip"
+            with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                for root, dirs, files in os.walk(dataset_path):
+                    for file in files:
+                        file_path = os.path.join(root, file)
+                        arcname = os.path.relpath(file_path, start=dataset_path)
+                        zipf.write(file_path, arcname)
+            dataset_path = zip_path
+
         return dataset_path
 
     except Exception as e:

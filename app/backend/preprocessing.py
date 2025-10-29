@@ -4,7 +4,7 @@ import uuid
 
 from pathlib import Path
 from utils import cleanup_output_dir, aggregate_row
-from flask import Blueprint, request, jsonify, current_app, send_file
+from flask import Blueprint, request, jsonify, current_app, send_file, after_this_request
 
 
 preprocessing_bp = Blueprint('preprocessing', __name__, url_prefix='/preprocessing')
@@ -282,6 +282,8 @@ def topicmodelling():
 
                 model.train(dataset_path)
 
+                aggregate_row(email, output, 3, output_dir)
+
                 print('Finalize train model')
 
             except Exception as e:
@@ -294,22 +296,33 @@ def topicmodelling():
     except Exception as e:
         print(str(e))
         return jsonify({"status": "error", "message": str(e)}), 500
+    
 
 @preprocessing_bp.route("/download", methods=["POST"])
-def generate_dataset():
+def download_data():
     data = request.get_json()
+    stage = data.get("stage")
     email = data.get("email")
     dataset = data.get("dataset")
 
     if not dataset:
-        return jsonify({"message": "Dataset missing"}), 400
+        return jsonify({"message": "Data missing"}), 400
 
     try:
         from utils import get_download_dataset
-        dataset_path = get_download_dataset(email, dataset)
+        dataset_path = get_download_dataset(int(stage), email, dataset)
 
         if not dataset_path or not os.path.exists(dataset_path):
-            return jsonify({"message": "Failed to generate dataset"}), 500
+            return jsonify({"message": "Failed to generate data"}), 500
+        
+        if dataset_path.endswith(".zip"):
+            @after_this_request
+            def remove_file(response):
+                try:
+                    os.remove(dataset_path)
+                except Exception as e:
+                    preprocessing_bp.logger.error(f"Error removing temporary file: {e}")
+                return response
 
         return send_file(
             dataset_path,
@@ -319,4 +332,4 @@ def generate_dataset():
         )
 
     except Exception as e:
-        return jsonify({"message": f"Error generating dataset: {str(e)}"}), 500
+        return jsonify({"message": f"Error generating data for download: {str(e)}"}), 500

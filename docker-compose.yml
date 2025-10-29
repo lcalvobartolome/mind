@@ -77,6 +77,25 @@ services:
       db:
         condition: service_healthy
 
+  mind:
+    build:
+      context: .
+      dockerfile: app/mind/Dockerfile
+    user: root
+    volumes:
+      - ./app/Data_mind:/Data 
+
+      - ./app/Data_old:/Data_old
+    privileged: true
+    ports:
+      - "93:93"
+    depends_on:
+      - frontend
+    environment:
+      - PYTHONUNBUFFERED=1
+    env_file:
+      ./app/.env
+  
   db:
     image: postgres:15
     

@@ -95,6 +95,6 @@ def sign_up():
                 session['username'] = login_response.json().get('username')
             return redirect(url_for('views.home'))
         else:
-            flash(response.json(), "danger")
+            flash(response, "danger")
 
     return render_template('sign_up.html')
