@@ -260,11 +260,11 @@
 </div>
 
 <ul class="nav nav-pills mb-4 d-flex justify-content-between w-100" id="myTab" role="tablist">
-    <li class="nav-item ">
+    <!-- <li class="nav-item ">
         <a class="nav-link mode-selectors active " href="#input" data-toggle="tab">Explore topics</a>
-    </li>
+    </li> -->
     <li class="nav-item ">
-        <a class="nav-link mode-selectors active" href="#output" data-toggle="tab">Analyze contradictions</a>
+        <a class="nav-link mode-selectors active" id="analyze_contradictions" style="cursor: pointer;" data-toggle="tab">Analyze contradictions</a>
     </li>
 </ul>
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
@@ -436,9 +436,21 @@ class MINDInterface {
         this.modeSelectors.forEach(selector => {
             selector.addEventListener('click', (e) => {
                 e.preventDefault();
-                const instruction = selector.textContent.trim();
-                this.handleInstruction(instruction);
+                const instruction = 'Analyze contradictions';
 
+                const checkboxes = document.querySelectorAll('.topic-checkbox');
+    
+                const selected = Array.from(checkboxes)
+                    .filter(cb => cb.checked)
+                    .map(cb => cb.value);
+
+                if (selected.length < 2) {
+                    alert('Select at least 2 topics.');
+                    return;
+                }
+                
+                const topics = selected.join(',');
+                this.handleInstruction(instruction, topics)
             });
         });
         // Topic buttons
@@ -712,24 +724,49 @@ class MINDInterface {
     }
 
 
-    handleInstruction(instruction) {
+    handleInstruction(instruction, topics) {
         console.log("Selected instruction:", instruction); 
+        const data = { "instruction": instruction, "topics": topics };
+
+        const selector = document.querySelector(`#analyze_contradictions`);
+        if (!selector) {
+            console.error("Selector not found!");
+            return;
+        }
+
+        selector.style.pointerEvents = 'none';
+        selector.style.opacity = '0.6';
+        selector.classList.add('disabled');
+
+        const originalHTML = selector.innerHTML;
+        selector.innerHTML = `
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Waiting...
+        `;
+
+        console.log(data);
         fetch('/mode_selection', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': this.getCSRFToken() 
             },
-            body: JSON.stringify({ instruction: instruction })
+            body: JSON.stringify(data)
         })
         .then(res => res.json())
         .then(data => {
             console.log("Backend response:", data);
         })
-        .catch(err => console.error("Dataset selection error:", err));    
-        setTimeout(() => {
-            window.location.reload();
-        }, 1000); // Adjust the timeout as needed
+        .catch(err => console.error("Dataset selection error:", err))
+        .finally(() => {
+            selector.style.pointerEvents = 'auto';
+            selector.style.opacity = '1';
+            selector.classList.remove('disabled');
+            selector.innerHTML = originalHTML;
+        });
+        // setTimeout(() => {
+        //     window.location.reload();
+        // }, 1000); // Adjust the timeout as needed
     }
 
     async handleTopicClick(topicId) {

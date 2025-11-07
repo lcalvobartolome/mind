@@ -60,59 +60,102 @@ def getTopicKeys():
         print(str(e))
         return jsonify({"error": f"ERROR: {str(e)}"}), 500
 
-def analyse_contradiction(email: str, TM: str, topics: str):
-    print('analysing...')
-    path = get_TM_detection(email, TM)
-
-    if not isinstance(path, str):
-        raise Exception("Path TM failed")
+@detection_bp.route('/detection/analyse_contradiction', methods=['POST'])
+def analyse_contradiction():
+    try:
+        data = request.get_json()
+        print(data)
+        email = data.get("email")
+        TM = data.get("TM")
+        topics = data.get("topics")
     
-    lang = obtain_langs_TM(path)
+        print('analysing...')
+        paths = get_TM_detection(email, TM)
 
-    from mind.pipeline.pipeline import MIND
+        if isinstance(paths, tuple):
+            pathTM, pathCorpus = paths[0], paths[1]
+        else:
+            raise Exception("Path TM failed")
+        
+        lang = obtain_langs_TM(pathTM)
 
-    # config part
+        from mind.pipeline.pipeline import MIND
 
-    source_corpus = {
-        "corpus_path": f'{path}/train_data/corpus_{lang[0]}.txt',
-        "thetas_path": f'{path}/mallet_output/thetas_{lang[0]}.npz',
-        "id_col": 'doc_id',
-        "passage_col": 'text',
-        "full_doc_col": 'full_doc',
-        "language_filter": lang[0],
-        "filter_ids": None,
-        "load_thetas": True # Check
-    }
+        # config part
 
-    target_corpus = {
-        "corpus_path": f'{path}/train_data/corpus_{lang[1]}.txt',
-        "thetas_path": f'{path}/mallet_output/thetas_{lang[1]}.npz',
-        "id_col": 'doc_id',
-        "passage_col": 'text',
-        "full_doc_col": 'full_doc',
-        "language_filter": lang[1],
-        "filter_ids": None,
-        "load_thetas": True # Check
-    }
+        # source_corpus = {
+        #     "corpus_path": pathCorpus,
+        #     "thetas_path": f'{pathTM}/mallet_output/thetas_{lang[0]}.npz',
+        #     "id_col": 'doc_id',
+        #     "passage_col": 'text',
+        #     "full_doc_col": 'full_doc',
+        #     "language_filter": lang[0],
+        #     "filter_ids": None,
+        #     "load_thetas": True # Check
+        # }
 
-    cfg = {
-        "llm_model": "qweb:32b",
-        "llm_server": None,
-        "source_corpus": source_corpus,
-        "target_corpus": target_corpus,
-        # "dry_run": False,
-        # "do_check_entailement": False,
-        "config_path": '/src/config/config.yaml'
-    }
+        source_corpus = {
+            "corpus_path": pathCorpus,
+            "thetas_path": f'{pathTM}/mallet_output/thetas_{lang[0]}.npz',
+            "id_col": 'doc_id',
+            "passage_col": 'lemmas',
+            "full_doc_col": 'raw_text',
+            "language_filter": lang[0],
+            "filter_ids": None,
+            "load_thetas": True # Check
+        }
 
-    mind = MIND(**cfg)
+        # target_corpus = {
+        #     "corpus_path": pathCorpus,
+        #     "thetas_path": f'{pathTM}/mallet_output/thetas_{lang[1]}.npz',
+        #     "id_col": 'doc_id',
+        #     "passage_col": 'text',
+        #     "full_doc_col": 'full_doc',
+        #     "language_filter": lang[1],
+        #     "filter_ids": None,
+        #     "load_thetas": True # Check
+        # }
 
-    # run pipeline
+        target_corpus = {
+            "corpus_path": pathCorpus,
+            "thetas_path": f'{pathTM}/mallet_output/thetas_{lang[1]}.npz',
+            "id_col": 'doc_id',
+            "passage_col": 'lemmas',
+            "full_doc_col": 'raw_text',
+            "language_filter": lang[1],
+            "filter_ids": None,
+            "load_thetas": True # Check
+        }
 
-    run_kwargs = {
-        "topics": comma_separated_ints(topics), 
-        "path_save": f'/data/{email}/4_Contradiction/{TM}_contradiction/', # Ver donde
-        "previous_check": None
-    }
+        cfg = {
+            "llm_model": "qwen:32b",
+            "llm_server": "http://kumo.tsc.uc3m.es:11434",
+            "source_corpus": source_corpus,
+            "target_corpus": target_corpus,
+            # "dry_run": False,
+            # "do_check_entailement": False,
+            "config_path": '/src/config/config.yaml'
+        }
 
-    mind.run_pipeline(**run_kwargs)
+        mind = MIND(**cfg)
+
+        # run pipeline
+
+        run_kwargs = {
+            "topics": comma_separated_ints(topics), 
+            "path_save": f'/data/{email}/4_Contradiction/{TM}_contradiction/', # Ver donde
+            "previous_check": None
+        }
+
+        mind.run_pipeline(**run_kwargs)
+
+        # import time
+        # time.sleep(5)
+
+        print('Finish pipeline')
+
+        return jsonify({"message": f"Todo bien"}), 200
+    
+    except Exception as e:
+        print(str(e))
+        return jsonify({"error": f"ERROR: {str(e)}"}), 500

@@ -185,8 +185,8 @@ def get_TM_detection(email: str, TM: str):
                 "status": "error",
                 "message": f"No dataset found for user '{email}', topic model '{TM}', stage 3."
             }), 404
-        
-        return row["Path"]
+                
+        return row.iloc[0]["Path"], f"/data/{email}/2_TopicModelling/{row.iloc[0]["OriginalDataset"]}/dataset"
     
     except Exception as e:
         print(f"ERROR: {e}")

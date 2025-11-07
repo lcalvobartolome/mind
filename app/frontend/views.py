@@ -6,7 +6,7 @@ import requests
 from enum import Enum
 from tools.tools import *
 from functools import wraps
-from detection import getTMDatasets, getTMkeys
+from detection import getTMDatasets, getTMkeys, analyseContradiction
 from flask import Blueprint, render_template, request, flash, jsonify, session, send_file, url_for
 
 
@@ -170,13 +170,8 @@ def mode_selection():
     if not mode:
         flash('No mode provided', 'danger')
         return jsonify({'error': 'No mode provided'}), 400
-    
-    status_resp = requests.get(f"{mind_api_url}/status")
-    status_data = status_resp.json()
-    status = status_data.get("state", "unknown")
-    
-    if status in ["initialized", 'topic_exploration']:
-        print(f"Current MIND status: {status}")
+
+    if request.method == 'POST':
         if mode == "Explore topics":
             current_instruction["instruction"] = LastInstruction.explore_topics
             response = requests.get(f'{mind_api_url}/explore')
@@ -184,15 +179,24 @@ def mode_selection():
         
         elif mode == "Analyze contradictions":
             current_instruction["instruction"] = LastInstruction.analyze_contradictions
-            response = requests.get(f'{mind_api_url}/explore')
-            return jsonify(response.json())
+            topics = data.get('topics')
+            
+            # Call backend
+            result = analyseContradiction(session.get('user_id'), session.get('TM'), topics)
+
+            return result
+            
+            # OLD
+            # response = requests.get(f'{mind_api_url}/explore')
+            # return jsonify(response.json())
         
         else:
             flash('Invalid mode selected', 'danger')
             return jsonify({'error': 'Invalid mode selected'}), 400
     else:
         flash(f"Select a dataset before exploring!", "warning")
-        return jsonify({'error': f'MIND is not initialized. Current status: {status}'})
+        return jsonify({'error': f'MIND is not initialized.'})
+    
 
 @views.route('/detection', methods=['GET', 'POST'])
 @login_required_custom
@@ -214,6 +218,7 @@ def detection_page():
             data = request.get_json()
             print(f'Found: {data}')
             data = json.loads(data)
+            session["TM"] = data['topic_model']
 
         except Exception as e:
             flash("Couldn't get correctly data or communicate to the backend.", "danger")
@@ -319,6 +324,7 @@ def detection_page_topickeys_post():
         data = request.get_json()
         print(f'Found: {data}')
         data = json.loads(data)
+        session["TM"] = data['topic_model']
 
     except Exception as e:
         flash("Couldn't get correctly data or communicate to the backend.", "danger")
