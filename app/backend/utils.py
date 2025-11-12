@@ -204,7 +204,7 @@ def obtain_langs_TM(pathTM: str):
         lang.append(file.split('corpus_')[-1].replace('.txt', ''))
     return lang
     
-def get_download_dataset(stage: int, email: str, dataset: str):
+def get_download_dataset(stage: int, email: str, dataset: str, format_file : str):
     try:
         parquet_path = "/data/datasets_stage_preprocess.parquet"
         if not os.path.exists(parquet_path):
@@ -232,10 +232,18 @@ def get_download_dataset(stage: int, email: str, dataset: str):
         if stage == 1:
             stage_str = "1_Preprocess"
             dataset_path = f"/data/{email}/{stage_str}/{dataset}/dataset"
+            if format_file == 'xlsx':
+                df = pd.read_parquet(dataset_path, engine='pyarrow')
+                dataset_path = f'{dataset_path}.xlsx'
+                df.to_excel(dataset_path)
 
         elif stage == 2:
             stage_str = "2_TopicModelling"
             dataset_path = f"/data/{email}/{stage_str}/{dataset}/dataset"
+            if format_file == 'xlsx':
+                df = pd.read_parquet(dataset_path, engine='pyarrow')
+                dataset_path = f'{dataset_path}.xlsx'
+                df.to_excel(dataset_path)
 
         elif stage == 3:
             stage_str = "3_Download"
@@ -252,6 +260,7 @@ def get_download_dataset(stage: int, email: str, dataset: str):
         return dataset_path
 
     except Exception as e:
+        print(e)
         return jsonify({
             "status": "error",
             "message": f"Validation error: {e}"

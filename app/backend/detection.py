@@ -1,8 +1,5 @@
 import os
 import glob
-import shutil
-import numpy as np
-import pandas as pd
 
 from mind.cli import comma_separated_ints
 from flask import Blueprint, jsonify, request
@@ -102,12 +99,10 @@ def analyse_contradiction():
             "passage_col": 'lemmas',
             "full_doc_col": 'raw_text',
             "language_filter": lang[0],
-            "filter_ids": None,
+            "filter_ids": None, # 
             "load_thetas": True, # Check
             "index_path": "." # Check not sure
         }
-
-        # Seems not necessary !!!!
 
         # target_corpus = {
         #     "corpus_path": pathCorpus,
@@ -129,16 +124,16 @@ def analyse_contradiction():
             "language_filter": lang[1],
             "filter_ids": None,
             "load_thetas": True, # Check
-            "index_path": "." # Check not sure
+            "index_path": "pathTM" # Check not sure
         }
 
         cfg = {
-            "llm_model": "qwen:32b",
-            "llm_server": "http://kumo.tsc.uc3m.es:11434",
+            "llm_model": "llama3.1:8b",
+            "llm_server": "http://kumo02.tsc.uc3m.es:11434",
             "source_corpus": source_corpus,
-            # "target_corpus": target_corpus,
+            "target_corpus": target_corpus,
             # "dry_run": False,
-            # "do_check_entailement": False,
+            # "do_check_entailement": True,
             "config_path": '/src/config/config.yaml'
         }
 
@@ -161,7 +156,7 @@ def analyse_contradiction():
 
         print('Finish pipeline')
 
-        return jsonify({"message": f"Todo bien"}), 200
+        return jsonify({"message": f"Pipeline done correctly"}), 200
     
     except Exception as e:
         print(e)

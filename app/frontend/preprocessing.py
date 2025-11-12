@@ -311,11 +311,12 @@ def download_file():
     stage = data.get("stage")
     dataset = data.get("dataset")
     output = data.get("output")
+    format_file = data.get("format")
 
     if not dataset or not output:
         return jsonify({"message": "Missing fields"}), 400
 
-    response = requests.post(f"{MIND_WORKER_URL}/download", json={"stage": stage, "dataset": dataset, "email": session['user_id']})
+    response = requests.post(f"{MIND_WORKER_URL}/download", json={"stage": stage, "dataset": dataset, "email": session['user_id'], "format": format_file})
 
     if response.status_code != 200:
         return jsonify({"message": "Error from backend"}), 500

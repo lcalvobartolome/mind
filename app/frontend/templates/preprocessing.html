@@ -295,6 +295,14 @@
         {% endif %}
         </select>
 
+        <label id="optionsFormatFile3" for="formatFile3" style="display: none;">Select an extension: </label>
+        <select id="formatFile3" style="display: none;">
+            <option value="" disabled selected>-- Choose an extension --</option>
+
+            <option value="xlsx">Excel</option> 
+            <option value="parquet">Parquet</option> 
+        </select>
+
         <select id="optionsDatasets3-3" style="display: none;">
         {% if datasets %}
             <option value="" disabled selected>-- Choose an avaible model output --</option>
@@ -575,6 +583,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function showCorrectModalBody(event) {
         const stepNumber = event.currentTarget.dataset.step;
+
         const targetId = 'modal-body-' + stepNumber;
 
         const allModalBodies = document.querySelectorAll('[id^="modal-body-"]');
@@ -587,21 +596,57 @@ document.addEventListener('DOMContentLoaded', function () {
             targetBody.style.display = 'block';
         }
 
+        // Buttons Next & Prev Slides only on 1
+        if (document.getElementById('modal-body-1').style.display != "none") {
+            if (stepNumber == 1) {
+                document.getElementById('nextSlide').style.display = 'block';
+                document.getElementById('prevSlide').style.display = 'none';
+            }
+            else if (stepNumber == 2) {
+                document.getElementById('nextSlide').style.display = 'block';
+                document.getElementById('prevSlide').style.display = 'block';
+            }
+            else if (stepNumber == 3) {
+                document.getElementById('nextSlide').style.display = 'none';
+                document.getElementById('prevSlide').style.display = 'block';
+            }
+            else {
+                document.getElementById('nextSlide').style.display = 'none';
+                document.getElementById('prevSlide').style.display = 'none';
+            }
+        }
+        else {
+            document.getElementById('nextSlide').style.display = 'none';
+            document.getElementById('prevSlide').style.display = 'none';
+        }
+
         const stepModalLabel = document.getElementById('stepModalLabel');
         if (stepNumber == 1) {
             stepModalLabel.textContent = 'Step 1: Preprocess info';
+
+            // document.getElementById('nextSlide').style.display = 'block';
+            // document.getElementById('prevSlide').style.display = 'none';
+
             document.getElementById('confirmDatasetPreprocess').style.display = 'none';
             document.getElementById('confirmTopicModelling').style.display = 'none';
             document.getElementById('confirmDownload').style.display = 'none';
         }
         else if (stepNumber == 2) {
             stepModalLabel.textContent = 'Step 2: Topic Modeling info';
+
+            // document.getElementById('nextSlide').style.display = 'block';
+            // document.getElementById('prevSlide').style.display = 'block';
+
             document.getElementById('confirmDatasetPreprocess').style.display = 'none';
             document.getElementById('confirmTopicModelling').style.display = 'block';
             document.getElementById('confirmDownload').style.display = 'none';
         }
         else if (stepNumber == 3) {
             stepModalLabel.textContent = 'Step 3: Download info';
+
+            // document.getElementById('nextSlide').style.display = 'none';
+            // document.getElementById('prevSlide').style.display = 'block';
+
             document.getElementById('confirmDatasetPreprocess').style.display = 'none';
             document.getElementById('confirmTopicModelling').style.display = 'none';
             document.getElementById('confirmDownload').style.display = 'block';
@@ -679,15 +724,16 @@ document.getElementById("confirmDownload").addEventListener("click", function() 
     
     const dataset = document.getElementById("optionsDatasets3-" + stage).value;
     const outputPath = document.getElementById("outputPath3").value.trim();
+    const formatFile = document.getElementById("formatFile3").value;
 
-    if (!dataset || !outputPath) {
+    if (!dataset || !outputPath || !formatFile) {
         alert("Please fill in all fields before continuing.");
         return;
     }
 
     let output = "";
     if (stage === "1" || stage === "2") {
-        output = outputPath + ".parquet";
+        output = outputPath + "." + formatFile;
     }
     else if (stage === "3") {
         output = outputPath + ".zip";
@@ -696,7 +742,8 @@ document.getElementById("confirmDownload").addEventListener("click", function() 
     const data = {
         "stage": stage,
         "dataset": dataset,
-        "output": output
+        "output": output,
+        "format": formatFile
     }
 
     console.log(data);
@@ -736,6 +783,8 @@ document.getElementById("confirmDownload").addEventListener("click", function() 
 document.addEventListener('DOMContentLoaded', function() {
     const stageSelect = document.getElementById('stage-download');
     const labelDataset = document.getElementById('optionsDatasets3');
+    const labelFormat = document.getElementById('optionsFormatFile3');
+    const formatFile = document.getElementById('formatFile3');
     const options1 = document.getElementById('optionsDatasets3-1');
     const options2 = document.getElementById('optionsDatasets3-2');
     const options3 = document.getElementById('optionsDatasets3-3');
@@ -745,21 +794,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (selectedValue === '1') {
             labelDataset.style.display = '';
-            options1.style.display = 'none';
+            labelFormat.style.display = '';
+            formatFile.style.display = '';
+            options1.style.display = '';
             options2.style.display = 'none';
             options3.style.display = 'none';
         } else if (selectedValue === '2') {
             labelDataset.style.display = '';
+            labelFormat.style.display = '';
+            formatFile.style.display = '';
             options1.style.display = 'none';
             options2.style.display = '';
             options3.style.display = 'none';
         } else if (selectedValue === '3') {
             labelDataset.style.display = '';
+            labelFormat.style.display = 'none';
+            formatFile.style.display = 'none';
             options1.style.display = 'none';
             options2.style.display = 'none';
             options3.style.display = '';
         } else {
             labelDataset.style.display = 'none';
+            labelFormat.style.display = 'none';
+            formatFile.style.display = 'none';
             options1.style.display = 'none';
             options2.style.display = 'none';
             options3.style.display = 'none';
