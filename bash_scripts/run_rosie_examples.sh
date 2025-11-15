@@ -3,7 +3,7 @@ set -euo pipefail
 
 LLM_MODEL="qwen:32b"
 TOPICS="15"
-SAMPLE_SIZE=348 #1000
+SAMPLE_SIZE=10 #348 #1000
 PATH_SAVE="data/mind_runs/rosie/examples_ppt"
 
 SRC_CORPUS_PATH="/export/usuarios_ml4ds/lbartolome/Repos/umd/mind/data/kept_rosie.parquet"

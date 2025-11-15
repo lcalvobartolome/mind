@@ -6,7 +6,7 @@ TOPICS="15"
 SAMPLE_SIZE=10 #1000
 PATH_SAVE="data/mind_runs/rosie/results"
 
-SRC_CORPUS_PATH="/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/source/corpus_rosie/passages/26_jan/df_1.parquet"
+SRC_CORPUS_PATH="/export/usuarios01/ivgomez/mind/data/datasets/sample_rosie_100.parquet"
 SRC_THETAS_PATH="/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/models/28_jan/poly_rosie_1_30/mallet_output/thetas_EN.npz"
 SRC_ID_COL="doc_id"
 SRC_PASSAGE_COL="text"
@@ -15,14 +15,13 @@ SRC_LANG_FILTER="EN"
 #SRC_FILTER_IDS_PATH="data/mind_runs/rosie/v1/src_filter_ids.txt"
 SRC_FILTER_IDS_PATH="data/mind_runs/rosie/results/src_filter_ids_tp15.txt"
 
-TGT_CORPUS_PATH="/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/source/corpus_rosie/passages/26_jan/df_1.parquet"
+TGT_CORPUS_PATH="/export/usuarios01/ivgomez/mind/data/datasets/sample_rosie_100.parquet"
 TGT_THETAS_PATH="/export/usuarios_ml4ds/lbartolome/Repos/umd/LinQAForge/data/models/28_jan/poly_rosie_1_30/mallet_output/thetas_ES.npz"
 TGT_ID_COL="doc_id"
 TGT_PASSAGE_COL="text"
 TGT_FULL_DOC_COL="full_doc"
 TGT_LANG_FILTER="ES"
 TGT_INDEX_PATH="data/mind_runs/rosie/indexes"
-#TGT_INDEX_PATH="/export/usuarios_ml4ds/lbartolome/Repos/umd/mind/data/mind_runs/rosie/v2/indexes" para que funcione con el de lorena.
 #TGT_FILTER_IDS_PATH="data/mind_runs/rosie/v1/src_filter_ids.txt"
 TGT_FILTER_IDS_PATH="data/mind_runs/rosie/results/src_filter_ids_tp15.txt"
 #PREVIOUS_CHECK="data/mind_runs/rosie/results/results_topic_15_504_check.parquet"
@@ -46,7 +45,6 @@ CMD=(python3 src/mind/cli.py
   --tgt_full_doc_col "$TGT_FULL_DOC_COL"
   --tgt_lang_filter "$TGT_LANG_FILTER"
   --tgt_index_path "$TGT_INDEX_PATH"
-  --load_thetas
 )
 
 # Show the exact command (quoted)

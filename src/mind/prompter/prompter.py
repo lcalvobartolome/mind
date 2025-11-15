@@ -16,7 +16,9 @@ from colorama import Fore, Style
 
 from mind.utils.utils import init_logger, load_yaml_config_file
 
-memory = Memory(location='../../../cache', verbose=0)
+cache_dir = os.path.expanduser('~/mind_cache')
+os.makedirs(cache_dir, exist_ok=True)
+memory = Memory(location=cache_dir, verbose=0)
 
 def hash_input(*args):
     return hashlib.md5(str(args).encode()).hexdigest()

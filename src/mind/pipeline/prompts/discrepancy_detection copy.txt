@@ -10,7 +10,7 @@ You will be given a QUESTION along with two responses (ANSWER_1 and ANSWER_2). Y
 
 Response Format:  
 - REASON: [Briefly explain why you selected this category]  
-- DISCREPANCY_TYPE: [Choose one of the four categories above]
+- DISCREPANCY_TYPE: [Choose one of the five categories above]
 
 #### EXAMPLE ####
 
