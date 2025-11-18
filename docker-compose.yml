@@ -30,6 +30,9 @@ services:
     build:
       context: .
       dockerfile: app/backend/Dockerfile
+
+    tty: true
+    stdin_open: true
     
     user: root
     
@@ -61,9 +64,8 @@ services:
     ports:
       - "5002:5002"
     
-    volumes:
-      - ./app/auth:/auth
-      - ./app/data/1_users:/auth/data/1_users
+    # volumes:
+    #   - ./app/auth:/auth
     
     environment:
       - PYTHONUNBUFFERED=1
@@ -75,25 +77,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-
-  mind:
-    build:
-      context: .
-      dockerfile: app/mind/Dockerfile
-    user: root
-    volumes:
-      - ./app/Data_mind:/Data 
-
-      - ./app/Data_old:/Data_old
-    privileged: true
-    ports:
-      - "93:93"
-    depends_on:
-      - frontend
-    environment:
-      - PYTHONUNBUFFERED=1
-    env_file:
-      ./app/.env
   
   db:
     image: postgres:15

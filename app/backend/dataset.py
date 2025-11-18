@@ -19,7 +19,7 @@ def create_user_folders():
         return jsonify({"error": "Missing email"}), 400
 
     base_path = f"/data/{email}"
-    folders = ["1_Preprocess", "2_TopicModelling", "3_Download", "4_Contradiction"]
+    folders = ["1_RawData", "2_PreprocessData", "3_TopicModel", "4_Contradiction"]
 
     try:
         os.makedirs(base_path, exist_ok=True)
@@ -41,7 +41,7 @@ def update_user_folders():
 
     old_path = f"/data/{old_email}"
     new_path = f"/data/{new_email}"
-    folders = ["1_Preprocess", "2_TopicModelling", "3_Download", "4_Contradiction"]
+    folders = ["1_RawData", "2_PreprocessData", "3_TopicModel", "4_Contradiction"]
 
     try:
         os.makedirs(new_path, exist_ok=True)
@@ -69,7 +69,7 @@ def update_user_folders():
 @datasets_bp.route("/datasets", methods=["GET"])
 def get_datasets():
     email = request.args.get("email")
-    folders = ["1_Preprocess", "2_TopicModelling", "3_Download"]
+    folders = ["1_RawData", "2_PreprocessData", "3_TopicModel", "4_Detection"]
     path = f"/data/{email}"
 
     final_dataset_preview = []
@@ -82,14 +82,14 @@ def get_datasets():
         if not os.path.exists(dataset_path):
             return jsonify({"error": f"Dataset path {dataset_path} does not exist."}), 404
 
-        dataset_list, datasets_name, shapes = load_datasets(dataset_path)
+        dataset_list, datasets_name, shapes = load_datasets(dataset_path, folders[i])
 
         # Convert DF into lists for JSON
         dataset_preview = [df.head(20).to_dict(orient="records") for df in dataset_list]
 
         final_dataset_preview.extend(dataset_preview)
         final_datasets_name.extend(datasets_name)
-        final_shapes.extend(shapes.tolist())
+        final_shapes.extend(shapes)
         stages.extend([i + 1] * len(dataset_list))
 
     return jsonify({
@@ -235,22 +235,26 @@ def get_final_results(og_dataset):
     return jsonify({"results": mind_info})
 
 
-def load_datasets(dataset_path: str):
+def load_datasets(dataset_path: str, folder: str):
     dataset_list = []
     datasets_name = os.listdir(dataset_path)
-    shapes = np.empty((len(datasets_name), 2), dtype=int)
+    shapes = []
 
-    for i, d in enumerate(datasets_name):
+    for _, d in enumerate(datasets_name):
         ds_path = os.path.join(dataset_path, d, 'dataset')
         try:
             ds = pd.read_parquet(ds_path)
-            shapes[i] = ds.shape
+            shapes.append(list(ds.shape))
             if 'index' in ds.columns:
                 ds = ds.drop(columns=['index'])
             dataset_list.append(ds)
         except Exception as e:
             print(f"Error loading dataset {d}: {e}")
             dataset_list.append(pd.DataFrame())
-            shapes[i] = (0, 0)
+            if folder == '4_Detection':
+                for k in os.listdir(os.path.join(dataset_path, d)):
+                    shapes.append(k.replace(',', ', '))
+            else:
+                shapes.append([0, 0])
 
     return dataset_list, datasets_name, shapes

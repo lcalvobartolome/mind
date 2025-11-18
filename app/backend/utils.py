@@ -33,16 +33,16 @@ def validate_and_get_dataset(email: str, dataset: str, output: str, phase: str):
             }), 404
 
         if phase == '1_Segmenter':
-            dataset_path = f"/data/{email}/1_Preprocess/{dataset}/dataset"
-            output_dir = f"/data/{email}/1_Preprocess/{dataset}/{phase}/{output}"
+            dataset_path = f"/data/{email}/1_RawData/{dataset}/dataset"
+            output_dir = f"/data/{email}/1_RawData/{dataset}/{phase}/{output}"
         
         elif phase == '2_Translator':
-            dataset_path = f"/data/{email}/1_Preprocess/{dataset}/1_Segmenter/{output}/dataset"
-            output_dir = f"/data/{email}/1_Preprocess/{dataset}/{phase}/{output}"
+            dataset_path = f"/data/{email}/1_RawData/{dataset}/1_Segmenter/{output}/dataset"
+            output_dir = f"/data/{email}/1_RawData/{dataset}/{phase}/{output}"
         
         elif phase == '3_Preparer':
-            dataset_path = f"/data/{email}/1_Preprocess/{dataset}/2_Translator/{output}"
-            output_dir = f"/data/{email}/2_TopicModelling/{output}"
+            dataset_path = f"/data/{email}/1_RawData/{dataset}/2_Translator/{output}"
+            output_dir = f"/data/{email}/2_PreprocessData/{output}"
         
         else:
             print('No phase found')
@@ -91,8 +91,8 @@ def validate_and_get_datasetTM(email: str, dataset: str, output: str):
                 "message": f"No dataset found for user '{email}', dataset '{dataset}', stage 1."
             }), 404
 
-        dataset_path = f"/data/{email}/2_TopicModelling/{dataset}/dataset"
-        output_dir = f"/data/{email}/3_Download/{output}"
+        dataset_path = f"/data/{email}/2_PreprocessData/{dataset}/dataset"
+        output_dir = f"/data/{email}/3_TopicModel/{output}"
         
         if os.path.exists(f"{output_dir}"):
             return jsonify({
@@ -114,8 +114,8 @@ def cleanup_output_dir(email: str, dataset: str, output: str):
     
     for phase in phases:
         try:
-            if phase == "3_Preparer": output_dir = f"/data/{email}/2_TopicModelling/{output}/"
-            else: output_dir = f"/data/{email}/1_Preprocess/{dataset}/{phase}/"
+            if phase == "3_Preparer": output_dir = f"/data/{email}/2_PreprocessData/{output}/"
+            else: output_dir = f"/data/{email}/1_RawData/{dataset}/{phase}/"
             if os.path.exists(output_dir):
                 shutil.rmtree(output_dir)
                 print(f"[CLEANUP] Removed incomplete dataset at: {output_dir}")
@@ -186,7 +186,7 @@ def get_TM_detection(email: str, TM: str):
                 "message": f"No dataset found for user '{email}', topic model '{TM}', stage 3."
             }), 404
                 
-        return row.iloc[0]["Path"], f"/data/{email}/2_TopicModelling/{row.iloc[0]["OriginalDataset"]}/dataset"
+        return row.iloc[0]["Path"], f"/data/{email}/2_PreprocessData/{row.iloc[0]["OriginalDataset"]}/dataset"
     
     except Exception as e:
         print(f"ERROR: {e}")
@@ -230,7 +230,7 @@ def get_download_dataset(stage: int, email: str, dataset: str, format_file : str
             }), 404
 
         if stage == 1:
-            stage_str = "1_Preprocess"
+            stage_str = "1_RawData"
             dataset_path = f"/data/{email}/{stage_str}/{dataset}/dataset"
             if format_file == 'xlsx':
                 df = pd.read_parquet(dataset_path, engine='pyarrow')
@@ -238,7 +238,7 @@ def get_download_dataset(stage: int, email: str, dataset: str, format_file : str
                 df.to_excel(dataset_path)
 
         elif stage == 2:
-            stage_str = "2_TopicModelling"
+            stage_str = "2_PreprocessData"
             dataset_path = f"/data/{email}/{stage_str}/{dataset}/dataset"
             if format_file == 'xlsx':
                 df = pd.read_parquet(dataset_path, engine='pyarrow')
@@ -246,7 +246,7 @@ def get_download_dataset(stage: int, email: str, dataset: str, format_file : str
                 df.to_excel(dataset_path)
 
         elif stage == 3:
-            stage_str = "3_Download"
+            stage_str = "3_TopicModel"
             dataset_path = f"/data/{email}/{stage_str}/{dataset}"
             zip_path = f"{dataset_path}.zip"
             with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:

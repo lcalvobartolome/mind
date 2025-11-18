@@ -120,8 +120,8 @@ def translator():
             print(f"Translating dataset {dataset}...")
 
             try:
-                # os.system(f'cp /data/{email}/1_Preprocess/{dataset}/1_Segmenter/{translator_data["output"]}/dataset {output_dir}/dataset_{translator_data["tgt_lang"]}2{translator_data["src_lang"]}')
-                # os.system(f'cp /data/{email}/1_Preprocess/{dataset}/dataset {output_dir}/dataset_{translator_data["src_lang"]}2{translator_data["tgt_lang"]}')
+                # os.system(f'cp /data/{email}/1_RawData/{dataset}/1_Segmenter/{translator_data["output"]}/dataset {output_dir}/dataset_{translator_data["tgt_lang"]}2{translator_data["src_lang"]}')
+                # os.system(f'cp /data/{email}/1_RawData/{dataset}/dataset {output_dir}/dataset_{translator_data["src_lang"]}2{translator_data["tgt_lang"]}')
                 
                 trans = Translator(config_path="/src/config/config.yaml")
                 

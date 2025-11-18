@@ -591,20 +591,67 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-{% else %}
+{% elif topic_keys %}
 <ul class="nav nav-pills mb-4 d-flex justify-content-between w-100" id="myTab" role="tablist">
     <!-- <li class="nav-item ">
         <a class="nav-link mode-selectors active " href="#input" data-toggle="tab">Explore topics</a>
     </li> -->
 
+    <li class="nav-item d-flex align-items-center"></li>
     <li class="nav-item d-flex align-items-center">
         <!-- Max input = ntopics -->
         <label for="numberInput" class="mr-2 mb-0">Sample Size: </label>
-        <input type="number" class="form-control mr-2" id="numberInput" name="n_samples" placeholder="0" min="1" style="width: 100px;">
+        <input type="number" class="form-control mr-2" id="sampleSizeInput" name="n_samples" placeholder="1" value="5" min="1" style="width: 100px;">
         <a class="nav-link mode-selectors active" id="analyze_contradictions" style="cursor: pointer;" data-toggle="tab">Analyze Discrepancies</a>
+        <a class="nav-link mode-selectors active" style="margin-left: 10px; cursor: pointer;" data-toggle="modal" data-target="#logModal">
+            Check Status
+        </a>
         <!-- <button type="submit" class="btn btn-primary">Submit</button> -->
     </li>
 </ul>
+
+<div class="modal fade" id="logModal" tabindex="-1" role="dialog" aria-labelledby="logModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="logModalLabel">Pipeline Log</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="logTerminal"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    const terminal = $("#logTerminal");
+
+    $('#logModal').on('shown.bs.modal', function () {
+        terminal.scrollTop(terminal[0].scrollHeight);
+    });
+
+    const evtSource = new EventSource("/stream_detection");
+
+    evtSource.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        const logLine = data.log;
+
+        terminal.append(document.createTextNode(logLine + "\n"));
+        terminal.scrollTop(terminal[0].scrollHeight);
+    };
+
+    evtSource.onerror = function(err) {
+        console.error("SSE error:", err);
+    };
+});
+</script>
 {% endif %}
 
 
@@ -728,6 +775,18 @@ document.addEventListener('DOMContentLoaded', function() {
         text-align: center;
         height: 38px;
         line-height: 30px;
+    }
+
+    #logTerminal {
+        background-color: #1e1e1e;
+        color: #00ff00;
+        font-family: monospace;
+        font-size: 0.85rem;
+        padding: 10px;
+        height: 300px;
+        overflow-y: auto;
+        border-radius: 5px;
+        white-space: pre-wrap;
     }
 
     [data-label-value="CONTRADICTION"], .final-label-select option[value="CONTRADICTION"] { background-color: #dc3545; color: #fff; }
@@ -865,10 +924,17 @@ class MINDInterface {
                     alert('Select at least 1 topic.');
                     return;
                 }
+
+                const sampleSizeInput = document.getElementById('sampleSizeInput').value
+
+                if (sampleSizeInput < 1) {
+                    alert('Sample Size must be greater than 0.');
+                    return;
+                }
                 
                 const topics = selected.join(',');
                 const TM = checkboxes[0].getAttribute("TM-name");
-                this.handleInstruction(instruction, topics, TM)
+                this.handleInstruction(instruction, topics, TM, sampleSizeInput)
             });
         });
         // Topic buttons
@@ -1141,9 +1207,9 @@ class MINDInterface {
     }
 
 
-    handleInstruction(instruction, topics, TM) {
-        console.log("Selected instruction:", instruction); 
-        const data = { "instruction": instruction, "topics": topics, "TM": TM };
+    handleInstruction(instruction, topics, TM, sample_size) {
+        console.log("Selected instruction:", instruction);
+        const data = { "instruction": instruction, "topics": topics, "TM": TM, "sample_size": sample_size };
 
         const selector = document.querySelector(`#analyze_contradictions`);
         if (!selector) {
@@ -1160,6 +1226,8 @@ class MINDInterface {
             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
             Waiting...
         `;
+
+        $("#logTerminal").empty();
 
         console.log(data);
         fetch('/mode_selection', {

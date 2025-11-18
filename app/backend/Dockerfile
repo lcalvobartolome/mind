@@ -2,6 +2,24 @@ FROM python:3.12.3
 
 WORKDIR /backend
 
+ENV HF_HOME=/backend/models
+RUN mkdir -p /backend/models
+RUN pip install sentence-transformers==5.1.0 transformers==4.41.2 sentencepiece==0.2.1 protobuf>=4.25.8
+
+# pre-load models sentence-transformers
+RUN python3 - <<EOF
+from sentence_transformers import SentenceTransformer
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
+# 1) BAAI/bge-m3
+SentenceTransformer("BAAI/bge-m3")
+
+# 2) deberta MNLI
+AutoTokenizer.from_pretrained("potsawee/deberta-v3-large-mnli")
+AutoModelForSequenceClassification.from_pretrained("potsawee/deberta-v3-large-mnli")
+
+EOF
+
 RUN apt-get update && apt-get install -y wget unzip git default-jre-headless && rm -rf /var/lib/apt/lists/*
 
 # Mallet

@@ -1,14 +1,84 @@
 import os
+import re
+import sys
 import glob
 import json
+import string
+import requests
+import warnings
+import threading
 import pandas as pd
 
+from multiprocessing import Event, Process
 from mind.cli import comma_separated_ints
 from flask import Blueprint, jsonify, request
 from utils import get_TM_detection, obtain_langs_TM
 
 
 detection_bp = Blueprint("detection", __name__)
+MIND_FRONTEND_URL = os.getenv('MIND_FRONTEND_URL', 'http://frontend:5000')
+
+active_processes = {}
+MAX_USERS = 2
+lock = threading.Lock()
+
+class StreamForwarder:
+    """
+    Stream log to HTML terminal
+    """
+    ANSI_ESCAPE = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+
+    def __init__(self, endpoint_url=None, log_file="/data/pipeline.log"):
+        self.endpoint_url = endpoint_url
+        self.log_file = log_file
+        warnings.simplefilter('default')
+
+        with open(self.log_file, "w") as f:
+            f.write("")
+
+    def clean_line(self, line: str) -> str:
+        line = self.ANSI_ESCAPE.sub('', line)
+        printable = set(string.printable)
+        return ''.join([c for c in line if c in printable]).strip()
+
+    def write(self, message: str):
+        if not message.strip():
+            return
+
+        clean_msg = self.clean_line(message)
+
+        if clean_msg:
+            if "Warning" not in clean_msg and self.endpoint_url:
+                try:
+                    requests.post(self.endpoint_url, json={"log": clean_msg}, timeout=0.5)
+                except Exception:
+                    pass
+
+            self._save_local(clean_msg)
+
+        sys.__stdout__.write(message + "\n")
+        sys.__stdout__.flush()
+
+    def _save_local(self, message: str):
+        try:
+            with open(self.log_file, "a") as f:
+                f.write(message + "\n")
+        except Exception:
+            pass
+
+    def flush(self):
+        pass
+
+    def __enter__(self):
+        self._stdout = sys.stdout
+        self._stderr = sys.stderr
+        sys.stdout = self
+        sys.stderr = self
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        sys.stdout = self._stdout
+        sys.stderr = self._stderr
 
 
 @detection_bp.route('detection/topickeys', methods=['GET'])
@@ -22,12 +92,10 @@ def getTopicKeys():
         if not email or not dataset_name or not topic_model:
             return jsonify({"error": "Missing one of the mandatory arguments"}), 400
         
-        path = f'/data/{email}/3_Download/{topic_model}'
+        path = f'/data/{email}/3_TopicModel/{topic_model}'
 
         # Read parquet to tm model
         if not os.path.exists(path):
-            # print("not existing")
-            print(path)
             return jsonify({"error": f'Not existing Topic Model "{topic_model}"'}), 500
         
         topic_keys = {
@@ -60,6 +128,16 @@ def getTopicKeys():
         print(str(e))
         return jsonify({"error": f"ERROR: {str(e)}"}), 500
 
+def run_pipeline_process(cfg, run_kwargs, log_file):
+    from mind.pipeline.pipeline import MIND
+    try:
+        with StreamForwarder(f'{MIND_FRONTEND_URL}/log_detection', log_file):
+            mind = MIND(**cfg)
+            print("MIND class created. Running pipeline...", file=sys.__stdout__)
+            mind.run_pipeline(**run_kwargs)
+    except Exception as e:
+        print(f"[PIPELINE ERROR] {e}", file=sys.__stdout__)
+
 @detection_bp.route('/detection/analyse_contradiction', methods=['POST'])
 def analyse_contradiction():
     try:
@@ -68,8 +146,15 @@ def analyse_contradiction():
         email = data.get("email")
         TM = data.get("TM")
         topics = data.get("topics")
-    
-        print('analysing...')
+        sample_size = data.get("sample_size")
+
+        # First check if was analyse before
+        path_results = f'/data/{email}/4_Detection/{TM}_contradiction/{topics}/mind_results.parquet'
+        if os.path.exists(path_results):
+            print('Results were done before.')
+            return jsonify({"message": f"Pipeline done correctly"}), 200
+        
+        print('Analysing...')
         paths = get_TM_detection(email, TM)
 
         if isinstance(paths, tuple):
@@ -78,10 +163,10 @@ def analyse_contradiction():
             raise Exception("Path TM failed")
         
         lang = obtain_langs_TM(pathTM)
-
-        from mind.pipeline.pipeline import MIND
-
-        # config part
+        
+        # =========================
+        # =      CONFIG PART      =
+        # =========================
 
         # source_corpus = {
         #     "corpus_path": pathCorpus,
@@ -102,8 +187,7 @@ def analyse_contradiction():
             "full_doc_col": 'raw_text',
             "language_filter": lang[0],
             "filter_ids": None, # 
-            "load_thetas": True, # Check
-            "index_path": "." # Check not sure
+            "load_thetas": True,
         }
 
         # target_corpus = {
@@ -125,12 +209,12 @@ def analyse_contradiction():
             "full_doc_col": 'raw_text',
             "language_filter": lang[1],
             "filter_ids": None,
-            "load_thetas": True, # Check
-            "index_path": "pathTM" # Check not sure
+            "load_thetas": True,
+            'index_path': f'/data/{email}/3_TopicModel/{TM}/'
         }
 
         cfg = {
-            "llm_model": "llama3.1:8b",
+            "llm_model": "llama3:8b",
             "llm_server": "http://kumo02.tsc.uc3m.es:11434",
             "source_corpus": source_corpus,
             "target_corpus": target_corpus,
@@ -139,26 +223,39 @@ def analyse_contradiction():
             "config_path": '/src/config/config.yaml'
         }
 
-        # mind = MIND(**cfg)
-
-        # run pipeline
-
         run_kwargs = {
-            "topics": comma_separated_ints(topics), 
-            "path_save": f'/data/{email}/4_Contradiction/{TM}_{topics}_contradiction/mind_results.parquet', # Ver donde
+            "topics": comma_separated_ints(topics),
+            "sample_size": sample_size,
+            "path_save": path_results,
             "previous_check": None
         }
 
-        print('MIND class created. Running pipeline...')
+        log_file = f'/data/{email}/pipeline-mind.log'
+        global lock, active_processes
+        with lock:
+            if email not in active_processes and len(active_processes) >= MAX_USERS:
+                return jsonify({"error": "Máximo de usuarios activos alcanzado"}), 429
 
-        # mind.run_pipeline(**run_kwargs)
+            # Cancel on the other session
+            if email in active_processes:
+                prev_proc = active_processes[email]["process"]
+                if prev_proc.is_alive():
+                    print(f"Cancelling previous pipeline for {email}", file=sys.__stdout__)
+                    prev_proc.terminate()
+                    prev_proc.join()
 
-        import time
-        time.sleep(3)
+            cancel_event = Event()
+            p = Process(target=run_pipeline_process, args=(cfg, run_kwargs, log_file))
+            p.start()
 
-        print('Finish pipeline')
+            active_processes[email] = {"process": p, "cancel_event": cancel_event}
 
-        return jsonify({"message": f"Pipeline done correctly"}), 200
+        active_processes[email]["process"].join()
+
+        with lock:
+            del active_processes[email]
+
+        return jsonify({"message": "Pipeline completed"}), 200
     
     except Exception as e:
         print(e)
@@ -173,7 +270,7 @@ def get_results_mind():
         TM = data.get("TM")
         topics = data.get("topics")
 
-        df = pd.read_parquet(f'/data/{email}/4_Contradiction/{TM}_{topics}_contradiction/mind_results.parquet', engine='pyarrow')
+        df = pd.read_parquet(f'/data/{email}/4_Detection/{TM}_contradiction/{topics}/mind_results.parquet', engine='pyarrow')
         result_mind = df.to_dict(orient='records')
         result_columns = df.columns.tolist()
 
@@ -215,7 +312,7 @@ def update_result_mind():
                 keys.append(values[0])
 
         df.columns = keys
-        df.to_parquet(f'/data/{email}/4_Contradiction/{TM}_{topics}_contradiction/mind_results.parquet', engine='pyarrow')
+        df.to_parquet(f'/data/{email}/4_Detection/{TM}_contradiction/{topics}/mind_results.parquet', engine='pyarrow')
 
         return jsonify({"message": f"Results from MIND saved correctly"}), 200
 

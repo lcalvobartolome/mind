@@ -16,6 +16,8 @@
             2. Preprocessed Data
         {% elif group.grouper == 3 %}
             3. Topic Models
+        {% elif group.grouper == 4 %}
+            4. Detection Discrepancies
         {% else %}
             Datasets - Unknown {{ group.grouper }}
         {% endif %}
@@ -39,7 +41,7 @@
                     </h5>
                 </div>
 
-                {% if group.grouper != 3 %}
+                {% if group.grouper != 3 and group.grouper != 4 %}
                 <div id="collapse-{{ unique_id_base }}" class="collapse" 
                      aria-labelledby="heading-{{ unique_id_base }}"
                      data-parent="#accordion-stage-{{ group.grouper }}">
@@ -68,6 +70,20 @@
                             </table>
                         </div>
 
+                    </div>
+                </div>
+
+                {% elif group.grouper == 4 %}
+                <div id="collapse-{{ unique_id_base }}" class="collapse" 
+                     aria-labelledby="heading-{{ unique_id_base }}"
+                     data-parent="#accordion-stage-{{ group.grouper }}">
+                    <div class="card-body">
+                        {% for topics in shape_tuple %}
+                            <hr>
+                            <p id="p-{{ name }}-{{ topics }}" style="white-space: pre-wrap;"></p>
+                            <script>document.getElementById('p-{{ name }}-{{ topics }}').innerHTML = '  -> Discrepancy for <strong>{{ topics }} topics.</strong>'</script>
+                        {% endfor %}
+                        <hr>
                     </div>
                 </div>
                 {% endif %}
