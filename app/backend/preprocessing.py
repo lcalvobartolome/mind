@@ -220,8 +220,7 @@ def preparer():
                     path_save=f'{output_dir}/dataset'
                 )
 
-                os.remove(f"temp_{preparer_data['output']}.json")
-                os.rmdir(f"{output_dir}/_tmp_preproc")
+                # os.rmdir(f"{output_dir}/_tmp_preproc")
 
                 aggregate_row(email, preparer_data['output'], dataset, 2, f'{output_dir}/dataset')
 
@@ -233,7 +232,6 @@ def preparer():
             except Exception as e:
                 print(str(e))
                 # cleanup_output_dir(email, dataset, preparer_data['output'])
-                # os.remove(f"temp_{preparer_data['output']}.json")
                 # os.rmdir(f"{output_dir}/_tmp_preproc")
                 raise e
 
@@ -243,7 +241,6 @@ def preparer():
     except Exception as e:
         print(str(e))
         # cleanup_output_dir(email, dataset, preparer_data['output'])
-        # os.remove(f"temp_{preparer_data['output']}.json")
         return jsonify({"status": "error", "message": str(e)}), 500
     
 @preprocessing_bp.route('/topicmodeling', methods=['POST'])

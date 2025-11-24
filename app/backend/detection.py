@@ -7,10 +7,12 @@ import string
 import requests
 import warnings
 import threading
+import numpy as np
 import pandas as pd
 
-from multiprocessing import Event, Process
+from sklearn.manifold import MDS
 from mind.cli import comma_separated_ints
+from multiprocessing import Event, Process
 from flask import Blueprint, jsonify, request
 from utils import get_TM_detection, obtain_langs_TM
 
@@ -91,19 +93,15 @@ def getTopicKeys():
 
         if not email or not dataset_name or not topic_model:
             return jsonify({"error": "Missing one of the mandatory arguments"}), 400
-        
+
         path = f'/data/{email}/3_TopicModel/{topic_model}'
 
-        # Read parquet to tm model
         if not os.path.exists(path):
             return jsonify({"error": f'Not existing Topic Model "{topic_model}"'}), 500
-        
-        topic_keys = {
-            "TM_name": topic_model,
-            "lang": []
-        }
 
-        # Mallet files
+        topic_keys = {"TM_name": topic_model, "lang": []}
+        all_keywords = {}  # {lang: {topic_id: [words]}}
+
         mallet_topic_keys = f'{path}/mallet_output/keys_*.txt'
         for file in glob.glob(mallet_topic_keys):
             if not os.path.isfile(file):
@@ -111,19 +109,57 @@ def getTopicKeys():
 
             lang = file.split('keys_')[-1].replace('.txt', '')
             topic_keys["lang"].append(lang)
-            
-            # "k" : {"name": title, "EN": [words], "ES: [words]"}
+
+            keys = {}
             with open(file, 'r') as f:
-                i = 1
-                keys = {}
-                for topic in f:
-                    # TODO future work call LLM for a title in topics
-                    keys[i] = topic.replace('\n', '').split(' ')
-                    i += 1
-                topic_keys[lang] = keys
-        
-        return jsonify(topic_keys), 200
-    
+                for i, line in enumerate(f):
+                    keys[i] = line.strip().split(' ')
+            all_keywords[lang] = keys
+
+        num_topics = len(next(iter(all_keywords.values())))
+
+        doc_topics_file = f"{path}/mallet_output/doc-topics.txt"
+        with open(doc_topics_file, 'r') as f:
+            lines = [line.strip() for line in f if not line.startswith("#")]
+
+        num_docs = len(lines)
+        max_topic_id = 0
+        for line in lines:
+            parts = line.split()[2:]
+            topic_ids = [int(parts[i]) for i in range(1, len(parts), 2)]
+            max_topic_id = max(max_topic_id, max(topic_ids))
+        num_topics_file = max_topic_id + 1
+        num_topics = max(num_topics, num_topics_file)
+
+        topic_matrix = np.zeros((num_docs, num_topics))
+
+        for doc_idx, line in enumerate(lines):
+            parts = line.split()[2:]
+            for i in range(1, len(parts), 2):
+                topic_id = int(parts[i])
+                proportion = float(parts[i - 1])
+                topic_matrix[doc_idx, topic_id] = proportion
+
+        mds = MDS(n_components=2, random_state=42)
+        coords = mds.fit_transform(topic_matrix.T)
+        topic_sizes = topic_matrix.mean(axis=0)
+
+        topics_data = []
+        for topic_id in range(num_topics):
+            entry = {
+                "id": topic_id + 1,
+                "x": float(coords[topic_id, 0]),
+                "y": float(coords[topic_id, 1]),
+                "size": float(topic_sizes[topic_id]),
+                "TM_name": topic_model
+            }
+
+            for lang in topic_keys["lang"]:
+                entry[f"keywords_{lang}"] = all_keywords.get(lang, {}).get(topic_id, [])
+            topics_data.append(entry)
+
+        return jsonify({"topics": topics_data}), 200
+
     except Exception as e:
         print(str(e))
         return jsonify({"error": f"ERROR: {str(e)}"}), 500
@@ -147,6 +183,7 @@ def analyse_contradiction():
         TM = data.get("TM")
         topics = data.get("topics")
         sample_size = data.get("sample_size")
+        config = data.get("config")
 
         # First check if was analyse before
         path_results = f'/data/{email}/4_Detection/{TM}_contradiction/{topics}/mind_results.parquet'
@@ -188,6 +225,7 @@ def analyse_contradiction():
             "language_filter": lang[0],
             "filter_ids": None, # 
             "load_thetas": True,
+            "method": config['method'],
         }
 
         # target_corpus = {
@@ -210,6 +248,7 @@ def analyse_contradiction():
             "language_filter": lang[1],
             "filter_ids": None,
             "load_thetas": True,
+            "method": config['method'],
             'index_path': f'/data/{email}/3_TopicModel/{TM}/'
         }
 
@@ -218,6 +257,7 @@ def analyse_contradiction():
             "llm_server": "http://kumo02.tsc.uc3m.es:11434",
             "source_corpus": source_corpus,
             "target_corpus": target_corpus,
+            "retrieval_method": config['method'],
             # "dry_run": False,
             # "do_check_entailement": True,
             "config_path": '/src/config/config.yaml'

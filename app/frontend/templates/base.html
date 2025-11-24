@@ -38,9 +38,6 @@
             <li class="nav-item active">
                 <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
             </li>
-            <li class="nav-item active">
-                <a class="nav-link" href="/about_us">About us<span class="sr-only">(current)</span></a>
-            </li>
             {% if user_id %}
             <li class="nav-item">
                 <a class="nav-link" href="/datasets">Datasets for detection</a>
@@ -51,7 +48,9 @@
             <li class="nav-item">
                 <a class="nav-link" href="/detection">Detection</a>
             </li>
-
+            <li class="nav-item">
+                <a class="nav-link" href="/detectionAllResults">Detection Results</a>
+            </li>
             {% endif %}
         </ul>
 

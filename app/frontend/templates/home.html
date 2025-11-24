@@ -178,11 +178,6 @@
         <h4>Detection</h4>
         <p>Analyze multi-topic discrepancies and extract insights using MIND’s core detection features</p>
     </a>
-    <a href="/profile" class="pill pill-orange">
-        <i class="bi bi-person"></i>
-        <h4>Profile</h4>
-        <p>Manage your account settings, upload datasets and update profile information</p>
-    </a>
 </div>
 {% else %}
 <div class="pills-container">
@@ -191,7 +186,7 @@
         <h4>Log In</h4>
         <p>Sign in to your account</p>
     </a>
-    <a href="/signup" class="pill pill-green">
+    <a href="/sign-up" class="pill pill-green">
         <i class="bi bi-person-plus"></i>
         <h4>Sign Up</h4>
         <p>Create a new account</p>
@@ -236,6 +231,6 @@ window.addEventListener('load', function() {
 });
 </script>
 
-{% include "_about_us.html" %}
+{% include "about_us.html" %}
 
 {% endblock %}

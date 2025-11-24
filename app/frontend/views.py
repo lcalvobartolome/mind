@@ -39,10 +39,26 @@ def home():
     user_id = session.get('user_id')
     return render_template("home.html", user_id=user_id)
 
-@views.route('/about_us')
-def about_us():
+@views.route('/detectionAllResults')
+@login_required_custom
+def detection_AllResults_page():
     user_id = session.get('user_id')
-    return render_template("about_us.html", user_id=user_id)
+    try:
+        response = requests.get(f"{MIND_WORKER_URL}/datasets", params={"email": user_id})
+        if response.status_code == 200:
+            data = response.json()
+            datasets = data.get("datasets", [])
+            names = data.get("names", [])
+            shapes = data.get("shapes", [])
+            stages = data.get("stages", [])
+        else:
+            flash(f"Error loading datasets: {response.text}", "danger")
+            datasets, names, shapes, stages = [], [], [], []
+    except requests.exceptions.RequestException:
+        flash("Backend service unavailable.", "danger")
+        datasets, names, shapes, stages = [], [], [], []
+
+    return render_template("detection_results.html", user_id=user_id, datasets=datasets, names=names, shape=shapes, stages=stages, zip=zip)
 
 @views.get('/get_instruction')
 def get_last_instruction():

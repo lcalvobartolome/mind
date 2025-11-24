@@ -35,7 +35,7 @@ def getTMkeys(user_id: str, data_tm: dict):
             return data
 
         else:
-            flash(f"Error loading topic keys: {response.get('error')}", "danger")
+            flash(f"Error loading topic keys: {response.json().get('error')}", "danger")
             return {}
 
     except requests.exceptions.RequestException:
