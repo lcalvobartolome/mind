@@ -3,7 +3,7 @@
 
 {% block content %}
 
-{% if status in ['idle', 'initializing'] %}        
+{% if status in ['idle', 'initializing'] %}
     {% if dataset_detection %}
     <h1>MIND Cultural discrepancy detection</h1>
     {% elif topic_keys %}
@@ -13,13 +13,13 @@
         </h3>
 
         <div class="btn-group" role="group" aria-label="Visual/Text toggle">
-            <button type="button" class="btn btn-primary active" id="btn-visual">Visual</button>
-            <button type="button" class="btn btn-outline-primary" id="btn-text">Text</button>
+            <button type="button" class="btn btn-primary active" id="btn-visual" data-no-warning>Visual</button>
+            <button type="button" class="btn btn-outline-primary" id="btn-text" data-no-warning>Text</button>
         </div>
     </div>
     {% endif %}
-
 {% endif %}
+
 <div class="jumbotron" id='jumbotron-detection' style="height: 60vh; overflow-y: auto; padding: 2rem;">
     {% if status in ['idle', 'initializing'] %}        
         {% if dataset_detection %}
@@ -105,7 +105,6 @@
 
             </div>
             {% endfor %}
-
         </div>
 
         <script>
@@ -294,82 +293,6 @@
             <p class="lead">No datasets found or error loading datasets.</p>
         {% endif %}
 
-    {% elif status in ['initialized','topic_exploration']%}
-        {% if not mind_info %}
-            <p class="lead">MIND is initialized.</p>
-            <p>Inspect the available topics or start analysis.</p>
-        {% else %}
-            <div class="card shadow-sm mb-4" id="topic-list-card">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Available topics for exploration</h5>
-                    
-                    <div>
-                        <a href="#" id="list-view-btn" class="text-white fw-bold me-3 active-view">List</a>
-                        <a href="#" class="text-white fw-bold" style="opacity: 0; pointer-events: none;"> | </a>
-                        <a href="#" id="graph-view-btn" class="text-white fw-bold" style="opacity: 0; pointer-events: none;">Graph</a>
-                    </div>
-                </div>
-
-                <div id="topic-list-view">
-                    <div class="card-body p-0" style="max-height: 400px; overflow-y: auto;">
-                        <ul class="list-group list-group-flush">
-                            {% for topic in mind_info %}
-                                <li class="list-group-item d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <strong>Topic {{ topic["Topic #"] }}:</strong>
-                                        <span class="text-muted">{{ topic["Key words"] }}</span>
-                                    </div>
-                                    <button class="btn btn-sm btn-outline-primary topic_button" data-topic-id="{{ topic['Topic #'] }}">Select</button>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- GRAPH VIEW -->
-                <div id="topic-graph-view" class="d-none">
-                    <div class="card-body" style="height: 400px; overflow: hidden;">
-                        <iframe id="pyldavis-frame" src="" style="border: none; width: 100%; height: 100%;"></iframe>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card shadow-sm mb-4 d-none" id="document-carousel-card">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0">Documents for selected topic</h5>
-                </div>
-                <div class="card-body">
-                    <div id="document-carousel" class="carousel slide" data-ride="carousel">
-                        <div class="carousel-inner" id="carousel-inner">
-                            {% for doc in documents %}
-                            <div class="carousel-item {% if loop.first %}active{% endif %}">
-                                <div class="card shadow-sm border-0">
-                                    <div class="row g-0 align-items-center">
-                                        
-                                        <!-- Document text -->
-                                        <div class="col-md-8 p-3">
-                                            <div class="doc-text" style="max-height: 300px; overflow-y: auto;">
-                                                <p class="mb-0">{{ doc.raw_text }}</p>
-                                            </div>
-                                        </div>
-
-                                        <!-- Topic distribution chart -->
-                                        <div class="col-md-4 p-3 text-center">
-                                            <h6 class="text-muted mb-2">Topic Distribution</h6>
-                                            <canvas id="chart-doc-{{ doc.doc_id }}" style="max-width: 100%; height: auto;"></canvas>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
-
-    {% elif status == 'running' %}
-        <p class="lead">MIND is currently running...</p>
     {% elif status == 'completed' %}
         {% if result_mind and result_columns %}
             <!-- Loading overlay -->
@@ -482,7 +405,7 @@
             </table>
         {% else %}
             <div class="alert alert-warning text-center mt-5">
-                <strong>No hay datos disponibles para mostrar.</strong>
+                <strong>No data available.</strong>
             </div>
         {% endif %}
     {% else %}
@@ -509,6 +432,78 @@
   </div>
 </div>
 
+<!-- Modal de Alert End Process Analysis Discrepancy -->
+<div id="exitModal" class="exit-modal" style="display: none;" tabindex="-1" role="dialog" aria-labelledby="exitModalLabel" aria-hidden="true">
+    <div class="exit-modal-dialog" role="document">
+        <div class="exit-modal-content p-3">
+            <div class="exit-modal-header">
+                <h5 class="exit-modal-title" id="exitModalLabel">Warning</h5>
+                <button type="button" class="exit-modal-close" aria-label="Close" id="exitModalClose">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="exit-modal-body">
+                <p>If you leave this page, discrepancy analysis will stop.</p>
+            </div>
+            <div class="exit-modal-footer">
+                <button type="button" id="exitYes" class="exit-modal-btn exit-modal-btn-danger">Leave page</button>
+                <button type="button" id="exitNo" class="exit-modal-btn exit-modal-btn-secondary">Stay here</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let shouldWarn = false;
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    window.addEventListener("beforeunload", e => {
+        if (!shouldWarn) return;
+        e.preventDefault();
+        e.returnValue = "";
+    });
+
+    document.addEventListener("click", e => {
+        const el = e.target.closest("a, button[data-navigate]");
+        if (!el) return;
+
+        if (!shouldWarn) return;
+        if (el.hasAttribute("data-no-warning")) return;
+
+        e.preventDefault();
+        const url = el.href || el.dataset.navigate;
+        showExitModal(url);
+    });
+
+    const modal = document.getElementById("exitModal");
+    const exitYes = document.getElementById("exitYes");
+    const exitNo = document.getElementById("exitNo");
+    const exitClose = document.getElementById("exitModalClose");
+
+    function showExitModal(url) {
+        modal.style.display = "flex";
+        requestAnimationFrame(() => {
+            modal.classList.add("show");
+        });
+
+        exitYes.onclick = () => {
+            shouldWarn = false;
+            window.removeEventListener("beforeunload", () => {});
+            window.location.href = url;
+        };
+
+        exitNo.onclick = exitClose.onclick = () => {
+            modal.classList.remove("show");
+            modal.addEventListener('transitionend', () => {
+                modal.style.display = "none";
+            }, { once: true });
+        };
+    }
+});
+</script>
+
 {% if result_mind and result_columns %}
 <div id="datatable-controls-1" class="d-flex align-items-center mb-2">
     <!-- Filter Columns -->
@@ -517,7 +512,7 @@
     </button>
     <div class="dropdown-menu p-3" aria-labelledby="columnFilterBtn" style="max-height: 250px; overflow-y: auto;">
         <div class="form-check">
-            <input class="form-check-input column-checkbox" type="checkbox" value="ALL" id="columnAll">
+            <input class="form-check-input column-all" type="checkbox" value="ALL" id="columnAll">
             <label class="form-check-label" for="columnAll">All</label>
         </div>
         {% for col in result_columns %}
@@ -554,27 +549,25 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
     var defaultVisibleCols = ['question','anchor_passage','comparison_passage','anchor_answer','comparison_answer','label','final_label','reason'];
     var columns = {{ columns_json|safe }};
+    var allResultCols = {{ result_columns|tojson|safe }};
+    var nonOrderable = {{ non_orderable_indices|safe }};
 
     var visibleIndices = [];
     for (var i = 0; i < columns.length; i++) {
-        if (defaultVisibleCols.includes(columns[i].name)) {
-            visibleIndices.push(i);
-        }
+        if (defaultVisibleCols.includes(columns[i].name)) visibleIndices.push(i);
     }
     var hiddenIndices = [];
     for (var i = 0; i < columns.length; i++) {
         if (!visibleIndices.includes(i)) hiddenIndices.push(i);
     }
 
-    // DataTable
     var table = $('#resultsTable').DataTable({
         pageLength: 10,
         columns: columns,
         orderCellsTop: true,
         autoWidth: false,
         columnDefs: [
-            { orderable: false, targets: {{ non_orderable_indices|safe }} },
-            { visible: false, targets: hiddenIndices }
+            { orderable: false, targets: nonOrderable },
         ],
         language: {
             "zeroRecords": "No records were found",
@@ -594,40 +587,53 @@ document.addEventListener('DOMContentLoaded', function() {
         'final_label': possibleValues['final_label'].slice()
     };
 
-    var visibleColumns = {{ result_columns|tojson|safe }};
-    $('body').on('change', '.column-checkbox', function() {
-        var value = $(this).val();
-
-        if (value === "ALL") {
-            if ($(this).prop('checked')) {
-                $('.column-checkbox').prop('checked', true);
-                visibleColumns = {{ result_columns|tojson|safe }};
-            } else {
-                $('.column-checkbox').prop('checked', false);
-                visibleColumns = [];
-            }
-        } else {
-            if ($(this).prop('checked')) {
-                if (!visibleColumns.includes(value)) visibleColumns.push(value);
-            } else {
-                visibleColumns = visibleColumns.filter(c => c !== value);
-            }
-
-            if (visibleColumns.length === {{ result_columns|length }}) {
-                $('#columnAll').prop('checked', true);
-            } else {
-                $('#columnAll').prop('checked', false);
-            }
-        }
-
+    function applyVisibleColumns(visibleColumns) {
         table.columns().every(function(index) {
             var colName = this.settings()[0].aoColumns[index].name;
-            if (visibleColumns.includes(colName)) {
-                this.visible(true);
-            } else {
-                this.visible(false);
-            }
+            this.visible(visibleColumns.includes(colName));
         });
+    }
+
+    var visibleColumns = $('.column-checkbox:checked').map(function() {
+        return $(this).val();
+    }).get();
+
+    if (visibleColumns.length === 0) {
+        visibleColumns = allResultCols.filter(c => defaultVisibleCols.includes(c));
+    }
+
+    if (visibleColumns.length === allResultCols.length) {
+        $('#columnAll').prop('checked', true);
+    } else {
+        $('#columnAll').prop('checked', false);
+    }
+
+    applyVisibleColumns(visibleColumns);
+
+    $('body').on('change', '.column-all', function() {
+        var checked = $(this).prop('checked');
+        if (checked) {
+            $('.column-checkbox').prop('checked', true);
+            visibleColumns = allResultCols.slice();
+        } else {
+            $('.column-checkbox').prop('checked', false);
+            visibleColumns = [];
+        }
+        applyVisibleColumns(visibleColumns);
+    });
+
+    $('body').on('change', '.column-checkbox', function() {
+        visibleColumns = $('.column-checkbox:checked').map(function() {
+            return $(this).val();
+        }).get();
+
+        if (visibleColumns.length === allResultCols.length) {
+            $('#columnAll').prop('checked', true);
+        } else {
+            $('#columnAll').prop('checked', false);
+        }
+
+        applyVisibleColumns(visibleColumns);
     });
     
     function updateColors() {
@@ -663,6 +669,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Colors span label final_label
     updateColors();
+    $('#resultsTable').on('draw.dt', function() {
+        updateColors();
+    });
+
     $('body').on('change', '.final-label-select', function() {
         updateColors();
         var row = $(this).closest('tr');
@@ -768,7 +778,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     table.draw();
 
-    $('#result')
+    $('#result');
 });
 </script>
 
@@ -826,20 +836,16 @@ document.addEventListener('DOMContentLoaded', function() {
     function exportTableToXLSX(filename = 'results_mind.xlsx') {
         var ws_data = [];
 
-        // Cabeceras originales
         var headers = {{ result_columns | tojson }};
         ws_data.push(headers);
 
-        // Guardar estado de visibilidad de columnas
         var columnVisibility = [];
         table.columns().every(function(idx) {
             columnVisibility[idx] = this.visible();
         });
 
-        // Mostrar todas las columnas temporalmente (sin que el usuario lo vea)
-        table.columns().visible(true, false); // false evita redibujar la tabla en pantalla
+        table.columns().visible(true, false);
 
-        // Recorrer todas las filas, incluyendo filtradas
         table.rows().nodes().each(function(tr) {
             var row_data = [];
             var $tr = $(tr);
@@ -868,13 +874,11 @@ document.addEventListener('DOMContentLoaded', function() {
             ws_data.push(row_data);
         });
 
-        // Restaurar visibilidad original de columnas
         table.columns().every(function(idx) {
-            this.visible(columnVisibility[idx], false); // false evita redibujar cada columna
+            this.visible(columnVisibility[idx], false);
         });
-        table.draw(false); // redibuja la tabla una sola vez
+        table.draw(false);
 
-        // Crear XLSX
         var wb = XLSX.utils.book_new();
         var ws = XLSX.utils.aoa_to_sheet(ws_data);
         XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
@@ -904,7 +908,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <ul class="nav nav-pills mb-4 d-flex justify-content-between w-100" id="myTab" role="tablist">
     <!-- Config Pipeline MIND -->
     <li class="nav-item d-flex align-items-center">
-        <a class="nav-link active" style="cursor: pointer;" data-toggle="modal" data-target="#configPipelineModalLabel">
+        <a class="nav-link active" style="cursor: pointer;" data-toggle="modal" data-target="#configPipelineModalLabel" data-no-warning>
             Config Pipeline MIND
         </a>
     </li>
@@ -914,11 +918,10 @@ document.addEventListener('DOMContentLoaded', function() {
         <!-- Max input = ntopics -->
         <label for="numberInput" class="mr-2 mb-0">Sample Size: </label>
         <input type="number" class="form-control mr-2" id="sampleSizeInput" name="n_samples" placeholder="1" value="5" min="1" style="width: 100px;">
-        <a class="nav-link mode-selectors active" id="analyze_contradictions" style="cursor: pointer;" data-toggle="tab">Analyze Discrepancies</a>
-        <a class="nav-link active" style="margin-left: 10px; cursor: pointer;" data-toggle="modal" data-target="#logModal">
+        <a class="nav-link mode-selectors active" id="analyze_contradictions" style="cursor: pointer;" data-toggle="tab" data-no-warning>Analyze Discrepancies</a>
+        <a class="nav-link active" style="margin-left: 10px; cursor: pointer;" data-toggle="modal" data-target="#logModal" data-no-warning>
             Check Status
         </a>
-        <!-- <button type="submit" class="btn btn-primary">Submit</button> -->
     </li>
 </ul>
 
@@ -938,18 +941,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="form-group mb-3 d-flex align-items-center">
                     <label for="llmSelect" class="me-2" style="width: 100px;">LLM:</label>
                     <select id="llmSelect" class="form-control flex-grow-1">
-                        <option value="qwen:b" selected>qwen:b</option>
-                        <option value="gpt-4">GPT-4</option>
-                        <option value="llama2">Llama2</option>
+                        <option value="qwen2.5:72b">qwen2.5:72b</option>
+                        <option value="llama3.2">llama3.2</option>
+                        <option value="llama3.1:8b-instruct-q8_0">llama3.1:8b-instruct-q8_0</option>
+                        <option value="qwen:32b">qwen:32b</option>
+                        <option value="llama3.3:70b">llama3.3:70b</option>
+                        <option value="qwen2.5:7b-instruct">qwen2.5:7b-instruct</option>
+                        <option value="qwen3:32b">qwen3:32b</option>
+                        <option value="llama3.3:70b-instruct-q5_K_M">llama3.3:70b-instruct-q5_K_M</option>
+                        <option value="llama3:8b" selected>llama3:8b</option>
                     </select>
                 </div>
 
                 <div class="form-group mb-3 d-flex align-items-center">
                     <label for="methodSelect" class="me-2" style="width: 100px;">Method:</label>
                     <select id="methodSelect" class="form-control flex-grow-1">
+                        <option value="ENN">ENN</option>
+                        <option value="ANN">ANN</option>
                         <option value="TB-ENN" selected>TB-ENN</option>
-                        <option value="Method2">Method2</option>
-                        <option value="Method3">Method3</option>
+                        <option value="TB-ANN">TB-ANN</option>
                     </select>
                 </div>
             </div>
@@ -1001,28 +1011,6 @@ $(document).ready(function() {
 });
 </script>
 {% endif %}
-
-
-<!-- <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap"> -->
-  <!-- Navigation Pills -->
-  <!-- <ul class="nav nav-pills mb-2 mb-md-0" id="myTab" role="tablist">
-      <li class="nav-item">
-          <a class="nav-link control active" id="prev-doc" data-toggle="tab">Previous</a>
-      </li>
-      <li class="nav-item">
-          <a class="nav-link control" id="next-doc" data-toggle="tab">Next</a>
-      </li>
-      <li class="nav-item">
-          <a class="nav-link control" id="return-btn" data-toggle="tab">Return</a>
-      </li>
-  </ul> -->
-    <!-- <form id="mind-number-form" class="form-inline d-flex align-items-center gap-2"> -->
-    <!-- <label for="numberInput" class="mr-2 mb-0"></label> -->
-    <!-- Max input = ntopics -->
-    <!-- <input type="number" class="form-control mr-2" id="numberInput" name="n_samples" placeholder="0" min="0" style="width: 100px;"> -->
-    <!-- <button type="submit" class="btn btn-primary">Submit</button> -->
-    <!-- </form> -->
-<!-- </div> -->
 
 <style>
     .dataset-entry:hover {
@@ -1164,6 +1152,82 @@ $(document).ready(function() {
         z-index: 1000;
     }
 
+    .exit-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1050;
+        opacity: 0;
+        transform: scale(0.9);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .exit-modal.show {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    .exit-modal-dialog {
+        display: flex;
+        flex-direction: column;
+        max-width: 500px;
+        width: 90%;
+    }
+
+    .exit-modal-content {
+        border-radius: 8px;
+        background: white;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .exit-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .exit-modal-body {
+        padding: 1rem 0;
+    }
+
+    .exit-modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding-top: 0.5rem;
+        border-top: 1px solid #ddd;
+    }
+
+    .exit-modal-btn {
+        min-width: 100px;
+        padding: 0.375rem 0.75rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .exit-modal-btn-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .exit-modal-btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .exit-modal-close {
+        background: none;
+        border: none;
+        font-size: 1.25rem;
+        cursor: pointer;
+    }
+
     [data-label-value="CONTRADICTION"], .final-label-select option[value="CONTRADICTION"] { background-color: #dc3545; color: #fff; }
     [data-label-value="CULTURAL_DISCREPANCY"], .final-label-select option[value="CULTURAL_DISCREPANCY"] { background-color: #ffc107; color: #212529; }
     [data-label-value="NOT_ENOUGH_INFO"], .final-label-select option[value="NOT_ENOUGH_INFO"] { background-color: #17a2b8; color: #fff; }
@@ -1202,48 +1266,6 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 <script>
-function plotTopicDistributions(documents) {
-    documents.forEach(doc => {
-        const canvas = document.getElementById(`chart-doc-${doc.doc_id}`);
-        if (!canvas) {
-            console.warn(`No canvas found for doc_id ${doc.doc_id}`);
-            return;
-        }
-
-        new Chart(canvas, {
-            type: 'pie',
-            data: {
-                labels: doc.topic_distribution.map((_, i) => `Topic ${i}`),
-                datasets: [{
-                    data: doc.topic_distribution,
-                    backgroundColor: [
-                        '#FF6384', '#36A2EB', '#FFCE56', 
-                        '#4BC0C0', '#9966FF', '#FF9F40', '#66FF66'
-                    ]
-                }]
-            },
-            options: {
-                responsive: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: { boxWidth: 12 }
-                    }
-                }
-            }
-        });
-    });
-}
-</script>
-
-
-<script>
-const topicColors = [
-    '#FF6384', '#36A2EB', '#FFCE56',
-    '#4BC0C0', '#9966FF', '#FF9F40',
-    '#66FF66', '#FF6666', '#6699FF', '#99FF99'
-];
-
 class MINDInterface {
     constructor() {
         this.datasetItems = document.querySelectorAll('.dataset-item');
@@ -1253,14 +1275,8 @@ class MINDInterface {
         this.topicButtons = document.querySelectorAll('.topic_button') ?? [];
         this.listViewBtn = document.getElementById('list-view-btn');
         this.graphViewBtn = document.getElementById('graph-view-btn');
-        this.listView = document.getElementById('topic-list-view');
-        this.graphView = document.getElementById('topic-graph-view');
 
-        console.log(this.listView)
-
-        this.fetchMindStatus();
         this.initEventListeners();
-        this.initCarouselControls();
     }
 
     initEventListeners() {
@@ -1324,173 +1340,7 @@ class MINDInterface {
                 this.handleInstruction(instruction, topics, TM, sampleSizeInput, config)
             });
         });
-        // Topic buttons
-        if (this.topicButtons) {
-            console.log("Initializing topic buttons");
-            this.initTopicButtons();
-        }
-        this.form.addEventListener('submit', this.handleFormSubmit.bind(this));
-
-        if(this.listViewBtn){
-            this.listViewBtn.addEventListener('click', (e) => {
-                console.log("List view button clicked");
-                e.preventDefault();
-                console.log("listView is:", this.listView);
-                this.listView.classList.remove('d-none');
-                this.graphView.classList.add('d-none');
-                this.listViewBtn.classList.add('active-view');
-                this.graphViewBtn.classList.remove('active-view');
-            });
-        }
-
-        if(this.graphViewBtn){
-            this.graphViewBtn.addEventListener('click', (e) => {
-                console.log("Graph view button clicked");
-                e.preventDefault();
-                this.listView.classList.add('d-none');
-                this.graphView.classList.remove('d-none');
-                this.graphViewBtn.classList.add('active-view');
-                this.listViewBtn.classList.remove('active-view');
-
-
-                if (!this.graphView.dataset.loaded) {
-                    this.loadPyLDAvisGraph();
-                    this.graphView.dataset.loaded = "true";
-                }
-            });
-        }
     }
-    initTopicButtons() {
-    this.topicButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const topicId = button.dataset.topicId;
-            this.handleTopicClick(topicId);
-            this.loadTopicDocuments(topicId); 
-        });
-    });
-    }
-    loadPyLDAvisGraph() {
-        fetch('/get_pyldavis')
-            .then(res => res.json())
-            .then(visData => {
-                const visContainer = document.createElement('div');
-                visContainer.id = 'pyldavis-container';
-                document.getElementById('topic-graph-view').innerHTML = '';
-                document.getElementById('topic-graph-view').appendChild(visContainer);
-
-                // Render PyLDAvis inside the container
-                // "ldavis" is the JS namespace exposed by the PyLDAvis JS lib
-                LDAvis.load(visData, '#pyldavis-container');
-            })
-            .catch(err => console.error("Error loading PyLDAvis data:", err));
-    }
-    initCarouselControls() {
-        const carousel = document.getElementById('document-carousel');
-        const prevBtn = document.getElementById('prev-doc');
-        const nextBtn = document.getElementById('next-doc');
-        // const returnBtn = document.getElementById('return-btn');
-
-        if (prevBtn) {
-            prevBtn.addEventListener('click', () => {
-                $('#document-carousel').carousel('prev'); // Bootstrap's carousel function
-            });
-        }
-
-        if (nextBtn) {
-            nextBtn.addEventListener('click', () => {
-                $('#document-carousel').carousel('next');
-            });
-        }
-    }
-
-    handleFormSubmit(event) {
-        event.preventDefault(); // Stop default form submission
-
-        const n_samples = this.numberInput.value;
-
-        fetch('/submit_analysis', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': this.getCSRFToken?.() || '', // if needed
-            },
-            body: JSON.stringify({
-                n_samples: parseInt(n_samples, 10)
-            })
-        })
-        .then(res => {
-            if (!res.ok) throw new Error("Failed to submit analysis");
-            return res.text(); // or .json() depending on your backend
-        })
-        .then(data => {
-            console.log("Analysis submitted:", data);
-            // Optional: Redirect, flash a message, reload UI
-            window.location.reload();
-        })
-        .catch(err => {
-            console.error("Submission error:", err);
-            alert("An error occurred while submitting the analysis.");
-        });
-        setTimeout(() => {
-            window.location.reload();
-        }, 1000);
-    }
-
-    loadTopicDocuments(topicId) {
-        fetch('/topic_selection', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': this.getCSRFToken()
-            },
-            body: JSON.stringify({ topic_id: topicId })
-        })
-        .then(res => res.json())
-        .then(data => {
-            console.log("Topic documents data:", data);
-            if (data.topic_documents && Array.isArray(data.topic_documents)) {
-                this.renderCarousel(data.topic_documents);
-            } else {
-                console.error("Error loading documents", data);
-            }
-        })
-        .catch(err => console.error("Error fetching topic documents:", err));
-    }
-
-    fetchMindStatus() {
-        fetch('http://localhost:93/status') 
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Failed to fetch status");
-                }
-                return response.json();
-            })
-            .then(data => {
-                this.state = data.state; 
-                console.log("MIND status retrieved:", this.state);
-            })
-            .catch(error => {
-                console.error("Error fetching MIND status:", error);
-            });
-    }
-
-    fetchInstructions() {
-        return fetch('/get_instruction')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Failed to fetch instructions");
-                }
-                return response.json();
-            })
-            .then(data => {
-                this.lastInstruction = data.instruction; 
-                console.log("Instructions retrieved:", data);
-            })
-            .catch(error => {
-                console.error("Error fetching instructions:", error);
-            });
-    }
-
 
     getCSRFToken() {
         const cookieValue = document.cookie
@@ -1499,78 +1349,6 @@ class MINDInterface {
             ?.split('=')[1];
         return cookieValue || '';
     }
-
-    renderCarousel(documents) {
-        const carouselContainer = document.getElementById('carousel-inner');
-        const topicListCard = document.getElementById('topic-list-card');
-        const carouselCard = document.getElementById('document-carousel-card');
-
-        // Clear previous content
-        carouselContainer.innerHTML = '';
-
-        documents.forEach((doc, index) => {
-            const activeClass = index === 0 ? 'active' : '';
-
-            carouselContainer.innerHTML += `
-                <div class="carousel-item ${activeClass}">
-                    <div class="card shadow-sm border-0">
-                        <div class="row g-0 align-items-center">
-                            
-                            <!-- Document text -->
-                            <div class="col-md-8 p-3">
-                                <div class="doc-text" style="max-height: 300px; overflow-y: auto;">
-                                    <p class="mb-0">${doc.raw_text || 'No content available'}</p>
-                                </div>
-                            </div>
-
-                            <!-- Topic distribution chart -->
-                            <div class="col-md-4 p-3 text-center">
-                                <h6 class="text-muted mb-2">Topic Distribution</h6>
-                                <canvas id="chart-doc-${doc.doc_id}" style="max-width: 100%; height: auto;"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-
-        // Show carousel, hide topic list
-        topicListCard.classList.add('d-none');
-        carouselCard.classList.remove('d-none');
-
-        // Re-initialize Bootstrap carousel
-        $('#document-carousel').carousel(0);
-
-        // Plot charts for each document
-        documents.forEach(doc => {
-            const ctx = document.getElementById(`chart-doc-${doc.doc_id}`);
-            if (ctx && doc.topic_distribution) {
-                new Chart(ctx, {
-                    type: 'pie',
-                    data: {
-                        labels: doc.topic_distribution.map((_, i) => `Topic ${i}`),
-                        datasets: [{
-                            data: doc.topic_distribution,
-                            backgroundColor: [
-                                '#FF6384', '#36A2EB', '#FFCE56', 
-                                '#4BC0C0', '#9966FF', '#FF9F40', '#66FF66'
-                            ]
-                        }]
-                    },
-                    options: {
-                        responsive: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: { boxWidth: 12 }
-                            }
-                        }
-                    }
-                });
-            }
-        });
-    }
-
 
     handleDatasetSelection(datasetName) {
         console.log("Selected option:\n", datasetName);
@@ -1592,7 +1370,6 @@ class MINDInterface {
         })
         .catch(err => console.error("Dataset selection error:", err));
     }
-
 
     handleInstruction(instruction, topics, TM, sample_size, config) {
         console.log("Selected instruction:", instruction);
@@ -1617,6 +1394,7 @@ class MINDInterface {
         $("#logTerminal").empty();
 
         console.log(data);
+        shouldWarn = true;
         fetch('/mode_selection', {
             method: 'POST',
             headers: {
@@ -1627,78 +1405,32 @@ class MINDInterface {
         })
         .then(res => {
             if (res.ok) {
+                shouldWarn = false;
                 window.location.href = `/detection_results?TM=${encodeURIComponent(TM)}&topics=${encodeURIComponent(topics)}`;
             } else {
+                shouldWarn = false;
                 console.error("Error al recibir respuesta del backend");
             }
         })
-        .catch(err => console.error("Dataset selection error:", err))
+        .catch(err => {
+            console.error("Dataset selection error:", err);
+            shouldWarn = false;
+        })
         .finally(() => {
             selector.style.pointerEvents = 'auto';
             selector.style.opacity = '1';
             selector.classList.remove('disabled');
             selector.innerHTML = originalHTML;
+            shouldWarn = false;
         });
-        // setTimeout(() => {
-        //     window.location.reload();
-        // }, 1000); // Adjust the timeout as needed
     }
-
-    async handleTopicClick(topicId) {
-        await this.fetchInstructions(); 
-        console.log("Selected topic:", topicId);
-        console.log("Last instruction:", this.lastInstruction);
-        if (this.lastInstruction === 'Explore topics') {
-            fetch('/topic_selection', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': this.getCSRFToken() 
-                },
-                body: JSON.stringify({ topic_id: topicId })
-            })
-            .then(res => res.json())
-            .then(data => {
-                console.log("Backend response:", data);
-                if (data.topic_documents) {
-                    plotTopicDistributions(data.topic_documents);
-                }
-            }).catch(err => console.error("Topic selection error:", err));
-        }
-        else if (this.lastInstruction === 'Analyze contradictions') { // Not done yet
-            fetch('/analyze_topic', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': this.getCSRFToken() // if using Flask-WTF/CSRF
-                },
-                body: JSON.stringify({ topic_id: topicId })
-            })
-            .then(res => res.json())
-            .then(data => {
-                console.log("Backend response:", data);
-                if (data.topic_documents) {
-                    plotTopicDistributions(data.topic_documents);
-                }
-            })
-            .catch(err => console.error("Topic analysis error:", err));
-        } else {
-            console.error("Invalid instruction for topic selection:", this.lastInstruction);
-            return;
-        }
-
-    }
-
 }
 
-// Instantiate when DOM is fully loaded
+// Create class MIND
 document.addEventListener('DOMContentLoaded', () => {
     console.log("MINDInterface initialized");
-    const mindInterface = new MINDInterface();
-    // const socket = new WebSocket(`ws://${window.location.host}/ws`);
-    
+    const mindInterface = new MINDInterface();    
 });
-
 </script>
 
 {% if csrf_token %}
@@ -1706,6 +1438,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.cookie = "csrf_token={{ csrf_token }}";
 </script>
 {% endif %}
+
 <style>
 .hover-text-primary:hover {
     color: #007bff;
@@ -1735,60 +1468,4 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
-<!-- Load Chart.js (you can put this in your base template head) -->
-
-<script>
-async function loadTopicDistributions(topicId) {
-    try {
-        // Fetch data from your /topic_selection endpoint
-        const response = await fetch('/topic_selection', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ topic_id: topicId })
-        });
-        console.log(topicId);
-        const data = await response.json();
-        const documents = data.topic_documents;
-
-        documents.forEach(doc => {
-            const ctx = document.getElementById(`chart-doc-${doc.doc_id}`);
-            if (!ctx) return; 
-
-            new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: doc.topic_distribution.map((_, i) => `Topic ${i}`),
-                    datasets: [{
-                        label: 'Topic Probability',
-                        data: doc.topic_distribution,
-                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 1
-                        }
-                    }
-                }
-            });
-        });
-    } catch (err) {
-        console.error("Error loading topic distributions:", err);
-    }
-}
-
-</script>
-
-<script src="https://cdn.jsdelivr.net/gh/bmabey/pyLDAvis@master/pyLDAvis/js/ldavis.js"></script>
-
-
 {% endblock %}
-
-

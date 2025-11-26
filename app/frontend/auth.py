@@ -9,6 +9,7 @@ auth = Blueprint('auth', __name__)
 dotenv.load_dotenv()
 
 AUTH_API_URL = f"{os.environ.get('AUTH_API_URL', 'http://auth:5002/')}/auth"
+MIND_WORKER_URL = os.environ.get('MIND_WORKER_URL')
 
 
 def validate_password(password, password_rep):
@@ -57,6 +58,10 @@ def login():
 
 @auth.route('/logout', methods=['GET'])
 def logout():
+    try:
+        requests.get(f"{MIND_WORKER_URL}/cancel_detection", params={"email": session['user_id']})
+    except:
+        pass
     session.pop('user_id', None)
     flash("You have been logged out", "success")
     return redirect(url_for('auth.login'))

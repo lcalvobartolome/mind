@@ -253,7 +253,7 @@ def analyse_contradiction():
         }
 
         cfg = {
-            "llm_model": "llama3:8b",
+            "llm_model": config['llm'],
             "llm_server": "http://kumo02.tsc.uc3m.es:11434",
             "source_corpus": source_corpus,
             "target_corpus": target_corpus,

@@ -39,6 +39,20 @@ def validate_and_get_dataset(email: str, dataset: str, output: str, phase: str):
         elif phase == '2_Translator':
             dataset_path = f"/data/{email}/1_RawData/{dataset}/1_Segmenter/{output}/dataset"
             output_dir = f"/data/{email}/1_RawData/{dataset}/{phase}/{output}"
+            
+            if not os.path.exists(output_dir):
+                os.makedirs(output_dir)
+                return dataset_path, output_dir
+            
+            content_dir = os.listdir(output_dir)
+            files = [f for f in content_dir if os.path.isfile(os.path.join(output_dir, f))]
+            if len(files) >= 2:
+                return jsonify({
+                    "status": "error",
+                    "message": f"Output already exists at {output_dir}. Please choose another output name."
+                }), 400
+            
+            return dataset_path, output_dir
         
         elif phase == '3_Preparer':
             dataset_path = f"/data/{email}/1_RawData/{dataset}/2_Translator/{output}"

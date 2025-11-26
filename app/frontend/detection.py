@@ -42,9 +42,9 @@ def getTMkeys(user_id: str, data_tm: dict):
         flash("Backend service unavailable.", "danger")
         return {}
     
-def analyseContradiction(user_id: str, TM: str, topics: str, sample_size: int):
+def analyseContradiction(user_id: str, TM: str, topics: str, sample_size: int, config: dict):
     try:
-        response = requests.post(f"{MIND_WORKER_URL}/detection/analyse_contradiction", json={"email": user_id, "TM": TM, "topics": topics, "sample_size": sample_size})
+        response = requests.post(f"{MIND_WORKER_URL}/detection/analyse_contradiction", json={"email": user_id, "TM": TM, "topics": topics, "sample_size": sample_size, "config": config})
         if response.status_code == 200:
             data = response.json()
             return data

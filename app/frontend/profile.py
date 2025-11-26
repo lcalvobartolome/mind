@@ -2,7 +2,6 @@ import os
 import dotenv
 import requests
 
-from tools.tools import *
 from auth import validate_password
 from views import login_required_custom
 from flask import Blueprint, render_template, request, flash, jsonify, session
@@ -19,24 +18,6 @@ AUTH_API_URL = f"{os.environ.get('AUTH_API_URL', 'http://auth:5002/')}/auth"
 def profile():
     user_id = session.get('user_id')
     username = session.get('username')
-
-    datasets = []
-    dataset_path = os.path.join(os.getenv("OUTPUT_PATH", "/Data/mind_folder"), 'final_results')
-
-    for root, dirs, files in os.walk(dataset_path):
-        for file in files:
-            if file == "results.parquet":
-                full_path = os.path.join(root, file)
-                try:
-                    df = pd.read_parquet(full_path)
-                    datasets.append({
-                        "name": f'results_topic_{extract_topic_id(root)}_samples_{extract_sample_len(root)}',
-                        "topic": extract_topic_id(root),
-                        "sample_len": extract_sample_len(root),
-                        "data": df
-                    })
-                except Exception as e:
-                    print(f"Error reading {full_path}: {e}")
 
     if request.method == 'POST':
 
@@ -72,7 +53,7 @@ def profile():
                 flash("Authentication service unavailable", "danger")
         else:
             flash("No changes made.", "info")
-    return render_template("profile.html", user_id=user_id, username=username, datasets=datasets)
+    return render_template("profile.html", user_id=user_id, username=username)
 
 @profile_bp.route('/upload_dataset', methods=['POST'])
 def upload_dataset():

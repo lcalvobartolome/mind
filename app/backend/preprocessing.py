@@ -114,7 +114,7 @@ def translator():
                 raise Exception("Validation failed")
             
             # To operate correctly
-            translator_data['text_col'] = "full_doc"
+            # translator_data['text_col'] = "full_doc"
 
             # Translator
             print(f"Translating dataset {dataset}...")
@@ -125,22 +125,12 @@ def translator():
                 
                 trans = Translator(config_path="/src/config/config.yaml")
                 
-                # First src -> tgt
+                # src -> tgt
                 trans.translate(
                     path_df=dataset_path,
                     save_path=f'{output_dir}/dataset_{translator_data["tgt_lang"]}2{translator_data["src_lang"]}',
                     src_lang=translator_data['src_lang'],
                     tgt_lang=translator_data['tgt_lang'],
-                    text_col=translator_data['text_col'],
-                    lang_col=translator_data['lang_col'],
-                )
-
-                # Second tgt -> src
-                trans.translate(
-                    path_df=dataset_path,
-                    save_path=f'{output_dir}/dataset_{translator_data["src_lang"]}2{translator_data["tgt_lang"]}',
-                    src_lang=translator_data['tgt_lang'],
-                    tgt_lang=translator_data['src_lang'],
                     text_col=translator_data['text_col'],
                     lang_col=translator_data['lang_col'],
                 )
@@ -189,8 +179,9 @@ def preparer():
 
             try:
                 nlpipe_json = {
-                        "id": f"{preparer_data["schema"]["chunk_id"]}",
-                        "raw_text": f"{preparer_data["schema"]["text"]}",
+                        "id": "id_preproc",
+                        # "raw_text": f"{preparer_data["schema"]["text"]}",
+                        "raw_text": "text",
                         "title": ""
                     }
 
@@ -225,7 +216,7 @@ def preparer():
                 aggregate_row(email, preparer_data['output'], dataset, 2, f'{output_dir}/dataset')
 
                 with open(f'{output_dir}/schema.json', 'w') as f:
-                    json.dump(preparer_data['schema'], indent=4)
+                    json.dump(preparer_data['schema'], f, ensure_ascii=False, indent=4)
 
                 print(f'Finalize preparing dataset {output_dir}')
             
@@ -281,9 +272,10 @@ def topicmodelling():
                     add_stops_path="/src/mind/topic_modeling/stops"
                 )
 
-                model.train(dataset_path)
+                res = model.train(dataset_path)
 
-                aggregate_row(email, output, dataset, 3, output_dir)
+                if res == 2: aggregate_row(email, output, dataset, 3, output_dir)
+                else: raise Exception("Model couldn't be trained.")
 
                 print('Finalize train model')
 

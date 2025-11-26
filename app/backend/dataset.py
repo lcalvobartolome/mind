@@ -1,7 +1,5 @@
 import os
-import glob
 import shutil
-import numpy as np
 import pandas as pd
 
 from flask import Blueprint, jsonify, request
@@ -19,7 +17,7 @@ def create_user_folders():
         return jsonify({"error": "Missing email"}), 400
 
     base_path = f"/data/{email}"
-    folders = ["1_RawData", "2_PreprocessData", "3_TopicModel", "4_Contradiction"]
+    folders = ["1_RawData", "2_PreprocessData", "3_TopicModel", "4_Detection"]
 
     try:
         os.makedirs(base_path, exist_ok=True)
@@ -130,7 +128,7 @@ def upload_dataset():
     extension = data.get('extension')
     sep = data.get('sep')
 
-    if not file or not path or not email or not stage or not dataset_name or not extension or not sep:
+    if not file or not path or not email or not stage or not dataset_name or not extension:
         return jsonify({'error': 'Missing file or arg'}), 400
     
     output_dir = f"/data/{path}/"
@@ -142,7 +140,7 @@ def upload_dataset():
         "Stage": int(stage),
         "Path": f'{output_dir}dataset'
     }
-
+    
     df = pd.read_parquet(DATASETS_STAGE)
 
     if ((df['Usermail'] == new_data['Usermail']) &
@@ -164,6 +162,9 @@ def upload_dataset():
     # In case dataset is CSV
     if extension == 'csv':
         try:
+            if not sep:
+                return jsonify({'error': 'Missing separator for csv file'}), 400
+            
             df_csv = pd.read_csv(f'{output_dir}/dataset', sep=sep)
             df_csv.to_parquet(f'{output_dir}/dataset', engine='pyarrow')
         except Exception as e:
@@ -182,58 +183,6 @@ def upload_dataset():
         print(e)
         shutil.rmtree(output_dir)
         return jsonify({'error': 'Couldn\'t save file'}), 400
-
-@datasets_bp.route("/final_results/<og_dataset>", methods=["GET"])
-def get_final_results(og_dataset):
-    """
-    Devuelve todos los resultados finales de un dataset original,
-    incluyendo raw_text del dataset original.
-    """
-    dataset_path = os.getenv("DATASET_PATH", "/data/3_joined_data")
-    og_dataset_path = os.path.join(dataset_path, og_dataset, 'polylingual_df')
-
-    if not os.path.exists(og_dataset_path):
-        return jsonify({"error": f"Original dataset {og_dataset} not found."}), 404
-
-    try:
-        og_ds = pd.read_parquet(og_dataset_path)
-        if 'index' in og_ds.columns:
-            og_ds = og_ds.drop(columns=['index'])
-    except Exception as e:
-        return jsonify({"error": f"Failed to load original dataset: {e}"}), 500
-
-    final_results_path = os.path.join(dataset_path, "final_results")
-    mind_info = []
-
-    for file in glob.glob(os.path.join(final_results_path, "**", "*.*"), recursive=True):
-        if file.endswith((".parquet", ".csv", ".xlsx")):
-            try:
-                if file.endswith(".parquet"):
-                    df = pd.read_parquet(file)
-                elif file.endswith(".csv"):
-                    df = pd.read_csv(file)
-                elif file.endswith(".xlsx"):
-                    df = pd.read_excel(file)
-
-                # Merge raw_text from original dataset
-                if "doc_id" in df.columns and "doc_id" in og_ds.columns:
-                    df = df.merge(
-                        og_ds[["doc_id", "raw_text"]],
-                        on="doc_id",
-                        how="left"
-                    )
-
-                dataset_name = os.path.relpath(file, final_results_path)
-                mind_info.append({
-                    "dataset_name": dataset_name,
-                    "data": df.to_dict(orient="records")
-                })
-
-            except Exception as e:
-                print(f"⚠️ Failed to load {file}: {e}")
-
-    return jsonify({"results": mind_info})
-
 
 def load_datasets(dataset_path: str, folder: str):
     dataset_list = []

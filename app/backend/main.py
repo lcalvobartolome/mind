@@ -1,6 +1,5 @@
 import sys
 import dotenv
-import threading
 
 from flask import Flask, request
 
@@ -25,7 +24,6 @@ def cancel_active_pipeline_if_needed():
 
     from detection import active_processes, lock
     with lock:
-        print(active_processes)
         if email in active_processes:
             proc_info = active_processes[email]
             print(f"Cancelling active pipeline for {email} due to request {request.path}", file=sys.__stdout__)
@@ -36,8 +34,11 @@ def cancel_active_pipeline_if_needed():
                 proc_info["process"].join()
             
             del active_processes[email]
-        print('Not in active processes', email)
+            print(active_processes)
 
+@app.route('/cancel_detection', methods=['GET'])
+def route_cancel_detection():
+    return {}, 200
 
 if __name__ == '__main__':
     from dataset import datasets_bp

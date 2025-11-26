@@ -6,7 +6,6 @@ import requests
 import threading
 
 from io import BytesIO
-from tools.tools import *
 from views import login_required_custom
 from flask import Blueprint, render_template, request, flash, jsonify, session, send_file
 
@@ -103,9 +102,7 @@ def preprocess_stage1(task_id, task_name, email, dataset, segmenter_data, transl
 
     print(f"Starting task: {task_name}")
 
-    TOTAL_STEPS = 3
-    if len(segmenter_data) == 0:
-        TOTAL_STEPS = 2
+    TOTAL_STEPS = 4
 
     try:
         for step in range(1, TOTAL_STEPS + 1):
@@ -127,7 +124,7 @@ def preprocess_stage1(task_id, task_name, email, dataset, segmenter_data, transl
                     wait_for_step_completion(step_id, step_name)
 
             elif step == 2:
-                step_name = "Translating"
+                step_name = f"Translating ({translator_data['src_lang']} → {translator_data['tgt_lang']})"
                 task_state['message'] = f"Step {step}/{TOTAL_STEPS}: {step_name} {dataset}..."
                 response = requests.post(
                     f"{MIND_WORKER_URL}/translator",
@@ -141,7 +138,24 @@ def preprocess_stage1(task_id, task_name, email, dataset, segmenter_data, transl
                     wait_for_step_completion(step_id, step_name)
 
             elif step == 3:
-                step_name = "Preparing"
+                step_name = f"Translating ({translator_data['tgt_lang']} → {translator_data['src_lang']})"
+                tgt_lang = translator_data['tgt_lang']
+                translator_data['tgt_lang'] = translator_data['src_lang']
+                translator_data['src_lang'] = tgt_lang
+                task_state['message'] = f"Step {step}/{TOTAL_STEPS}: {step_name} {dataset}..."
+                response = requests.post(
+                    f"{MIND_WORKER_URL}/translator",
+                    json={"email": email, "dataset": dataset, "translator_data": translator_data}
+                )
+                response.raise_for_status()
+                data = response.json()
+                print(data.get("message"))
+                step_id = data.get("step_id")
+                if step_id:
+                    wait_for_step_completion(step_id, step_name)
+
+            elif step == 4:
+                step_name = "Data-Preparing"
                 task_state['message'] = f"Step {step}/{TOTAL_STEPS}: {step_name} {dataset}..."
                 response = requests.post(
                     f"{MIND_WORKER_URL}/preparer",
