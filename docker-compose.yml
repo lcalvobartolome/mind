@@ -9,7 +9,7 @@ services:
     user: root
     
     ports:
-      - "5000:5000"
+      - "5050:5050"
     
     environment:
       - PYTHONUNBUFFERED=1
@@ -17,7 +17,7 @@ services:
       - AUTH_API_URL=http://auth:5002
     
     env_file:
-      - ./app/.env
+      - ./app/frontend/.env
     
     depends_on:
       - backend
@@ -46,7 +46,7 @@ services:
       - AUTH_API_URL=http://auth:5002
     
     env_file:
-      - ./app/.env
+      - ./app/backend/.env
     
     depends_on:
       - auth
@@ -66,7 +66,7 @@ services:
       - DATABASE_URL=postgresql://auth_user:auth_pass@db:5432/auth_db
     
     env_file:
-      - ./app/.env
+      - ./app/auth/.env
     
     depends_on:
       db:
