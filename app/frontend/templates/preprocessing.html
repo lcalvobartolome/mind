@@ -252,6 +252,8 @@
             <label for="enableLabelTopic">Label Topic</label>
         </div>
 
+        <hr>
+
         <!-- LLM options (hidden by default) -->
         <div id="labelTopicOptions" class="mt-3" style="display: none;">
 
@@ -266,18 +268,40 @@
             <div id="llmSelect_ollama" class="form-group mb-3 d-flex align-items-center">
                 <label for="llmSelect_ollama_input" class="me-2" style="width: 200px;">Ollama LLM:</label>
                 <select id="llmSelect_ollama_input" class="form-control flex-grow-1">
-                    {% for model in models %}
-                        <option value="{{ model }}">{{ model }}</option>
-                    {% endfor %}
+                    
                 </select>
             </div>
 
             <div id="server_ollama" class="form-group mb-3 d-flex align-items-center">
-                <label for="server_ollama_input" class="me-2" style="width: 200px;">Ollama LLM:</label>
+                <label for="server_ollama_input" class="me-2" style="width: 200px;">Ollama Server:</label>
                 <select id="server_ollama_input" class="form-control flex-grow-1">
-                    <option value="kumo02" selected>kumo02</option>
+                    {% for server in models.keys() %}
+                        <option value="{{ server }}">{{ server }}</option>
+                    {% endfor %}
                 </select>
             </div>
+
+            <script>
+            const availableModels = {{ models | tojson }};
+            const serverSelect = document.getElementById("server_ollama_input");
+            const modelSelect = document.getElementById("llmSelect_ollama_input");
+
+            function updateModels() {
+                const selectedServer = serverSelect.value;
+                const models = availableModels[selectedServer] || [];
+
+                modelSelect.innerHTML = "";
+
+                models.forEach(model => {
+                    const option = document.createElement("option");
+                    option.value = model;
+                    option.textContent = model;
+                    modelSelect.appendChild(option);
+                });
+            }
+            serverSelect.addEventListener("change", updateModels);
+            updateModels();
+            </script>
 
             <div id="llmSelect_gpt" class="form-group mb-3 d-flex align-items-center" style="display: none;">
                 <label for="llmSelect_gpt_input" class="me-2" style="width: 200px;">GPT LLM:</label>

@@ -108,12 +108,35 @@
 
         <!-- Option 3: Docs -->
         {% if docs_data %}
-        <div id="topicDocs" style="display: none; width: 100%; height: 100%; overflow-y: auto; overflow-x: hidden;"></div>
+
+        <div id="topicDocs" style="display: none; width: 100%; height: 100%; position: relative; overflow: none;">        
+            <div id="topicDocsContent" 
+                style="overflow-y: auto; overflow-x: hidden; height: 100%; padding-bottom: 10px;">
+            </div>
+
+            <div id="paginationContainer" 
+                class="d-flex justify-content-center align-items-center my-3"
+                style="
+                    position: sticky;
+                    bottom: -5vh;
+                    background: white;
+                    z-index: 10;
+                    padding: 10px 0;
+                    border-top: 1px solid #ccc;
+                ">
+            </div>
+        </div> 
 
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
         const docsData = {{ docs_data | tojson | safe }};
-        const accordionContainer = document.getElementById('topicDocs');
+        const accordionContainer = document.getElementById('topicDocsContent');
+        const paginationContainer = document.getElementById('paginationContainer');
+
+        const PAGE_SIZE = 100;
+        let currentPage = 0;
+        let activeCharts = {};
+        const MAX_BUTTONS = 5;
 
         function generateColors(n) {
             const colors = [];
@@ -124,142 +147,170 @@
             return colors;
         }
 
-        docsData.forEach((doc, index) => {
+        function clearPage() {
+            Object.values(activeCharts).forEach(chart => chart.destroy());
+            activeCharts = {};
+            accordionContainer.innerHTML = '';
+        }
 
-            const docGroup = document.createElement('div');
-            docGroup.className = 'doc-group mb-3 border rounded-2 shadow-sm';
+        function renderPage(page) {
+            clearPage();
 
-            // Header
-            const header = document.createElement('div');
-            header.className = 'dataset-header doc-header list-group-item hover-text-primary fw-bold bg-light d-flex align-items-center justify-content-between';
-            header.setAttribute('role', 'button');
-            header.setAttribute('aria-expanded', 'false');
-            const contentId = `doc-content-${index}`;
-            header.setAttribute('aria-controls', contentId);
-            header.style.cursor = 'pointer';
-            header.style.padding = '10px';
+            const start = page * PAGE_SIZE;
+            const end = Math.min(start + PAGE_SIZE, docsData.length);
 
-            header.innerHTML = `
-                <div class="d-flex align-items-center" style="margin-left: 15px;">
-                    <label class="mb-0">Document ${doc.id}</label>
-                </div>
-                <div class="d-flex align-items-center">
-                    <span class="chev" aria-hidden="true" style="transition: transform .2s;">▸</span>
-                </div>
-            `;
+            for (let i = start; i < end; i++) {
+                const doc = docsData[i];
+                const index = i;
 
-            docGroup.appendChild(header);
+                const docGroup = document.createElement('div');
+                docGroup.className = 'doc-group mb-3 border rounded-2 shadow-sm';
 
-            // Contenedor del contenido
-            const contentDiv = document.createElement('div');
-            contentDiv.id = contentId;
-            contentDiv.className = 'list-group doc-content';
-            contentDiv.style.display = 'none';
-            docGroup.appendChild(contentDiv);
-            accordionContainer.appendChild(docGroup);
+                const header = document.createElement('div');
+                header.className =
+                    'dataset-header doc-header list-group-item fw-bold bg-light d-flex justify-content-between';
+                header.style.cursor = 'pointer';
+                header.innerHTML = `
+                    <div style="margin-left:15px;">Document ${doc.id}</div>
+                    <span class="chev" style="transition: transform .2s;">▸</span>
+                `;
 
-            header.addEventListener('click', function() {
-                const chev = this.querySelector('.chev');
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'list-group doc-content';
+                contentDiv.style.display = 'none';
+                contentDiv.dataset.initialized = "false";
 
-                if (contentDiv.style.display === 'none' || contentDiv.style.display === '') {
-                    contentDiv.style.display = 'block';
-                    chev.style.transform = 'rotate(90deg)';
+                header.addEventListener('click', () => {
+                    const chev = header.querySelector('.chev');
+                    const open = contentDiv.style.display === 'block';
 
-                    if (!contentDiv.hasChildNodes()) {
+                    if (!open) {
+                        contentDiv.style.display = 'block';
+                        chev.style.transform = 'rotate(90deg)';
 
-                        const flexDiv = document.createElement('div');
-                        flexDiv.style.display = 'flex';
-                        flexDiv.style.gap = '1px';
-                        flexDiv.style.alignItems = 'stretch';
-                        flexDiv.style.maxHeight = '350px'; 
+                        if (contentDiv.dataset.initialized === "false") {
+                            contentDiv.dataset.initialized = "true";
 
-                        // Izquierda: texto
-                        const leftDiv = document.createElement('div');
-                        leftDiv.style.flex = '1';
-                        leftDiv.style.minWidth = '200px';
-                        leftDiv.style.backgroundColor = 'white';
-                        leftDiv.style.padding = '10px';
-                        leftDiv.style.borderRight = '1px solid #ccc';
+                            const flexDiv = document.createElement('div');
+                            flexDiv.style.display = 'flex';
+                            flexDiv.style.maxHeight = '350px';
 
-                        const leftHeader = document.createElement('h5');
-                        leftHeader.innerText = 'Text';
-                        leftHeader.style.marginBottom = '10px';
-                        leftHeader.style.textAlign = 'center';
-                        leftDiv.appendChild(leftHeader);
-                        leftDiv.appendChild(document.createElement('hr'));
+                            const leftDiv = document.createElement('div');
+                            leftDiv.style.flex = '1';
+                            leftDiv.style.padding = '10px';
+                            leftDiv.style.borderRight = '1px solid #ccc';
+                            leftDiv.innerHTML = `<h5 style="text-align:center;">Text</h5><hr><p>${doc.text}</p>`;
 
-                        const p = document.createElement('p');
-                        p.innerText = doc.text;
-                        p.style.margin = '0';
-                        leftDiv.appendChild(p);
+                            const rightDiv = document.createElement('div');
+                            rightDiv.style.flex = '1';
+                            rightDiv.style.padding = '10px';
+                            rightDiv.style.textAlign = 'center';
+                            rightDiv.innerHTML = `<h5>Chart</h5><hr>`;
 
-                        // Derecha: chart
-                        const rightDiv = document.createElement('div');
-                        rightDiv.style.flex = '1';
-                        rightDiv.style.minWidth = '200px';
-                        rightDiv.style.backgroundColor = 'white';
-                        rightDiv.style.padding = '10px';
-                        rightDiv.style.textAlign = 'center';
+                            const canvas = document.createElement('canvas');
+                            canvas.style.width = '200px';
+                            canvas.style.height = '200px';
+                            canvas.style.display = 'block';
+                            canvas.style.margin = '0 auto';
+                            rightDiv.appendChild(canvas);
 
-                        const rightHeader = document.createElement('h5');
-                        rightHeader.innerText = 'Chart';
-                        rightHeader.style.marginBottom = '10px';
-                        rightDiv.appendChild(rightHeader);
-                        rightDiv.appendChild(document.createElement('hr'));
+                            flexDiv.appendChild(leftDiv);
+                            flexDiv.appendChild(rightDiv);
+                            contentDiv.appendChild(flexDiv);
 
-                        const canvas = document.createElement('canvas');
-                        canvas.id = `chart-doc-${index}`;
-                        canvas.style.width = '200px';
-                        canvas.style.height = '200px';
-                        canvas.style.display = 'block';
-                        canvas.style.margin = '0 auto';
-                        rightDiv.appendChild(canvas);
+                            const topicKeys = Object.keys(doc.topics);
+                            const topicValues = Object.values(doc.topics);
 
-                        flexDiv.appendChild(leftDiv);
-                        flexDiv.appendChild(rightDiv);
-                        contentDiv.appendChild(flexDiv);
-
-                        const topicKeys = Object.keys(doc.topics);
-                        const topicValues = Object.values(doc.topics);
-                        const colors = generateColors(topicKeys.length);
-
-                        // Crear chart
-                        new Chart(canvas.getContext('2d'), {
-                            type: 'pie',
-                            data: {
-                                labels: topicKeys.map(t => "Topic " + t),
-                                datasets: [{
-                                    data: topicValues,
-                                    backgroundColor: colors,
-                                }]
-                            },
-                            options: {
-                                plugins: {
-                                    legend: { display: false },
-                                    tooltip: {
-                                        callbacks: {
-                                            label: function(ctx) {
-                                                let percent = (ctx.parsed * 100).toFixed(1);
-                                                return ctx.label + ": " + percent + "%";
-                                            }
-                                        }
-                                    }
+                            activeCharts[index] = new Chart(canvas, {
+                                type: 'pie',
+                                data: {
+                                    labels: topicKeys.map(t => "Topic " + t),
+                                    datasets: [{
+                                        data: topicValues,
+                                        backgroundColor: generateColors(topicKeys.length)
+                                    }]
+                                },
+                                options: {
+                                    responsive: false,
+                                    maintainAspectRatio: false,
+                                    plugins: { legend: { display: false } }
                                 }
-                            }
-                        });
-
-                        flexDiv.appendChild(leftDiv);
-                        flexDiv.appendChild(rightDiv);
-                        contentDiv.appendChild(flexDiv);
+                            });
+                        }
+                    } else {
+                        contentDiv.style.display = 'none';
+                        chev.style.transform = 'rotate(0deg)';
                     }
+                });
 
-                } else {
-                    contentDiv.style.display = 'none';
-                    chev.style.transform = 'rotate(0deg)';
+                docGroup.appendChild(header);
+                docGroup.appendChild(contentDiv);
+                accordionContainer.appendChild(docGroup);
+            }
+        }
+
+        function renderPagination() {
+            paginationContainer.innerHTML = '';
+            const totalPages = Math.ceil(docsData.length / PAGE_SIZE);
+
+            const tempBtn = document.createElement('button');
+            tempBtn.style.visibility = 'hidden';
+            tempBtn.style.position = 'absolute';
+            tempBtn.innerText = totalPages;
+            document.body.appendChild(tempBtn);
+            const btnWidth = tempBtn.offsetWidth + 10;
+            document.body.removeChild(tempBtn);
+
+            const createButton = (text, pageNum, disabled = false, active = false) => {
+                const btn = document.createElement('button');
+                btn.style.width = btnWidth + 'px';
+                btn.innerText = text;
+                if (disabled) btn.disabled = true;
+                if (active) btn.classList.add('active');
+                btn.addEventListener('click', () => {
+                    currentPage = pageNum;
+                    renderPage(currentPage);
+                    renderPagination();
+                });
+                paginationContainer.appendChild(btn);
+            };
+
+            createButton('Prev', Math.max(0, currentPage - 1), currentPage === 0);
+
+            let startPage = Math.max(0, currentPage - Math.floor(MAX_BUTTONS / 2));
+            let endPage = startPage + MAX_BUTTONS - 1;
+            if (endPage >= totalPages) {
+                endPage = totalPages - 1;
+                startPage = Math.max(0, endPage - MAX_BUTTONS + 1);
+            }
+
+            if (startPage > 0) {
+                createButton('1', 0);
+                if (startPage > 1) {
+                    const dots = document.createElement('span');
+                    dots.innerText = '...';
+                    paginationContainer.appendChild(dots);
                 }
-            });
+            }
 
-        });
+            for (let i = startPage; i <= endPage; i++) {
+                createButton((i + 1), i, false, i === currentPage);
+            }
+
+            if (endPage < totalPages - 1) {
+                if (endPage < totalPages - 2) {
+                    const dots = document.createElement('span');
+                    dots.innerText = '...';
+                    paginationContainer.appendChild(dots);
+                }
+                createButton(totalPages, totalPages - 1);
+            }
+
+            createButton('Next', Math.min(totalPages - 1, currentPage + 1), currentPage === totalPages - 1);
+        }
+
+        renderPage(currentPage);
+        renderPagination();
         </script>
         {% endif %}
 
@@ -1306,18 +1357,40 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div id="llmSelect_ollama" class="form-group mb-3 d-flex align-items-center">
                     <label for="llmSelect_ollama_input" class="me-2" style="width: 200px;">Ollama LLM:</label>
                     <select id="llmSelect_ollama_input" class="form-control flex-grow-1">
-                        {% for model in avaible_models %}
-                            <option value="{{ model }}">{{ model }}</option>
-                        {% endfor %}
+                        
                     </select>
                 </div>
 
                 <div id="server_ollama" class="form-group mb-3 d-flex align-items-center">
-                    <label for="server_ollama_input" class="me-2" style="width: 200px;">Ollama LLM:</label>
+                    <label for="server_ollama_input" class="me-2" style="width: 200px;">Ollama Server:</label>
                     <select id="server_ollama_input" class="form-control flex-grow-1">
-                        <option value="kumo02" selected>kumo02</option>
+                        {% for server in avaible_models.keys() %}
+                            <option value="{{ server }}">{{ server }}</option>
+                        {% endfor %}
                     </select>
                 </div>
+
+                <script>
+                const availableModels = {{ avaible_models | tojson }};
+                const serverSelect = document.getElementById("server_ollama_input");
+                const modelSelect = document.getElementById("llmSelect_ollama_input");
+
+                function updateModels() {
+                    const selectedServer = serverSelect.value;
+                    const models = availableModels[selectedServer] || [];
+
+                    modelSelect.innerHTML = "";
+
+                    models.forEach(model => {
+                        const option = document.createElement("option");
+                        option.value = model;
+                        option.textContent = model;
+                        modelSelect.appendChild(option);
+                    });
+                }
+                serverSelect.addEventListener("change", updateModels);
+                updateModels();
+                </script>
 
                 <div id="llmSelect_gpt" class="form-group mb-3 d-flex align-items-center" style="display: none;">
                     <label for="llmSelect_gpt_input" class="me-2" style="width: 200px;">GPT LLM:</label>
@@ -1501,6 +1574,56 @@ $(document).ready(function() {
     .dataset-entry:hover .dataset-link {
         color: #007bff !important;
         text-decoration: underline;
+    }
+
+    #topicDocs {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    #topicDocsContent {
+        height: 100%;
+        width: 100%;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    #paginationContainer {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0;
+    }
+
+    #paginationContainer button {
+        margin: 0;
+        padding: 5px 10px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        background-color: #f0f0f0;
+        cursor: pointer;
+        text-align: center;
+        flex: 0 0 auto;
+    }
+
+    #paginationContainer button.active {
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
+    }
+
+    #paginationContainer button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    #paginationContainer span {
+        margin: 0 5px;
+        padding: 5px 0;
     }
 
     th.th-with-filter {

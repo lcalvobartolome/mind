@@ -1,6 +1,6 @@
 # MIND Web Application
 
-MIND web application provides an intuitive and efficient interface for MIND's tools, enabling users to perform data preprocessing, topic modeling, and discrepancy analysis easily and effectively.
+MIND web application provides an intuitive and efficient interface for MIND's tools, enabling users to perform data preprocessing, topic modeling, and discrepancy analysis easily and effectively. It can be deploy the web application using the code from this repository to customize the web interface, or access the application online via a hosted URL (https://mind.uc3m.es), allowing full flexibility for personal use.
 
 - [Deployment: Environment Configuration and Execution](#1-deployment-environment-configuration-and-execution)
 - [Services Overview](#2-services-overview)
@@ -29,7 +29,8 @@ Below are the variables you can modify in each service:
 
 ---
 
-#### **· auth/.env**
+#### **[auth/.env](./auth/.env)**
+
 ```
 DATABASE_URL=postgresql://auth_user:auth_pass@db:5432/auth_db
 SECRET_KEY=XXXXXXXX
@@ -39,7 +40,7 @@ SECRET_KEY=XXXXXXXX
 
 ---
 
-#### **· backend/.env**
+#### **[backend/.env](./backend/.env)**
 ```
 MAX_USERS_DETECTION=2
 ```
@@ -47,7 +48,7 @@ MAX_USERS_DETECTION=2
 
 ---
 
-#### **· frontend/.env**
+#### **[frontend/.env](./frontend/.env)**
 ```
 WEB_APP_KEY="XXXXXXX"
 
@@ -64,15 +65,15 @@ MAX_CONCURRENT_TASKS_PER_USER=4
 
 1. Navigate to the project root (where [`docker-compose.yml`](/docker-compose.yml) is located) and build the containers:
 
-```bash
-docker compose build
-```
+    ```bash
+    docker compose build
+    ```
 
 2. Start the services in detached mode:
 
-```bash
-docker compose up -d
-```
+    ```bash
+    docker compose up -d
+    ```
 
 3. Once started, the application will be accessible at the following ports:
 

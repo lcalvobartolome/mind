@@ -25,11 +25,10 @@
                 <option value="2_PreprocessData">Preprocessed Data</option>
             </select>
         </div>
-
-        <button type="submit" class="btn btn-success" id="btn-success-files">Upload Dataset</button>
     </div>
 
     <div id="sep-csv" style="display: none;" class="mb-0">
+        <hr>
         <label for="sep-select">Indicate a separator for csv:</label>
         <select id="sep-select" name="sep-csv" class="form-select">
             <option value="" disabled selected>Select an option</option>
@@ -37,6 +36,15 @@
             <option value=";">;</option>
         </select>
     </div>
+
+    <div id="textColumn" style="display: none;" class="mb-0">
+        <hr>
+        <label for="textColInput">Text Column:</label>
+        <input class="form-control" id="textColInput" placeholder="Text Column" value="">
+    </div>
+
+    <hr>
+    <button type="submit" class="btn btn-success form-control" id="btn-success-files">Upload Dataset</button>
 </form>
 
 <hr>
@@ -63,6 +71,20 @@
 </form>
 
 <script>
+const select = document.getElementById('action-select');
+const textColumn = document.getElementById('textColumn');
+
+function toggleTextColumn() {
+    if (select.value === '1_RawData') {
+        textColumn.style.display = 'block';
+    } else {
+        textColumn.style.display = 'none';
+    }
+}
+toggleTextColumn();
+
+select.addEventListener('change', toggleTextColumn);
+
 document.addEventListener('DOMContentLoaded', function () {
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('file-input');
@@ -142,6 +164,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
             formData.append('sep', separator);
+        }
+
+        const textCol = document.getElementById('textColInput').value.trim()
+        if (document.getElementById('textColumn').style.display != 'none') {
+            if (textCol === '') {
+                alert('Please indicate the text Column for the raw data.');
+                buttonSubmit.disabled = false;
+                buttonSubmit.textContent = 'Upload Dataset';
+                return;
+            }
+            formData.append('textColumn', textCol);
         }
 
         fetch('/upload_dataset', {

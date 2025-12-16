@@ -23,6 +23,7 @@ detection_bp = Blueprint("detection", __name__)
 MIND_FRONTEND_URL = os.getenv('MIND_FRONTEND_URL', 'http://frontend:5000')
 
 OLLAMA_SERVER = {
+    "kumo01": "http://kumo01.tsc.uc3m.es:11434",
     "kumo02": "http://kumo02.tsc.uc3m.es:11434"
 }
 ACTIVE_OLLAMA_SERVERS = []
@@ -196,21 +197,19 @@ def getTopicKeys():
 def getModels():
     try:
         models_detection = ["qwen2.5:72b", "llama3.2", "llama3.1:8b-instruct-q8_0", "qwen:32b", "llama3.3:70b", "qwen2.5:7b-instruct", "qwen3:32b", "llama3.3:70b-instruct-q5_K_M", "llama3:8b"]
-        avaible_models = []
-
-        response = requests.get("http://kumo02.tsc.uc3m.es:11434/v1/models")
-        if response.status_code == 200:
-            data = response.json()
-            models_kumo02 = [m['id'] for m in data['data']]  
-            
-            for model in models_detection:
-                if model in models_kumo02:
-                    avaible_models.append(model)
-
-            return jsonify({"models": avaible_models}), 200
+        avaible_models = {}
+        for server in OLLAMA_SERVER.keys():
+            response = requests.get(f"{OLLAMA_SERVER[server]}/v1/models")
+            if response.status_code == 200:
+                data = response.json()
+                models_server = [m['id'] for m in data['data']]  
+                
+                avaible_models[server] = []
+                for model in models_detection:
+                    if model in models_server:
+                        avaible_models[server].append(model)
         
-        else:
-            return jsonify({"error": "No models avaible"}), 400
+        return jsonify({"models": avaible_models}), 200
     
     except Exception as e:
         print(str(e))

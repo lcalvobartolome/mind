@@ -49,11 +49,11 @@ def getModels():
 
         else:
             flash(f"Error loading models: {response.json().get('error')}", "danger")
-            return []
+            return {}
 
     except requests.exceptions.RequestException:
         flash("Backend service unavailable.", "danger")
-        return []
+        return {}
     
 def getDocProportion(user_id: str, TM: str):
     try:

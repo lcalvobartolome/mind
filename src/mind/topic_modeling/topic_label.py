@@ -1,3 +1,6 @@
+import os
+import argparse
+
 from pathlib import Path
 from dotenv import dotenv_values
 from collections import defaultdict
@@ -30,6 +33,14 @@ class TopicLabel(object):
 
         """
 
+        if not os.path.exists(model_folder):
+            raise ValueError(f'Does not exists model folder: {model_folder}')
+        
+        if not os.path.exists(f'{model_folder}/mallet_output') or not os.path.exists(f'{model_folder}/train_data'):
+            raise ValueError(f'Does not exists model folder: {model_folder}')
+
+        self._model_folder = model_folder
+
         self._logger = logger if logger else init_logger(config_path, __name__)
 
         self.config = load_yaml_config_file(config_path, "mind", self._logger)
@@ -56,7 +67,6 @@ class TopicLabel(object):
 
         self._lang1 = lang1
         self._lang2 = lang2
-        self._model_folder = model_folder
 
         if not self._model_folder.exists():
             self._logger.error(
@@ -197,3 +207,49 @@ class TopicLabel(object):
         
         with open(f'{path_topic}/labels_{self._lang2}.txt', 'w', encoding='utf-8') as f:
             f.write('\n'.join(topic_labels[self._lang2]))
+
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(
+        description="Obtain topic labels from a Mallet Polylingual Topic Model.")
+    parser.add_argument("--lang1", type=str, required=True,
+                        help="First language code (e.g. EN).")
+    parser.add_argument("--lang2", type=str, required=True,
+                        help="Second language code (e.g. ES).")
+    parser.add_argument("--model_folder", type=str, required=True,
+                        help="Directory to store model outputs.")
+    parser.add_argument("--llm_model", type=str, required=True,
+                        help="Name of the LLM to use.")
+    parser.add_argument("--llm_server", type=str, default=None, required=False,
+                        help="URL or address of the server hosting the LLM.")
+    parser.add_argument("--gpt_api", type=str, default=None, required=False,
+                        help="API key for accessing the GPT model. If not provided, defaults to None.")
+    
+    args = parser.parse_args()
+
+    try:
+        if args.gpt_api is not None:
+            with open('.env_temp', 'w') as f:
+                f.write(args.gpt_api)
+
+        tl = TopicLabel(
+            lang1=args.lang1,
+            lang2=args.lang2,
+            model_folder=Path(args.model_folder),
+            llm_model=args.llm_model,
+            llm_server=args.llm_model,
+            env_path=None,
+        )
+
+        if args.gpt_api is not None:
+            os.remove('.env_temp')
+
+        tl.label_topic()
+        print(
+            f"Label Topic Model complete. Outputs saved to {args.model_folder}")
+    
+    except Exception as e:
+        print(e)
+        if args.gpt_api is not None:
+            os.remove('.env_temp')

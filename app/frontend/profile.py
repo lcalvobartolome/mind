@@ -67,6 +67,7 @@ def upload_dataset():
         return jsonify({'error': 'No stage selected'}), 400
 
     sep = request.form.get('sep')
+    textColumn = request.form.get('textColumn')
 
     filename = file.filename
     temp_path = f"temp_{filename}"
@@ -85,7 +86,8 @@ def upload_dataset():
                 'stage': int(stage.split('_')[0]),
                 'dataset_name': "".join(filename.split('.')[:-1]),
                 'extension': filename.split('.')[-1],
-                'sep': sep
+                'sep': sep,
+                'textColumn': textColumn
             }
             resp = requests.post(f"{MIND_WORKER_URL}/upload_dataset", files=files, params=data)
 

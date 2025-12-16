@@ -145,6 +145,7 @@ def upload_dataset():
     dataset_name = data.get('dataset_name')
     extension = data.get('extension')
     sep = data.get('sep')
+    textColumn = data.get('textColumn')
 
     if not file or not path or not email or not stage or not dataset_name or not extension:
         return jsonify({'error': 'Missing file or arg'}), 400
@@ -156,7 +157,8 @@ def upload_dataset():
         "Dataset": dataset_name,
         "OriginalDataset": None,
         "Stage": int(stage),
-        "Path": f'{output_dir}dataset'
+        "Path": f'{output_dir}dataset',
+        "textColumn": textColumn if int(stage) == 1 else None
     }
     
     df = pd.read_parquet(DATASETS_STAGE)
