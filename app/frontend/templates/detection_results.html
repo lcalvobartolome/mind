@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Detection Results{% endblock %}
+
+{% block content %}
+<h1 class="mt-4">Detection Discrepancies Results</h1>
+<p>Check below the Detection Results available for use.</p>
+
+{% if datasets %}
+
+{% set combined_data = zip(datasets, names, shape, stages) %}
+{% for group in combined_data | groupby(3) %}
+    {% if group.grouper == 4 %}
+    <hr>
+
+    <div id="accordion-stage-{{ group.grouper }}" class="mt-4">
+        {% for item in group.list %}
+            {% set ds = item[0] %}
+            {% set name = item[1] %}
+            {% set shape_tuple = item[2] %}
+            {% set unique_id_base = "stage-" ~ group.grouper ~ "-item-" ~ loop.index %}
+
+            <div class="card">
+                <div class="card-header" id="heading-{{ unique_id_base }}">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link collapsed" data-toggle="collapse"
+                                data-target="#collapse-{{ unique_id_base }}"
+                                aria-expanded="false" aria-controls="collapse-{{ unique_id_base }}">
+                            {{ name.replace('_contradiction', '') }}
+                        </button>
+                    </h5>
+                </div>
+
+                <div id="collapse-{{ unique_id_base }}" class="collapse" 
+                     aria-labelledby="heading-{{ unique_id_base }}"
+                     data-parent="#accordion-stage-{{ group.grouper }}">
+                    <div class="card-body">
+                        {% if shape_tuple %}
+                        {% for topics in shape_tuple %}
+                            <hr>
+                            <a id="a-{{ name }}-{{ topics }}" href="/detection_results?TM={{ name.replace('_contradiction', '') }}&topics={{ topics }}" style="white-space: pre-wrap;"></a>
+                            <script>document.getElementById('a-{{ name }}-{{ topics }}').innerHTML = '  -> Discrepancy for <strong>{{ topics }} topics.</strong>'</script>
+                        {% endfor %}
+                        {% endif %}
+                        <hr>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <br>
+    {% endif %}
+{% endfor %}
+
+{% else %}
+<p>No Detection Results available.</p>
+{% endif %}
+{% endblock %}
