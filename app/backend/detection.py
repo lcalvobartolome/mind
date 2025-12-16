@@ -94,7 +94,7 @@ class StreamForwarder:
         sys.stderr = self._stderr
 
 
-@detection_bp.route('detection/topickeys', methods=['GET'])
+@detection_bp.route('/detection/topickeys', methods=['GET'])
 def getTopicKeys():
     try:
         data = request.get_json()
@@ -193,7 +193,7 @@ def getTopicKeys():
         print(str(e))
         return jsonify({"error": f"ERROR: {str(e)}"}), 500
     
-@detection_bp.route('detection/models', methods=['GET'])
+@detection_bp.route('/detection/models', methods=['GET'])
 def getModels():
     try:
         models_detection = ["qwen2.5:72b", "llama3.2", "llama3.1:8b-instruct-q8_0", "qwen:32b", "llama3.3:70b", "qwen2.5:7b-instruct", "qwen3:32b", "llama3.3:70b-instruct-q5_K_M", "llama3:8b"]
@@ -410,8 +410,6 @@ def analyse_contradiction():
             "source_corpus": source_corpus,
             "target_corpus": target_corpus,
             "retrieval_method": config['method'],
-            # "dry_run": False,
-            # "do_check_entailement": True,
             "config_path": '/src/config/config.yaml',
             "env_path": f'/data/{email}/.env' if config["llm_type"] == 'GPT' else None
         }

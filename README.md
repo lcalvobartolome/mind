@@ -9,6 +9,7 @@ This repository contains the code and data for reproducing experiments from our 
 - [MIND: Multilingual Inconsistent Notion Detection](#mind-multilingual-inconsistent-notion-detection)
   - [**Installation**](#installation)
     - [Steps for deployment with uv](#steps-for-deployment-with-uv)
+    - [Steps for deployment with docker](#steps-for-deployment-with-docker)
   - [Run MIND pipeline](#run-mind-pipeline)
   - [ROSIE-MIND](#rosie-mind)
   - [Replication of ablation experiments](#replication-of-ablation-experiments)
@@ -67,6 +68,41 @@ We recommend **uv** for installing the necessary dependencies.
     python -c "import mind; print(mind.__version__)"
     ```
 
+### Steps for deployment with docker
+MIND web application provides an intuitive and efficient interface for MIND's tools, enabling users to perform data preprocessing, topic modeling, and discrepancy analysis easily and effectively. It can be deploy the web application using the code from this repository to customize the web interface, or access the application online via a hosted URL (https://mind.uc3m.es), allowing full flexibility for personal use.
+
+1. Clone the repository (include submodules):
+
+    ```bash
+    git clone --recurse-submodules https://github.com/lcalvobartolome/mind.git
+    cd mind
+    ```
+
+    If you already cloned without `--recurse-submodules`, run:
+
+    ```bash
+    git submodule update --init --recursive
+    ```
+
+2. Navigate to the project root (where [`docker-compose.yml`](/docker-compose.yml) is located) and build the containers:
+
+    ```bash
+    docker compose build
+    ```
+
+3. Start the services in detached mode:
+
+    ```bash
+    docker compose up -d
+    ```
+
+4. Once started, the application will be accessible at the following ports:
+
+- **frontend**: http://localhost:5050
+- **auth service**: http://localhost:5002
+- **backend**: http://localhost:5001
+- **database (PostgreSQL)**: port 5444 mapped to 5432 in container.
+
 ## Run MIND pipeline
 
 To run the MIND pipeline, you need a collection of *loosely aligned* documents (e.g., corresponding Wikipedia articles in different languages). These do not need to be perfect translations—just share similar topics.
@@ -79,7 +115,7 @@ To run the MIND pipeline, you need a collection of *loosely aligned* documents (
 
     ```bash
     # Segment documents into passages
-    python3 src/mind/corpus_building/segmenter.py --input INPUT_PATH --output OUTPUT_PATH --text_col TEXT_COLUMN --lang_col LANG_COLUMN
+    python3 src/mind/corpus_building/segmenter.py --input INPUT_PATH --output OUTPUT_PATH --text_col TEXT_COLUMN --id_col ID_COLUMN
 
     # Translate passages from anchor to comparison language (and vice versa)
     python3 src/mind/corpus_building/translator.py --input INPUT_PATH --output OUTPUT_PATH --src_lang SRC_LANG --tgt_lang TGT_LANG --text_col TEXT_COLUMN --lang_col LANG_COLUMN
@@ -88,7 +124,8 @@ To run the MIND pipeline, you need a collection of *loosely aligned* documents (
     python3 src/mind/corpus_building/data_preparer.py --anchor ANCHOR_PATH --comparison COMPARISON_PATH --output OUTPUT_PATH --schema SCHEMA_JSON_OR_PATH
     ```
 
-    - Replace `INPUT_PATH`, `OUTPUT_PATH`, `TEXT_COLUMN`, `LANG_COLUMN`, `SRC_LANG`, `TGT_LANG`, `ANCHOR_PATH`, `COMPARISON_PATH`, and `SCHEMA_JSON_OR_PATH` with your actual file paths and column names.
+    - Replace `INPUT_PATH`, `OUTPUT_PATH`, `TEXT_COLUMN`, `MIN_LENGTH`, `SEPARATOR`, `SRC_LANG`, `TGT_LANG`, `LANG_COLUMN`, `ANCHOR_PATH`, `COMPARISON_PATH`, and `SCHEMA_JSON_OR_PATH` with your actual file paths and column names.
+    - For `segmenter.py`: `MIN_LENGTH` is the minimum paragraph length (default: 100), `SEPARATOR` is the split character (default: "\n")
     - The `--schema` argument for `data_preparer.py` can be a JSON string or a path to a JSON file mapping required columns.
 
     Alternatively, you can import and use these modules programmatically. See the [Wikipedia use case](use_cases/wikipedia/generate_dtset.py) for a complete example of how to use all these scripts in a workflow.
@@ -107,6 +144,19 @@ To run the MIND pipeline, you need a collection of *loosely aligned* documents (
 
     - Replace each argument (e.g., `PREPARED_DATASET_PATH`, `LANG1`, `LANG2`, `MODEL_OUTPUT_DIR`, `NUM_TOPICS`, etc.) with your actual file paths, language codes, and options.
     - See `python3 src/mind/topic_modeling/polylingual_tm.py --help` for full details and all available options.
+
+- **(Optional) Label Topics of a PLTM model:** Assign meaningful labels to each discovery topic based on the top-ranked words and documents.
+
+    ```bash
+    python3 src/mind/topic_modeling/topic_label.py \
+      --lang1 LANG1 \
+      --lang2 LANG2 \
+      --model_folder MODEL_OUTPUT_DIR \
+      [+ additional optional params]
+    ```
+
+    - Replace each argument (e.g., `LANG1`, `LANG2`, `MODEL_OUTPUT_DIR`, etc.) with your actual file paths, language codes, and options.
+    - See `python3 src/mind/topic_modeling/topic_label.py --help` for full details and all available options.
 
 3. **Run the MIND pipeline:** Detect discrepancies and perform downstream analysis.
 
