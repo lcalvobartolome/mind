@@ -80,6 +80,7 @@ llm:
     available_models: {
       "qwen2.5:72b",
       "llama3.2",
+      "llama3.1:8b",
       "llama3.1:8b-instruct-q8_0",
       "qwen:32b",
       "llama3.3:70b",

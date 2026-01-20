@@ -33,7 +33,7 @@ def login():
         email = request.form.get('email')
         password = request.form.get('password')
 
-        # Enviar login al microservicio auth
+        # send login auth
         try:
             print(f"{AUTH_API_URL}/login")
             response = requests.post(f"{AUTH_API_URL}/login", json={

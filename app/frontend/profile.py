@@ -12,6 +12,8 @@ dotenv.load_dotenv()
 MIND_WORKER_URL = os.environ.get('MIND_WORKER_URL')
 AUTH_API_URL = f"{os.environ.get('AUTH_API_URL', 'http://auth:5002/')}/auth"
 
+MAX_MB = 10
+
 
 @profile_bp.route('/profile', methods=['GET', 'POST'])
 @login_required_custom
@@ -61,6 +63,13 @@ def upload_dataset():
         return jsonify({'error': 'No file provided'}), 400
 
     file = request.files['file']
+
+    file.seek(0, 2)
+    file_size = file.tell()
+    file.seek(0)
+
+    if file_size > (MAX_MB * 1024 * 1024):
+        return jsonify({'error': 'File too large (Max 10MB)'}), 400
 
     stage = request.form.get('stage')
     if not stage:

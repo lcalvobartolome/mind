@@ -87,7 +87,7 @@ class TopicLabel(object):
         Returns
         -------
         corpus_dict : dict
-            Dictionary with document IDs as keys (int) and raw text as values (str).
+            Dictionary with document IDs as keys (str) and raw text as values (str).
         """
         
         corpus_dict = {}
@@ -97,7 +97,7 @@ class TopicLabel(object):
                 if not line:
                     continue
                 parts = line.split(maxsplit=2)
-                doc_id = int(float(parts[0]))
+                doc_id = parts[0]
                 try:
                     corpus_dict[doc_id] = parts[2]
                 except:
@@ -136,18 +136,18 @@ class TopicLabel(object):
                     prop = float(topic_props[i+1])
                     topic_docs[topic].append((doc_id, prop))
 
-        # top 5 docs per topic
+        # top 3 docs per topic
         top_docs_per_topic_id = {}
         for topic, doc_list in topic_docs.items():
             doc_list_sorted = sorted(doc_list, key=lambda x: x[1], reverse=True)
-            top_docs_per_topic_id[topic] = doc_list_sorted[:5]
+            top_docs_per_topic_id[topic] = doc_list_sorted[3]
 
         corpus_lang1 = self._load_corpus(f'{self._model_folder}/train_data/corpus_{self._lang1}.txt')
         corpus_lang2 = self._load_corpus(f'{self._model_folder}/train_data/corpus_{self._lang2}.txt')
 
         final_dict = {self._lang1: {}, self._lang2: {}}
 
-        # top 5 doc text per lang
+        # top 3 doc text per lang
         for topic, doc_list in top_docs_per_topic_id.items():
             texts_lang1 = [corpus_lang1[doc_id] for doc_id, _ in doc_list if doc_id in corpus_lang1]
             texts_lang2 = [corpus_lang2[doc_id] for doc_id, _ in doc_list if doc_id in corpus_lang2]

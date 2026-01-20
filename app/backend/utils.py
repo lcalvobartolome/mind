@@ -170,7 +170,7 @@ def obtainTextColumn(email: str, dataset: str):
         return row.iloc[0]["textColumn"]
     
     except Exception as e:
-        print(f"ERROR: {e}")
+        print(f"ERROR: {str(e)}")
         return None
     
 def get_TM_detection(email: str, TM: str):
