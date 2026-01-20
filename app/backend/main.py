@@ -12,8 +12,8 @@ dotenv.load_dotenv()
 
 
 @app.before_request
-def cancel_active_pipeline_if_needed():
-    if request.path == "/log_detection" or request.path == "/detection/pipeline_status":
+def cancel_active_pipeline():
+    if request.path == "/log_detection" or request.path == "/pipeline_status" or request.path == "/detection/pipeline_status":
         return
 
     email = request.args.get("email") or request.args.get("user_id")
@@ -23,7 +23,7 @@ def cancel_active_pipeline_if_needed():
     if not email:
         return
     
-    from detection import active_processes, lock
+    from detection import active_processes, ACTIVE_OLLAMA_SERVERS, lock
     with lock:
         if email in active_processes:
             proc_info = active_processes[email]
@@ -32,6 +32,9 @@ def cancel_active_pipeline_if_needed():
 
             if proc.is_alive():
                 proc.terminate()
+
+            if proc_info['llm'] is not None:
+                ACTIVE_OLLAMA_SERVERS.remove(proc_info['llm'])
 
             del active_processes[email]
             print(active_processes)
@@ -43,8 +46,8 @@ def pipeline_status():
     email = data.get("email")
     TM = data.get("TM")
     topics = data.get("topics")
-    if not email:
-        return jsonify({"error": "No email provided"}), 400
+    if not email or not TM or not topics:
+        return jsonify({"error": "No email nor TM nor topics provided"}), 400
     
     from detection import active_processes, lock, OUTPUT_QUEUE
     with lock:

@@ -89,6 +89,19 @@ def segmenter():
                     sep=segmenter_data['sep']
                 )
 
+                print('All data segmented. Splitting by lang...')
+                
+                df_segmented = pd.read_parquet(f'{output_dir}/dataset', engine='pyarrow')
+
+                df_lang1 = df_segmented[df_segmented['lang'] == segmenter_data['src_lang'].upper()]
+                df_lang2 = df_segmented[df_segmented['lang'] == segmenter_data['tgt_lang'].upper()]
+
+                if df_lang1.empty or df_lang2.empty:
+                    raise ValueError(f"ERROR: DataFrame has no {segmenter_data['src_lang']} or {segmenter_data['tgt_lang']} language.")
+
+                df_lang1.to_parquet(f'{output_dir}/dataset_{segmenter_data['src_lang']}', engine='pyarrow')
+                df_lang2.to_parquet(f'{output_dir}/dataset_{segmenter_data['tgt_lang']}', engine='pyarrow')
+                
                 print(f'Finalize segmenting dataset {output_dir}')
 
             except Exception as e:
@@ -128,10 +141,10 @@ def translator():
                 raise Exception("Validation failed")
 
             # Creating new ID
-            df = pd.read_parquet(dataset_path, engine='pyarrow')
+            df = pd.read_parquet(f'{dataset_path}_{translator_data['src_lang']}', engine='pyarrow')
             df['lang'] = df['lang'].str.lower()
-            df["id_preproc"] = translator_data['src_lang'] + df["id_preproc"].astype(str)
-            df.to_parquet(f'{dataset_path}_temp', engine='pyarrow')
+            # df["id_preproc"] = translator_data['src_lang'] + df["id_preproc"].astype(str)
+            df.to_parquet(f'{dataset_path}_{translator_data['src_lang']}_temp', engine='pyarrow')
 
             # Translator
             print(f"Translating dataset {dataset}...")
@@ -141,8 +154,8 @@ def translator():
                 
                 # src -> tgt
                 trans.translate(
-                    path_df=f'{dataset_path}_temp',
-                    save_path=f'{output_dir}/dataset_{translator_data["tgt_lang"]}2{translator_data["src_lang"]}',
+                    path_df=f'{dataset_path}_{translator_data['src_lang']}_temp',
+                    save_path=f'{output_dir}/dataset_{translator_data["src_lang"]}2{translator_data["tgt_lang"]}',
                     src_lang=translator_data['src_lang'],
                     tgt_lang=translator_data['tgt_lang'],
                     text_col=translator_data['text_col'],
@@ -193,8 +206,8 @@ def preparer():
 
             try:
                 nlpipe_json = {
-                        "id": "id_preproc",
-                        "raw_text": "text",
+                        "id": preparer_data["schema"]["chunk_id"],
+                        "raw_text": preparer_data["schema"]["text"],
                         "title": ""
                     }
 

@@ -8,6 +8,11 @@ from flask import Blueprint, jsonify, request
 
 datasets_bp = Blueprint("datasets", __name__)
 DATASETS_STAGE = os.getenv("DATASETS_STAGE")
+MAX_WORDS_ROW = os.getenv("MAX_WORDS_ROW")
+try:
+    MAX_WORDS_ROW = int(MAX_WORDS_ROW)
+except:
+    MAX_WORDS_ROW = 100
 
 
 @datasets_bp.route("/create_user_folders", methods=["POST"])
@@ -101,7 +106,12 @@ def get_datasets():
         dataset_list, datasets_name, shapes = load_datasets(dataset_path, folders[i])
 
         # Convert DF into lists for JSON
-        dataset_preview = [df.head(5).to_dict(orient="records") for df in dataset_list]
+        dataset_preview = []
+
+        for df in dataset_list:
+            df_preview = df.head(5).copy()
+            df_preview = df_preview.map(lambda x: truncate_text(x, MAX_WORDS_ROW))
+            dataset_preview.append(df_preview.to_dict(orient="records"))
 
         final_dataset_preview.extend(dataset_preview)
         final_datasets_name.extend(datasets_name)
@@ -237,3 +247,12 @@ def load_datasets(dataset_path: str, folder: str):
                 shapes.append([0, 0])
 
     return dataset_list, datasets_name, shapes
+
+def truncate_text(text, max_words=100):
+    if not isinstance(text, str):
+        return text
+
+    words = text.split()
+    if len(words) > max_words:
+        return " ".join(words[:max_words]) + " ..."
+    return text

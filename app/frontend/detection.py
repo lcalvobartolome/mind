@@ -60,7 +60,7 @@ def getDocProportion(user_id: str, TM: str):
         response = requests.get(f"{MIND_WORKER_URL}/detection/doc_representation", json={"email": user_id, "TM": TM})
         if response.status_code == 200:
             data = response.json()
-            return data["docs_data"]
+            return data
 
         else:
             flash(f"Error loading doc proportion: {response.json().get('error')}", "danger")

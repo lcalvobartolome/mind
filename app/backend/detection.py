@@ -4,6 +4,7 @@ import re
 import sys
 import glob
 import json
+import yaml
 import string
 import requests
 import warnings
@@ -14,7 +15,7 @@ import pandas as pd
 from sklearn.manifold import MDS
 from collections import defaultdict
 from mind.cli import comma_separated_ints
-from multiprocessing import Event, Process, Queue
+from multiprocessing import Process, Queue
 from flask import Blueprint, jsonify, request, send_file
 from utils import get_TM_detection, obtain_langs_TM, obtainTextColumn, process_mind_results
 
@@ -29,8 +30,8 @@ OLLAMA_SERVER = {
 ACTIVE_OLLAMA_SERVERS = []
 
 active_processes = {}
-MAX_USERS = int(os.getenv('MAX_USERS', '2'))
 lock = threading.Lock()
+MAX_USERS = int(os.getenv('MAX_USERS', '2'))
 OUTPUT_QUEUE = Queue()
 
 ROWS_PER_PAGE = 15000
@@ -219,7 +220,6 @@ def getModels():
 def doc_representation():
     try:
         data = request.get_json()
-        print(data)
         email = data.get("email")
         TM = data.get("TM")
 
@@ -234,10 +234,19 @@ def doc_representation():
         textCol = obtainTextColumn(email, pathCorpus.replace('/dataset', '').split('/')[-1])
 
         df = pd.read_parquet(pathCorpus, engine='pyarrow')
-        ids = df['id_preproc'].astype(str).tolist()
-        texts = [
+        df1 = df[df["lang"] == lang[0]].copy()
+        df2 = df[df["lang"] == lang[1]].copy()
+
+        ids_1 = df1['doc_id'].astype(str).tolist()
+        texts_1 = [
             " ".join(text.split()[:80]) + "..." if len(text.split()) > 10 else text
-            for text in df[textCol].astype(str)
+            for text in df1[textCol].astype(str)
+        ]
+
+        ids_2 = df2['doc_id'].astype(str).tolist()
+        texts_2 = [
+            " ".join(text.split()[:80]) + "..." if len(text.split()) > 10 else text
+            for text in df2[textCol].astype(str)
         ]
         
         topic_docs = defaultdict(list)
@@ -266,21 +275,44 @@ def doc_representation():
                 for doc in range(len(topic_docs[k])):
                     topic_docs[k][doc][2] += f' ({lang[0].upper()}: {labels1[k].strip()} || {lang[1].upper()}: {labels2[k].strip()})'
 
-        num_docs = len(ids)
-        docs_data = [
+        docs_data_1 = [
             {
-                "id": ids[i],
-                "text": texts[i],
+                "id": ids_1[i],
+                "text": texts_1[i],
                 "topics": {}
             }
-            for i in range(num_docs)
+            for i in range(len(ids_1))
         ]
 
         for k, doc_list in topic_docs.items():
             for doc_id, prop, topic_name in doc_list:
-                docs_data[doc_id]["topics"][topic_name] = prop
+                try:
+                    docs_data_1[doc_id]["topics"][topic_name] = prop
+                except:
+                    continue
 
-        return jsonify({"docs_data": docs_data}), 200
+        docs_data_2 = [
+            {
+                "id": ids_2[i],
+                "text": texts_2[i],
+                "topics": {}
+            }
+            for i in range(len(ids_2))
+        ]
+
+        for k, doc_list in topic_docs.items():
+            for doc_id, prop, topic_name in doc_list:
+                try:
+                    docs_data_2[doc_id]["topics"][topic_name] = prop
+                except:
+                    continue
+
+        return jsonify({
+            "docs_data_1": docs_data_1,
+            "lang_1": lang[0],
+            "docs_data_2": docs_data_2,
+            "lang_2": lang[1]
+        }), 200
     
     except Exception as e:
         print(str(e))
@@ -290,18 +322,24 @@ def doc_representation():
 def pipeline_status():
     try:
         data = request.get_json()
-        if data['email'] in active_processes:
-            return jsonify({"status": "running"}), 200
-        else:
-            if os.path.exists(f'/data/{data['email']}/4_Detection/{data['TM']}_contradiction/{data['topics']}/mind_results.parquet'):
-                return jsonify({"status": "finished"}), 200
-            return jsonify({"status": "error"}), 500
+        global lock, active_processes
+        with lock:
+            if data['email'] in active_processes:
+                if active_processes[data['email']]['process'].is_alive():
+                    return jsonify({"status": "running"}), 200
+                elif os.path.exists(f'/data/{data['email']}/4_Detection/{data['TM']}_contradiction/{data['topics']}/mind_results.parquet'):
+                    return jsonify({"status": "finished"}), 200
+                return jsonify({"status": "error"}), 500
+            else:
+                if os.path.exists(f'/data/{data['email']}/4_Detection/{data['TM']}_contradiction/{data['topics']}/mind_results.parquet'):
+                    return jsonify({"status": "finished"}), 200
+                return jsonify({"status": "error"}), 500
             
     except Exception as e:
         print(e)
         return jsonify({"error": str(e)}), 500
 
-def run_pipeline_process(cfg, run_kwargs, log_file):
+def run_pipeline_process(cfg, run_kwargs, log_file, email):
     from mind.pipeline.pipeline import MIND
     global OUTPUT_QUEUE
     try:
@@ -325,9 +363,14 @@ def run_pipeline_process(cfg, run_kwargs, log_file):
         if cfg["env_path"] != None:
             if os.path.exists(cfg["env_path"]):
                 os.remove(cfg["env_path"])
+
+        global lock, active_processes
+        with lock:
+            if email in active_processes:
+                del active_processes[email]
         
         try:
-                ACTIVE_OLLAMA_SERVERS.remove(cfg['llm_model'])
+            ACTIVE_OLLAMA_SERVERS.remove(cfg['llm_model'])
         except:
             pass
         
@@ -382,7 +425,7 @@ def analyse_contradiction():
         source_corpus = {
             "corpus_path": pathCorpus,
             "thetas_path": f'{pathTM}/mallet_output/thetas_{lang[0]}.npz',
-            "id_col": 'id_preproc',
+            "id_col": 'doc_id',
             "passage_col": textCol,
             "full_doc_col": 'full_doc',
             "language_filter": lang[0],
@@ -394,7 +437,7 @@ def analyse_contradiction():
         target_corpus = {
             "corpus_path": pathCorpus,
             "thetas_path": f'{pathTM}/mallet_output/thetas_{lang[1]}.npz',
-            "id_col": 'id_preproc',
+            "id_col": 'doc_id',
             "passage_col": textCol,
             "full_doc_col": 'full_doc',
             "language_filter": lang[1],
@@ -420,9 +463,18 @@ def analyse_contradiction():
             "path_save": path_results
         }
 
+        # weight yaml
+        with open('/src/config/config.yaml', 'r') as f:
+            data = yaml.safe_load(f)
+
+        data['mind']['method'] = config['method']
+        data['mind']['do_weighting'] = config['do_weighting']
+
+        with open('/src/config/config.yaml', 'w') as f:
+            yaml.safe_dump(data, f, sort_keys=False)
+
         log_file = f'/data/{email}/pipeline-mind.log'
         global lock, active_processes
-        cancel_event = Event()
         with lock:
             if email not in active_processes and len(active_processes) >= MAX_USERS:
                 if cfg["env_path"] == None: ACTIVE_OLLAMA_SERVERS.remove(cfg['llm_model'])
@@ -434,14 +486,13 @@ def analyse_contradiction():
                 if prev_proc.is_alive():
                     print(f"Cancelling previous pipeline for {email}", file=sys.__stdout__)
                     prev_proc.terminate()
-                    # prev_proc.join()
                 if cfg["env_path"] == None: ACTIVE_OLLAMA_SERVERS.remove(cfg['llm_model'])
                 del active_processes[email]
 
-            p = Process(target=run_pipeline_process, args=(cfg, run_kwargs, log_file))
-            p.start()
+        p = Process(target=run_pipeline_process, args=(cfg, run_kwargs, log_file, email))
+        p.start()
 
-            active_processes[email] = {"process": p, "cancel_event": cancel_event}
+        active_processes[email] = {"process": p, "llm": cfg['llm_model']}
 
         return jsonify({"message": "Started"}), 200
     

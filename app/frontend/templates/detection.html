@@ -7,17 +7,103 @@
     {% if dataset_detection %}
     <h1>MIND Cultural discrepancy detection</h1>
     {% elif topic_keys %}
+    <link rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="mb-0" id="TopicModel-h3" TM-name="{{ topic_keys['topics'][0]['TM_name'] }}">
-            Select topics from the Topic Model "{{ topic_keys["topics"][0]["TM_name"] if topic_keys["topics"] else '' }}"
-        </h3>
+        <div class="d-flex align-items-center">
+            <h3 class="mb-0 mr-2" id="TopicModel-h3" TM-name="{{ topic_keys['topics'][0]['TM_name'] }}">
+                Select topics from the Topic Model "{{ topic_keys["topics"][0]["TM_name"] if topic_keys["topics"] else '' }}"
+            </h3>
+
+            <!-- Botón Info -->
+            <button type="button"
+                    class="btn btn-sm btn-outline-info"
+                    style="border-radius: 20px;"
+                    data-toggle="modal"
+                    data-target="#infoModal"
+                    title="Information">
+                <i class="fas fa-info-circle"></i>
+            </button>
+        </div>
 
         <div class="btn-group" role="group" aria-label="Visual/Text toggle">
             <button type="button" class="btn btn-primary active" id="btn-visual" data-no-warning>Visual</button>
             <button type="button" class="btn btn-outline-primary" id="btn-text" data-no-warning>Text</button>
-            {% if docs_data %}
-            <button type="button" class="btn btn-outline-primary" id="btn-docs" data-no-warning>Docs</button>
+            {% if docs_data_1 %}
+            <button type="button" class="btn btn-outline-primary" id="btn-docs1" data-no-warning>Docs {{ lang_1 }}</button>
             {% endif %}
+            {% if docs_data_2 %}
+            <button type="button" class="btn btn-outline-primary" id="btn-docs2" data-no-warning>Docs {{ lang_2 }}</button>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="infoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="infoModalLabel">Info</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <h6><strong>Visual / Text / Docs</strong></h6>
+                    <p>
+                        These modes control how the topics of the Topic Model are displayed and selected:
+                    </p>
+                    <ul>
+                        <li>
+                            <strong>Visual:</strong> Displays a graphical view where each topic is represented by a circle.
+                            Topics can be selected directly from the graph to analyze discrepancies.
+                        </li>
+                        <li>
+                            <strong>Text:</strong> Shows a list of topics along with their keywords for each language.
+                            Topics are selected from the list to analyze discrepancies.
+                        </li>
+                        <li>
+                            <strong>Docs:</strong> Displays a list of documents from the Topic Model.
+                            Each document includes a graph showing the proportion of topics within that document.
+                        </li>
+                    </ul>
+
+                    <hr>
+
+                    <h6><strong>Config Pipeline MIND</strong></h6>
+                    <p>
+                        Advanced configuration options to select the type of LLM to be used and the method
+                        for analyzing topic discrepancies.
+                    </p>
+
+                    <hr>
+
+                    <h6><strong>Analyze Discrepancies</strong></h6>
+                    <p>
+                        Analyzes discrepancies between the selected topics (from Visual or Text mode,
+                        depending on the active view) using a defined sample size.
+                    </p>
+                    <p class="text-danger">
+                        <strong>Important:</strong> Once the analysis starts, it is not possible to leave the page.
+                        Leaving the page will cancel the ongoing process.
+                    </p>
+
+                    <hr>
+
+                    <h6><strong>Check Status</strong></h6>
+                    <p>
+                        Displays the current status of the discrepancy analysis process in a terminal-like view
+                        once the analysis has started.
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+
+            </div>
         </div>
     </div>
     {% endif %}
@@ -106,15 +192,15 @@
         <!-- Option 1: Visual -->
         <div id="topicVis" style="display: block; width: 100%; height: 100%; overflow: hidden;"></div>
 
-        <!-- Option 3: Docs -->
-        {% if docs_data %}
+        <!-- Option 3: Docs lang1 -->
+        {% if docs_data_1 %}
 
-        <div id="topicDocs" style="display: none; width: 100%; height: 100%; position: relative; overflow: none;">        
-            <div id="topicDocsContent" 
+        <div id="topicDocs1" style="display: none; width: 100%; height: 100%; position: relative; overflow: none;">        
+            <div id="topicDocsContent1" 
                 style="overflow-y: auto; overflow-x: hidden; height: 100%; padding-bottom: 10px;">
             </div>
 
-            <div id="paginationContainer" 
+            <div id="paginationContainer1" 
                 class="d-flex justify-content-center align-items-center my-3"
                 style="
                     position: sticky;
@@ -129,9 +215,9 @@
 
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
-        const docsData = {{ docs_data | tojson | safe }};
-        const accordionContainer = document.getElementById('topicDocsContent');
-        const paginationContainer = document.getElementById('paginationContainer');
+        const docsData1 = {{ docs_data_1 | tojson | safe }};
+        const accordionContainer1 = document.getElementById('topicDocsContent1');
+        const paginationContainer1 = document.getElementById('paginationContainer1');
 
         const PAGE_SIZE = 100;
         let currentPage = 0;
@@ -147,20 +233,20 @@
             return colors;
         }
 
-        function clearPage() {
+        function clearPage1() {
             Object.values(activeCharts).forEach(chart => chart.destroy());
             activeCharts = {};
-            accordionContainer.innerHTML = '';
+            accordionContainer1.innerHTML = '';
         }
 
-        function renderPage(page) {
-            clearPage();
+        function renderPage1(page) {
+            clearPage1();
 
             const start = page * PAGE_SIZE;
-            const end = Math.min(start + PAGE_SIZE, docsData.length);
+            const end = Math.min(start + PAGE_SIZE, docsData1.length);
 
             for (let i = start; i < end; i++) {
-                const doc = docsData[i];
+                const doc = docsData1[i];
                 const index = i;
 
                 const docGroup = document.createElement('div');
@@ -224,7 +310,7 @@
                             activeCharts[index] = new Chart(canvas, {
                                 type: 'pie',
                                 data: {
-                                    labels: topicKeys.map(t => "Topic " + t),
+                                    labels: topicKeys.map(t => "Topic " + t.replace('(', '\n').replace(')', '').replace('||', '\n')),
                                     datasets: [{
                                         data: topicValues,
                                         backgroundColor: generateColors(topicKeys.length)
@@ -245,21 +331,20 @@
 
                 docGroup.appendChild(header);
                 docGroup.appendChild(contentDiv);
-                accordionContainer.appendChild(docGroup);
+                accordionContainer1.appendChild(docGroup);
             }
         }
 
-        function renderPagination() {
-            paginationContainer.innerHTML = '';
-            const totalPages = Math.ceil(docsData.length / PAGE_SIZE);
+        function renderPagination1() {
+            paginationContainer1.innerHTML = '';
+            const totalPages = Math.ceil(docsData1.length / PAGE_SIZE);
 
             const tempBtn = document.createElement('button');
             tempBtn.style.visibility = 'hidden';
             tempBtn.style.position = 'absolute';
             tempBtn.innerText = totalPages;
             document.body.appendChild(tempBtn);
-            const btnWidth = tempBtn.offsetWidth + 10;
-            document.body.removeChild(tempBtn);
+            let btnWidth = tempBtn.offsetWidth + 10;
 
             const createButton = (text, pageNum, disabled = false, active = false) => {
                 const btn = document.createElement('button');
@@ -269,13 +354,14 @@
                 if (active) btn.classList.add('active');
                 btn.addEventListener('click', () => {
                     currentPage = pageNum;
-                    renderPage(currentPage);
-                    renderPagination();
+                    renderPage1(currentPage);
+                    renderPagination1();
                 });
-                paginationContainer.appendChild(btn);
+                paginationContainer1.appendChild(btn);
             };
 
-            createButton('Prev', Math.max(0, currentPage - 1), currentPage === 0);
+            btnWidth = 60
+            createButton('Prev', 30, currentPage === 0);
 
             let startPage = Math.max(0, currentPage - Math.floor(MAX_BUTTONS / 2));
             let endPage = startPage + MAX_BUTTONS - 1;
@@ -284,6 +370,7 @@
                 startPage = Math.max(0, endPage - MAX_BUTTONS + 1);
             }
 
+            btnWidth = tempBtn.offsetWidth + 10;
             if (startPage > 0) {
                 createButton('1', 0);
                 if (startPage > 1) {
@@ -306,11 +393,212 @@
                 createButton(totalPages, totalPages - 1);
             }
 
-            createButton('Next', Math.min(totalPages - 1, currentPage + 1), currentPage === totalPages - 1);
+            btnWidth = 60;
+            createButton('Next', 30, currentPage === totalPages - 1);
+            document.body.removeChild(tempBtn);
         }
 
-        renderPage(currentPage);
-        renderPagination();
+        renderPage1(currentPage);
+        renderPagination1();
+        </script>
+        {% endif %}
+
+        <!-- Option 4: Docs lang2 -->
+        {% if docs_data_2 %}
+
+        <div id="topicDocs2" style="display: none; width: 100%; height: 100%; position: relative; overflow: none;">        
+            <div id="topicDocsContent2" 
+                style="overflow-y: auto; overflow-x: hidden; height: 100%; padding-bottom: 10px;">
+            </div>
+
+            <div id="paginationContainer2" 
+                class="d-flex justify-content-center align-items-center my-3"
+                style="
+                    position: sticky;
+                    bottom: -5vh;
+                    background: white;
+                    z-index: 10;
+                    padding: 10px 0;
+                    border-top: 1px solid #ccc;
+                ">
+            </div>
+        </div> 
+
+        <script>
+        const docsData2 = {{ docs_data_2 | tojson | safe }};
+        const accordionContainer2 = document.getElementById('topicDocsContent2');
+        const paginationContainer2 = document.getElementById('paginationContainer2');
+
+        currentPage = 0;
+        activeCharts = {};
+
+        function clearPage2() {
+            Object.values(activeCharts).forEach(chart => chart.destroy());
+            activeCharts = {};
+            accordionContainer2.innerHTML = '';
+        }
+
+        function renderPage2(page) {
+            clearPage2();
+
+            const start = page * PAGE_SIZE;
+            const end = Math.min(start + PAGE_SIZE, docsData2.length);
+
+            for (let i = start; i < end; i++) {
+                const doc = docsData2[i];
+                const index = i;
+
+                const docGroup = document.createElement('div');
+                docGroup.className = 'doc-group mb-3 border rounded-2 shadow-sm';
+
+                const header = document.createElement('div');
+                header.className =
+                    'dataset-header doc-header list-group-item fw-bold bg-light d-flex justify-content-between';
+                header.style.cursor = 'pointer';
+                header.innerHTML = `
+                    <div style="margin-left:15px;">Document ${doc.id}</div>
+                    <span class="chev" style="transition: transform .2s;">▸</span>
+                `;
+
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'list-group doc-content';
+                contentDiv.style.display = 'none';
+                contentDiv.dataset.initialized = "false";
+
+                header.addEventListener('click', () => {
+                    const chev = header.querySelector('.chev');
+                    const open = contentDiv.style.display === 'block';
+
+                    if (!open) {
+                        contentDiv.style.display = 'block';
+                        chev.style.transform = 'rotate(90deg)';
+
+                        if (contentDiv.dataset.initialized === "false") {
+                            contentDiv.dataset.initialized = "true";
+
+                            const flexDiv = document.createElement('div');
+                            flexDiv.style.display = 'flex';
+                            flexDiv.style.maxHeight = '350px';
+
+                            const leftDiv = document.createElement('div');
+                            leftDiv.style.flex = '1';
+                            leftDiv.style.padding = '10px';
+                            leftDiv.style.borderRight = '1px solid #ccc';
+                            leftDiv.innerHTML = `<h5 style="text-align:center;">Text</h5><hr><p>${doc.text}</p>`;
+
+                            const rightDiv = document.createElement('div');
+                            rightDiv.style.flex = '1';
+                            rightDiv.style.padding = '10px';
+                            rightDiv.style.textAlign = 'center';
+                            rightDiv.innerHTML = `<h5>Chart</h5><hr>`;
+
+                            const canvas = document.createElement('canvas');
+                            canvas.style.width = '200px';
+                            canvas.style.height = '200px';
+                            canvas.style.display = 'block';
+                            canvas.style.margin = '0 auto';
+                            rightDiv.appendChild(canvas);
+
+                            flexDiv.appendChild(leftDiv);
+                            flexDiv.appendChild(rightDiv);
+                            contentDiv.appendChild(flexDiv);
+
+                            const topicKeys = Object.keys(doc.topics);
+                            const topicValues = Object.values(doc.topics);
+
+                            activeCharts[index] = new Chart(canvas, {
+                                type: 'pie',
+                                data: {
+                                    labels: topicKeys.map(t => "Topic " + t.replace('(', '\n').replace(')', '').replace('||', '\n')),
+                                    datasets: [{
+                                        data: topicValues,
+                                        backgroundColor: generateColors(topicKeys.length)
+                                    }]
+                                },
+                                options: {
+                                    responsive: false,
+                                    maintainAspectRatio: false,
+                                    plugins: { legend: { display: false } }
+                                }
+                            });
+                        }
+                    } else {
+                        contentDiv.style.display = 'none';
+                        chev.style.transform = 'rotate(0deg)';
+                    }
+                });
+
+                docGroup.appendChild(header);
+                docGroup.appendChild(contentDiv);
+                accordionContainer2.appendChild(docGroup);
+            }
+        }
+
+        function renderPagination2() {
+            paginationContainer2.innerHTML = '';
+            const totalPages = Math.ceil(docsData2.length / PAGE_SIZE);
+
+            const tempBtn = document.createElement('button');
+            tempBtn.style.visibility = 'hidden';
+            tempBtn.style.position = 'absolute';
+            tempBtn.innerText = totalPages;
+            document.body.appendChild(tempBtn);
+            let btnWidth = tempBtn.offsetWidth + 10;
+
+            const createButton = (text, pageNum, disabled = false, active = false) => {
+                const btn = document.createElement('button');
+                btn.style.width = btnWidth + 'px';
+                btn.innerText = text;
+                if (disabled) btn.disabled = true;
+                if (active) btn.classList.add('active');
+                btn.addEventListener('click', () => {
+                    currentPage = pageNum;
+                    renderPage2(currentPage);
+                    renderPagination2();
+                });
+                paginationContainer2.appendChild(btn);
+            };
+
+            btnWidth = 60;
+            createButton('Prev', Math.max(0, currentPage - 1), currentPage === 0);
+
+            let startPage = Math.max(0, currentPage - Math.floor(MAX_BUTTONS / 2));
+            let endPage = startPage + MAX_BUTTONS - 1;
+            if (endPage >= totalPages) {
+                endPage = totalPages - 1;
+                startPage = Math.max(0, endPage - MAX_BUTTONS + 1);
+            }
+
+            btnWidth = tempBtn.offsetWidth + 10;
+            if (startPage > 0) {
+                createButton('1', 0);
+                if (startPage > 1) {
+                    const dots = document.createElement('span');
+                    dots.innerText = '...';
+                    paginationContainer.appendChild(dots);
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                createButton((i + 1), i, false, i === currentPage);
+            }
+
+            if (endPage < totalPages - 1) {
+                if (endPage < totalPages - 2) {
+                    const dots = document.createElement('span');
+                    dots.innerText = '...';
+                    paginationContainer.appendChild(dots);
+                }
+                createButton(totalPages, totalPages - 1);
+            }
+
+            btnWidth = 60;
+            createButton('Next', 30, currentPage === totalPages - 1);
+            document.body.removeChild(tempBtn);
+        }
+
+        renderPage2(currentPage);
+        renderPagination2();
         </script>
         {% endif %}
 
@@ -371,9 +659,11 @@
 
             const btnVisual = document.getElementById("btn-visual");
             const btnText = document.getElementById("btn-text");
-            const btnDocs = document.getElementById("btn-docs");
+            const btnDocs1 = document.getElementById("btn-docs1");
+            const btnDocs2 = document.getElementById("btn-docs2");
             const topicVis = document.getElementById("topicVis");
-            const topicDocs = document.getElementById("topicDocs");
+            const topicDocs1 = document.getElementById("topicDocs1");
+            const topicDocs2 = document.getElementById("topicDocs2");
             const topicAccordion = document.querySelector(".topic-accordion");
 
             function drawTopicVis(topicsData) {
@@ -523,15 +813,18 @@
             btnVisual.addEventListener("click", () => {
                 window.currentView = "visual";
                 topicVis.style.display = "block";
-                topicDocs.style.display = "none";
+                topicDocs1.style.display = "none";
+                topicDocs2.style.display = "none";
                 topicAccordion.style.display = "none";
 
                 btnVisual.classList.add("active", "btn-primary");
                 btnVisual.classList.remove("btn-outline-primary");
                 btnText.classList.remove("active", "btn-primary");
                 btnText.classList.add("btn-outline-primary");
-                btnDocs.classList.remove("active", "btn-primary");
-                btnDocs.classList.add("btn-outline-primary");
+                btnDocs1.classList.remove("active", "btn-primary");
+                btnDocs1.classList.add("btn-outline-primary");
+                btnDocs2.classList.remove("active", "btn-primary");
+                btnDocs2.classList.add("btn-outline-primary");
 
                 drawTopicVis(topics.topics);
             });
@@ -539,25 +832,48 @@
             btnText.addEventListener("click", () => {
                 window.currentView = "text";
                 topicVis.style.display = "none";
-                topicDocs.style.display = "none";
+                topicDocs1.style.display = "none";
+                topicDocs2.style.display = "none";
                 topicAccordion.style.display = "block";
 
                 btnText.classList.add("active", "btn-primary");
                 btnText.classList.remove("btn-outline-primary");
                 btnVisual.classList.remove("active", "btn-primary");
                 btnVisual.classList.add("btn-outline-primary");
-                btnDocs.classList.remove("active", "btn-primary");
-                btnDocs.classList.add("btn-outline-primary");
+                btnDocs1.classList.remove("active", "btn-primary");
+                btnDocs1.classList.add("btn-outline-primary");
+                btnDocs2.classList.remove("active", "btn-primary");
+                btnDocs2.classList.add("btn-outline-primary");
             });
 
-            btnDocs.addEventListener("click", () => {
+            btnDocs1.addEventListener("click", () => {
                 window.currentView = "docs";
                 topicVis.style.display = "none";
-                topicDocs.style.display = "block";
+                topicDocs1.style.display = "block";
+                topicDocs2.style.display = "none";
                 topicAccordion.style.display = "none";
 
-                btnDocs.classList.add("active", "btn-primary");
-                btnDocs.classList.remove("btn-outline-primary");
+                btnDocs1.classList.add("active", "btn-primary");
+                btnDocs1.classList.remove("btn-outline-primary");
+                btnDocs2.classList.remove("active", "btn-primary");
+                btnDocs2.classList.add("btn-outline-primary");
+                btnVisual.classList.remove("active", "btn-primary");
+                btnVisual.classList.add("btn-outline-primary");
+                btnText.classList.remove("active", "btn-primary");
+                btnText.classList.add("btn-outline-primary");
+            });
+
+            btnDocs2.addEventListener("click", () => {
+                window.currentView = "docs";
+                topicVis.style.display = "none";
+                topicDocs1.style.display = "none";
+                topicDocs2.style.display = "block";
+                topicAccordion.style.display = "none";
+
+                btnDocs1.classList.remove("active", "btn-primary");
+                btnDocs1.classList.add("btn-outline-primary");
+                btnDocs2.classList.add("active", "btn-primary");
+                btnDocs2.classList.remove("btn-outline-primary");
                 btnVisual.classList.remove("active", "btn-primary");
                 btnVisual.classList.add("btn-outline-primary");
                 btnText.classList.remove("active", "btn-primary");
@@ -1205,7 +1521,7 @@ document.addEventListener('DOMContentLoaded', function() {
         selector.style.opacity = '0.6';
         selector.classList.add('disabled');
 
-        const originalHTML = selector.innerHTML;
+        originalHTML = selector.innerHTML;
         selector.innerHTML = `
             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
             Waiting...
@@ -1365,7 +1681,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     <label for="server_ollama_input" class="me-2" style="width: 200px;">Ollama Server:</label>
                     <select id="server_ollama_input" class="form-control flex-grow-1">
                         {% for server in avaible_models.keys() %}
-                            <option value="{{ server }}">{{ server }}</option>
+                            {% if server == "kumo02" %}
+                                <option value="{{ server }}" selected>{{ server }}</option>
+                            {% else %}
+                                <option value="{{ server }}">{{ server }}</option>
+                            {% endif %}
                         {% endfor %}
                     </select>
                 </div>
@@ -1395,25 +1715,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div id="llmSelect_gpt" class="form-group mb-3 d-flex align-items-center" style="display: none;">
                     <label for="llmSelect_gpt_input" class="me-2" style="width: 200px;">GPT LLM:</label>
                     <select id="llmSelect_gpt_input" class="form-control flex-grow-1">
-                        <option value="gpt-4o-2024-08-06">gpt-4o-2024-08-06</option>
-                        <option value="gpt-4o-mini-2024-07-18">gpt-4o-mini-2024-07-18</option>
-                        <option value="chatgpt-4o-latest">chatgpt-4o-latest</option>
                         <option value="gpt-4-turbo">gpt-4-turbo</option>
-                        <option value="gpt-4-turbo-2024-04-09">gpt-4-turbo-2024-04-09</option>
                         <option value="gpt-4"selected>gpt-4</option>
-                        <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
                         <option value="gpt-4o-mini">gpt-4o-mini</option>
                         <option value="gpt-4o">gpt-4o</option>
-                        <option value="gpt-4-32k">gpt-4-32k</option>
-                        <option value="gpt-4-0125-preview">gpt-4-0125-preview</option>
-                        <option value="gpt-4-1106-preview">gpt-4-1106-preview</option>
-                        <option value="gpt-4-vision-preview">gpt-4-vision-preview</option>
-                        <option value="gpt-3.5-turbo-0125">gpt-3.5-turbo-0125</option>
-                        <option value="gpt-3.5-turbo-instruct">gpt-3.5-turbo-instruct</option>
-                        <option value="gpt-3.5-turbo-1106">gpt-3.5-turbo-1106</option>
-                        <option value="gpt-3.5-turbo-0613">gpt-3.5-turbo-0613</option>
-                        <option value="gpt-3.5-turbo-16k-0613">gpt-3.5-turbo-16k-0613</option>
-                        <option value="gpt-3.5-turbo-0301">gpt-3.5-turbo-0301</option>
                     </select>
                 </div>
 
@@ -1424,14 +1729,33 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 <hr>
 
-                <div class="form-group mb-3 d-flex align-items-center">
-                    <label for="methodSelect" class="me-2" style="width: 200px;">Method:</label>
+                <div class="d-flex align-items-center mb-2">
+                    <label for="methodSelect"
+                        class="me-2"
+                        style="width: 200px; margin-bottom: 0;">
+                        Method:
+                    </label>
                     <select id="methodSelect" class="form-control flex-grow-1">
                         <option value="ENN">ENN</option>
                         <option value="ANN">ANN</option>
                         <option value="TB-ENN" selected>TB-ENN</option>
                         <option value="TB-ANN">TB-ANN</option>
                     </select>
+                </div>
+
+                <div class="d-flex align-items-center">
+                    <label for="enableWeight"
+                        class="me-2"
+                        style="width: 200px; margin-bottom: 0;">
+                        Do Weighting:
+                    </label>
+                    <div class="form-control d-flex align-items-center flex-grow-1"
+                        style="height: auto; border: none; padding-left: 0;">
+                        <input type="checkbox"
+                            id="enableWeight"
+                            checked
+                            style="width: 18px; height: 18px; cursor: pointer;">
+                    </div>
                 </div>
             </div>
         </div>
@@ -1576,7 +1900,7 @@ $(document).ready(function() {
         text-decoration: underline;
     }
 
-    #topicDocs {
+    #topicDocs1 {
         width: 100%;
         height: 100%;
         position: relative;
@@ -1584,22 +1908,36 @@ $(document).ready(function() {
         padding: 0;
         box-sizing: border-box;
     }
-    #topicDocsContent {
+    #topicDocsContent1 {
         height: 100%;
         width: 100%;
         padding: 0;
         box-sizing: border-box;
     }
 
-    #paginationContainer {
+    #topicDocs2 {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    #topicDocsContent2 {
+        height: 100%;
+        width: 100%;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    #paginationContainer1 {
         display: flex;
         justify-content: center;
         align-items: center;
         flex-wrap: wrap;
         gap: 0;
     }
-
-    #paginationContainer button {
+    #paginationContainer1 button {
         margin: 0;
         padding: 5px 10px;
         border-radius: 4px;
@@ -1609,19 +1947,47 @@ $(document).ready(function() {
         text-align: center;
         flex: 0 0 auto;
     }
-
-    #paginationContainer button.active {
+    #paginationContainer1 button.active {
         background-color: #007bff;
         color: white;
         border-color: #007bff;
     }
-
-    #paginationContainer button:disabled {
+    #paginationContainer1 button:disabled {
         opacity: 0.5;
         cursor: not-allowed;
     }
+    #paginationContainer1 span {
+        margin: 0 5px;
+        padding: 5px 0;
+    }
 
-    #paginationContainer span {
+    #paginationContainer2 {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0;
+    }
+    #paginationContainer2 button {
+        margin: 0;
+        padding: 5px 10px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        background-color: #f0f0f0;
+        cursor: pointer;
+        text-align: center;
+        flex: 0 0 auto;
+    }
+    #paginationContainer2 button.active {
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
+    }
+    #paginationContainer2 button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    #paginationContainer2 span {
         margin: 0 5px;
         padding: 5px 0;
     }
@@ -1853,13 +2219,17 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 <script>
+let originalHTML = '';
 function startPipelinePolling(TM, topics) {
+    const selector = document.querySelector(`#analyze_contradictions`);
     const interval = setInterval(() => {
         fetch(`/pipeline_status?TM=${encodeURIComponent(TM)}&topics=${encodeURIComponent(topics)}`)
             .then(res => res.json())
             .then(data => {
+                console.log(data);
                 if (data.status === 'finished') {
                     clearInterval(interval);
+                    shouldWarn = false;
 
                     window.location.href = `/detection_results?TM=${encodeURIComponent(TM)}&topics=${encodeURIComponent(topics)}`;
                 } else if (data.status === 'error') {
@@ -1870,11 +2240,11 @@ function startPipelinePolling(TM, topics) {
                     selector.classList.remove('disabled');
                     selector.innerHTML = originalHTML;
                     shouldWarn = false;
-                    console.error("Error en el backend");
                 }
             })
             .catch(err => {
                 console.error("Error checking pipeline status:", err);
+                clearInterval(interval);
             });
     }, 2000);
 }
@@ -1983,7 +2353,8 @@ class MINDInterface {
                     "llm": llm_model,
                     "gpt_api": gpt_api,
                     "ollama_server": ollama_server,
-                    "method": document.getElementById("methodSelect").value
+                    "method": document.getElementById("methodSelect").value,
+                    "do_weighting": document.getElementById("enableWeight").checked ? true : false
                 };
                 this.handleInstruction(instruction, topics, TM, sampleSizeInput, config)
             });
@@ -2040,7 +2411,7 @@ class MINDInterface {
         selector.style.opacity = '0.6';
         selector.classList.add('disabled');
 
-        const originalHTML = selector.innerHTML;
+        originalHTML = selector.innerHTML;
         selector.innerHTML = `
             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
             Waiting...
@@ -2063,7 +2434,6 @@ class MINDInterface {
                 startPipelinePolling(TM, topics);
             } else {
                 shouldWarn = false;
-                console.error("Error al recibir respuesta del backend");
                 selector.style.pointerEvents = 'auto';
                 selector.style.opacity = '1';
                 selector.classList.remove('disabled');

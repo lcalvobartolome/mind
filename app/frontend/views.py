@@ -39,6 +39,7 @@ def home():
 @login_required_custom
 def detection_AllResults_page():
     user_id = session.get('user_id')
+    dataset_detection = {}
     try:
         response = requests.get(f"{MIND_WORKER_URL}/datasets", params={"email": user_id})
         if response.status_code == 200:
@@ -50,11 +51,14 @@ def detection_AllResults_page():
         else:
             flash(f"Error loading datasets: {response.text}", "danger")
             datasets, names, shapes, stages = [], [], [], []
+        
+        dataset_detection = getTMDatasets(user_id)
+
     except requests.exceptions.RequestException:
         flash("Backend service unavailable.", "danger")
         datasets, names, shapes, stages = [], [], [], []
 
-    return render_template("detection_results.html", user_id=user_id, datasets=datasets, names=names, shape=shapes, stages=stages, zip=zip)
+    return render_template("detection_results.html", user_id=user_id, datasets=datasets, names=names, shape=shapes, stages=stages, dataset_detection=dataset_detection, zip=zip)
 
 @views.route('/dataset_selection', methods=['POST'])
 @login_required_custom
@@ -130,7 +134,7 @@ def pipeline_status():
     topics = request.args.get("topics")
 
     try:
-        response = requests.get(f"{MIND_WORKER_URL}/detection/pipeline_status", json={"email": email, "TM": TM, "topics": topics})
+        response = requests.get(f"{MIND_WORKER_URL}/pipeline_status", json={"email": email, "TM": TM, "topics": topics})
         data = response.json()
         return data
 
@@ -257,7 +261,7 @@ def detection_page():
     dataset_detection = {}
     topic_keys = {}
     avaible_models = []
-    doc_proportion = []
+    doc_proportion = {"lang_1": "", "lang_2": "", "docs_data_1": [], "docs_data_2": []}
 
     if request.method == 'GET':
         dataset_detection = getTMDatasets(user_id)
@@ -279,7 +283,18 @@ def detection_page():
             avaible_models = getModels()
             doc_proportion = getDocProportion(user_id, session["TM"])
 
-    return render_template("detection.html", user_id=user_id, status=status, dataset_detection=dataset_detection, topic_keys=topic_keys, mind_info=mind_info, avaible_models=avaible_models, docs_data=doc_proportion)
+    return render_template("detection.html",
+                           user_id=user_id,
+                           status=status,
+                           dataset_detection=dataset_detection,
+                           topic_keys=topic_keys,
+                           mind_info=mind_info,
+                           avaible_models=avaible_models,
+                           lang_1=doc_proportion["lang_1"],
+                           docs_data_1=doc_proportion["docs_data_1"],
+                           lang_2=doc_proportion["lang_2"],
+                           docs_data_2=doc_proportion["docs_data_2"]
+                           )
 
 @views.route('/detection_topickeys', methods=['POST'])
 @login_required_custom
@@ -336,6 +351,9 @@ def detection_page_topickeys_get():
         dataset_detection=dataset_detection,
         topic_keys=topic_keys,
         avaible_models=avaible_models,
-        docs_data=doc_proportion,
+        lang_1=doc_proportion["lang_1"],
+        docs_data_1=doc_proportion["docs_data_1"],
+        lang_2=doc_proportion["lang_2"],
+        docs_data_2=doc_proportion["docs_data_2"],
         mind_info=mind_info
     )

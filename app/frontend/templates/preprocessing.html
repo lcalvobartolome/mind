@@ -247,9 +247,15 @@
         <hr>
 
         <!-- Label Topic Option -->
-        <div class="form-group mb-3 align-items-center">
-            <input type="checkbox" id="enableLabelTopic">
-            <label for="enableLabelTopic">Label Topic</label>
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <label for="enableLabelTopic" class="mb-0 mr-2">
+                Label Topic
+            </label>
+
+            <div class="custom-control custom-switch m-0" style="padding-right: 15px;">
+                <input type="checkbox" class="custom-control-input" id="enableLabelTopic">
+                <label class="custom-control-label" for="enableLabelTopic"></label>
+            </div>
         </div>
 
         <hr>
@@ -276,7 +282,11 @@
                 <label for="server_ollama_input" class="me-2" style="width: 200px;">Ollama Server:</label>
                 <select id="server_ollama_input" class="form-control flex-grow-1">
                     {% for server in models.keys() %}
-                        <option value="{{ server }}">{{ server }}</option>
+                        {% if server == "kumo02" %}
+                            <option value="{{ server }}" selected>{{ server }}</option>
+                        {% else %}
+                            <option value="{{ server }}">{{ server }}</option>
+                        {% endif %}
                     {% endfor %}
                 </select>
             </div>
@@ -298,6 +308,12 @@
                     option.textContent = model;
                     modelSelect.appendChild(option);
                 });
+
+                const option = document.createElement("option");
+                option.value = "llama3.1:8b";
+                option.textContent = "llama3.1:8b";
+                option.selected = true;
+                modelSelect.appendChild(option);
             }
             serverSelect.addEventListener("change", updateModels);
             updateModels();
@@ -306,25 +322,10 @@
             <div id="llmSelect_gpt" class="form-group mb-3 d-flex align-items-center" style="display: none;">
                 <label for="llmSelect_gpt_input" class="me-2" style="width: 200px;">GPT LLM:</label>
                 <select id="llmSelect_gpt_input" class="form-control flex-grow-1">
-                    <option value="gpt-4o-2024-08-06">gpt-4o-2024-08-06</option>
-                    <option value="gpt-4o-mini-2024-07-18">gpt-4o-mini-2024-07-18</option>
-                    <option value="chatgpt-4o-latest">chatgpt-4o-latest</option>
                     <option value="gpt-4-turbo">gpt-4-turbo</option>
-                    <option value="gpt-4-turbo-2024-04-09">gpt-4-turbo-2024-04-09</option>
                     <option value="gpt-4"selected>gpt-4</option>
-                    <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
                     <option value="gpt-4o-mini">gpt-4o-mini</option>
                     <option value="gpt-4o">gpt-4o</option>
-                    <option value="gpt-4-32k">gpt-4-32k</option>
-                    <option value="gpt-4-0125-preview">gpt-4-0125-preview</option>
-                    <option value="gpt-4-1106-preview">gpt-4-1106-preview</option>
-                    <option value="gpt-4-vision-preview">gpt-4-vision-preview</option>
-                    <option value="gpt-3.5-turbo-0125">gpt-3.5-turbo-0125</option>
-                    <option value="gpt-3.5-turbo-instruct">gpt-3.5-turbo-instruct</option>
-                    <option value="gpt-3.5-turbo-1106">gpt-3.5-turbo-1106</option>
-                    <option value="gpt-3.5-turbo-0613">gpt-3.5-turbo-0613</option>
-                    <option value="gpt-3.5-turbo-16k-0613">gpt-3.5-turbo-16k-0613</option>
-                    <option value="gpt-3.5-turbo-0301">gpt-3.5-turbo-0301</option>
                 </select>
             </div>
 
@@ -545,6 +546,31 @@
         transform: translateX(-100%);
         z-index: 1;
     }
+
+    .custom-switch {
+        padding-left: 2.25rem;
+    }
+
+    .custom-switch .custom-control-label::before {
+        left: -2.25rem;
+        width: 2.75rem;
+        height: 1.5rem;
+        border-radius: 1rem;
+    }
+
+    .custom-switch .custom-control-label::after {
+        top: calc(.25rem + 2px);
+        left: calc(-2.25rem + 2px);
+        width: calc(1.5rem - 4px);
+        height: calc(1.5rem - 4px);
+        border-radius: 50%;
+        background-color: #fff;
+        transition: transform .15s ease-in-out;
+    }
+
+    .custom-switch .custom-control-input:checked ~ .custom-control-label::after {
+        transform: translateX(1.25rem);
+    }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
@@ -659,7 +685,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 "text_col": textColumn,
                 "id_col": idColumn,
                 "min_length": minLength,
-                "sep": separator
+                "sep": separator,
+                "src_lang": document.getElementById('SourceLanguage').value,
+                "tgt_lang": document.getElementById('TargetLanguage').value
             }
 
             const translator_data = {
@@ -676,10 +704,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 "tgt_lang": document.getElementById('TargetLanguage').value,
                 "schema": {
                     "chunk_id": "id_preproc",
-                    "doc_id": "id",
+                    "doc_id": idColumn,
                     "text": textColumn,
                     "full_doc": "full_doc",
-                    "lang": "lang",
+                    "lang": document.getElementById('LanguageColumnTranslator').value.trim(),
                 }
             }
 
@@ -1206,9 +1234,10 @@ document.addEventListener('DOMContentLoaded', function() {
         ' - Language Column\t\tName of the language column.';
 
     document.getElementById('details2-TopicModeling-text').textContent = 'The Topic Modeling Component allows to train a Mallet Polylingual Topic Model using PolylingualTM wrapper. Options:\n\n' +
-        ' - Lang 1\t\t\tFirst language code.\n' +
-        ' - Lang 2\t\t\tSecond language code.\n' +
-        ' - K Topics\t\tNumber of topics to extract.';
+        ' - Lang 1\t\t\t\tFirst language code.\n' +
+        ' - Lang 2\t\t\t\tSecond language code.\n' +
+        ' - K Topics\t\t\tNumber of topics to extract.\n' +
+        ' - Label Topic\t\tCreates a label for each topic to clasify the documents.';
 
     const toggles = document.querySelectorAll('.details-toggle');
 
