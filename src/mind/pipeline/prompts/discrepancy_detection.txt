@@ -46,4 +46,4 @@ QUESTION: {question}
 ANSWER_1: {answer_1}  
 ANSWER_2: {answer_2}  
 
-Before answering, consider whether the answers could be true in different cultural contexts.
+Before answering, consider whether the answers could be true in different cultural contexts. It is mandatory that you answer the DISCREPANCY_TYPE with one of the four categories specified.

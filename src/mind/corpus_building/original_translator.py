@@ -22,7 +22,6 @@ class Translator:
         self._logger = logger if logger else init_logger(config_path, __name__)
         self.models = {}
         self.tokenizers = {}
-        #añadir los opus de español italiano
         self.supported = {
             ("en", "es"): "Helsinki-NLP/opus-mt-en-es",
             ("es", "en"): "Helsinki-NLP/opus-mt-es-en",
@@ -30,8 +29,8 @@ class Translator:
             ("de", "en"): "Helsinki-NLP/opus-mt-de-en",
             ("en", "it"): "Helsinki-NLP/opus-mt-en-it",
             ("it", "en"): "Helsinki-NLP/opus-mt-it-en",
-            ("it", "es"): "Helsinki-NLP/opus-mt-it-es", #añadido
             ("es", "it"): "Helsinki-NLP/opus-mt-es-it", #añadido
+            ("it", "es"): "Helsinki-NLP/opus-mt-it-es", #añadido
 
         }
         self.translated_df = None
@@ -39,7 +38,7 @@ class Translator:
     def _add_pair(self, src, tgt, repo):
         self.models[(src, tgt)] = pipeline("translation", model=repo)
         self.tokenizers[(src, tgt)] = AutoTokenizer.from_pretrained(repo)
-    '''
+
     def _split(
         self,
         df: pd.DataFrame,
@@ -53,8 +52,8 @@ class Translator:
         based on the translation tokenizer for (src->tgt). Keeps all metadata columns.
         """
         tok = self.tokenizers[(src_lang, tgt_lang)]
-        #model_max = getattr(tok, "model_max_length", 512) cambio
-        max_tokens = 256 #int(model_max * 0.9)
+        model_max = getattr(tok, "model_max_length", 512)
+        max_tokens = int(model_max * 0.9)
 
         def token_len(text: str) -> int:
             return len(tok.encode(text, truncation=False))
@@ -67,56 +66,13 @@ class Translator:
             sentences = [s for s in str(row[text_col]).split(". ") if s]
             any_kept = False
             for j, s in enumerate(sentences):
-
-                tokens = tok.encode(
-                    s,
-                    truncation=False
-                )
-
-                # Split oversized sentences
-                if len(tokens) > max_tokens:
-
-                    for k in range(0, len(tokens), max_tokens):
-
-                        sub_tokens = tokens[k:k + max_tokens]
-
-                        sub_text = tok.decode(
-                            sub_tokens,
-                            skip_special_tokens=True
-                        )
-
-                        entry = {
-                            col: row.get(col, None)
-                            for col in orig_cols
-                        }
-
-                        entry[text_col] = sub_text
-                        entry[lang_col] = row[lang_col]
-                        entry["index"] = None
-                        entry["id_preproc"] = (
-                            f"{row.get('id_preproc', '')}_{j}_{k}"
-                        )
-
-                        rows.append(entry)
-
-                        any_kept = True
-
-                else:
-
-                    entry = {
-                        col: row.get(col, None)
-                        for col in orig_cols
-                    }
-
+                if token_len(s) < max_tokens:
+                    entry = {col: row.get(col, None) for col in orig_cols}
                     entry[text_col] = s
                     entry[lang_col] = row[lang_col]
-                    entry["index"] = None
-                    entry["id_preproc"] = (
-                        f"{row.get('id_preproc', '')}_{j}"
-                    )
-
+                    entry['index'] = None  # will set below
+                    entry['id_preproc'] = f"{row.get('id_preproc', '')}_{j}"
                     rows.append(entry)
-
                     any_kept = True
             if not any_kept:
                 dropped_ids.add(row.get("id_preproc", None))
@@ -127,64 +83,7 @@ class Translator:
         out = pd.DataFrame(rows)
         out["index"] = range(len(out))
         return out
-    '''
-    def _split(
-        self,
-        df: pd.DataFrame,
-        src_lang: str,
-        tgt_lang: str,
-        text_col: str = "text",
-        lang_col: str = "lang"
-    ) -> pd.DataFrame:
 
-        tok = self.tokenizers[(src_lang, tgt_lang)]
-
-        max_tokens = 256
-
-        orig_cols = list(df.columns)
-
-        rows = []
-
-        for _, row in df.iterrows():
-
-            text = str(row[text_col])
-
-            # TOKENIZE ONLY ONCE
-            all_tokens = tok.encode(
-                text,
-                truncation=False
-            )
-
-            for j in range(0, len(all_tokens), max_tokens):
-
-                sub_tokens = all_tokens[j:j + max_tokens]
-
-                sub_text = tok.decode(
-                    sub_tokens,
-                    skip_special_tokens=True
-                )
-
-                entry = {
-                    col: row.get(col, None)
-                    for col in orig_cols
-                }
-
-                entry[text_col] = sub_text
-                entry[lang_col] = row[lang_col]
-                entry["index"] = None
-                entry["id_preproc"] = (
-                    f"{row.get('id_preproc', '')}_{j}"
-                )
-
-                rows.append(entry)
-
-        out = pd.DataFrame(rows)
-
-        out["index"] = range(len(out))
-
-        return out
-
-    '''
     def _translate_split(
         self,
         split_df: pd.DataFrame,
@@ -215,50 +114,12 @@ class Translator:
         model = self.models[(src_lang, tgt_lang)]
 
         def translate_batch(batch):
-            out = model(batch[text_col], batch_size = 4, truncation = True, max_length = 512) #cambio
+            out = model(batch[text_col])
             batch["translated_text"] = [o["translation_text"] for o in out]
             return batch
 
         ds = ds.map(translate_batch, batched=True)
         return ds.to_pandas()["translated_text"]
-    '''
-    def _translate_split(
-        self,
-        split_df: pd.DataFrame,
-        src_lang: str,
-        tgt_lang: str,
-        text_col: str = "text"
-    ) -> pd.Series:
-
-        model = self.models[(src_lang, tgt_lang)]
-
-        batch_size = 4
-        chunk_size = 2000
-
-        translated = []
-
-        texts = split_df[text_col].astype(str).tolist()
-
-        for i in tqdm(range(0, len(texts), chunk_size)):
-            print(
-                f"[TRANSLATE] Translating rows "
-                f"{i} - {min(i + chunk_size, len(texts))}"
-            )
-
-            chunk = texts[i:i + chunk_size]
-
-            out = model(
-                chunk,
-                batch_size=batch_size,
-                truncation=True,
-                max_length=256
-            )
-
-            translated.extend(
-                [o["translation_text"] for o in out]
-            )
-
-        return pd.Series(translated)
 
     def _assemble(
         self,

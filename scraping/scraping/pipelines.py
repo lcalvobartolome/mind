@@ -21,7 +21,8 @@ from scrapy.exceptions import DropItem
 TOPICOS_MATERNIDAD = [
     "embarazo", "gestación", "parto", "cesárea",
     "lactancia", "amamantamiento", "alimentación",
-    "posparto", "bebé", "recién nacido", "pediatría", "crianza"
+    "posparto", "bebé", "recién nacido", "pediatría", "crianza", "nutrición",
+    "pecho", "mamas", "mama", "ecografía", "adolescencia", "madre"
 ]
 
 

@@ -4,7 +4,12 @@ from pathlib import Path
 import pandas as pd # type: ignore
 import numpy as np
 from scipy import sparse
-from mind.pipeline.retriever import IndexRetriever
+try:
+    from mind.pipeline.retriever import IndexRetriever
+except ImportError:
+    IndexRetriever = None
+
+#from mind.pipeline.retriever import IndexRetriever este comentario es temporal
 from mind.utils.utils import init_logger
 import pyarrow.parquet as pq # type: ignore
 
@@ -113,9 +118,12 @@ class Corpus:
             df["main_topic_thetas"] = df["thetas"].apply(lambda x: int(np.argmax(x)))
         else:
             if row_top_k not in df.columns:
-                raise ValueError(f"Column {row_top_k} not found in dataframe. If thetas are not precomputed, please set load_thetas=True to compute them from thetas_path.")
+                logger.warning(f"{row_top_k} not found. Skipping topic info.")
+
+                df[row_top_k] = [[] for _ in range(len(df))]
+
+                df["main_topic_thetas"] = 0
             
-                return
             
             logger.info("Using precomputed thetas")
             # get "main_topic_thetas" from row_top_k
@@ -125,7 +133,15 @@ class Corpus:
                 array([2.        , 0.06667581]), array([1.        , 0.04908134]),
                 array([4.        , 0.02971561])], dtype=object)
             """
-            df["main_topic_thetas"] = df[row_top_k].apply(lambda x: int(x[0][0]))
+            def safe_main_topic(x):
+                if isinstance(x, (list, tuple)) and len(x) > 0:
+                    try:
+                        return int(x[0][0])
+                    except:
+                        return 0
+                return 0
+
+            df["main_topic_thetas"] = df[row_top_k].apply(safe_main_topic)
         
         if filter_ids is not None:
             # remove rows from df whose id_col is in filter_ids
@@ -162,7 +178,8 @@ class Corpus:
         self._logger.info(f"Found {len(df_topic)} chunks for topic {topic_id}")
         
         for _, row in df_topic.iterrows():
-            metadata = {"top_k": row[self.row_top_k]}
+            metadata = {"top_k": row[self.row_top_k],
+                        "summary": row.get("summary_mt5", "")}
 
             if "questions" in row and pd.notna(row["questions"]):
                 q_raw = row["questions"]

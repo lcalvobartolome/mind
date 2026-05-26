@@ -4,7 +4,7 @@ from scraping.extraction_utils import parse_document, KEYWORDS_MATERNIDAD
 
 
 class WikiMaternidadSpider(scrapy.Spider):
-    name = "wiki_maternidad"
+    name = "wiki_maternidad_todrop"
     allowed_domains = ["wikipedia.org"]
 
     start_urls = [
@@ -17,25 +17,65 @@ class WikiMaternidadSpider(scrapy.Spider):
     ]
 
     custom_settings = {
-        "CLOSESPIDER_ITEMCOUNT": 500
+        "CLOSESPIDER_ITEMCOUNT": 600,
+        "DEPTH_LIMIT":3
     }
 
     def parse(self, response):
-        texto = response.css("div.mw-parser-output > p *::text").getall()
-        texto = " ".join(texto)
+        texto_parts = response.css(
+            "div.mw-parser-output > p *::text"
+        ).getall()
 
-        texto_lower = texto.lower()
-        has_keyword = any(
-            kw in texto_lower for kw in KEYWORDS_MATERNIDAD
+        texto = " ".join(
+            t.strip() for t in texto_parts if t.strip()
         )
 
-        if not has_keyword:
-            return
+        if texto:
+            texto_lower = texto.lower()
 
-        yield ScrapingItem(
-            fuente="wikipedia",
-            title=response.css('span.mw-page-title-main::text').get(),
-            content=texto,
-            url=response.url,
-            has_keyword=has_keyword,
-        )
+            has_keyword = any(
+                kw in texto_lower for kw in KEYWORDS_MATERNIDAD
+            )
+
+            if has_keyword:
+                yield ScrapingItem(
+                    fuente="wikipedia",
+                    title=response.css(
+                        "span.mw-page-title-main::text"
+                    ).get(),
+                    content=texto,
+                    url=response.url,
+                    has_keyword=has_keyword,
+                )
+
+        enlaces = response.css(
+            "div.mw-parser-output a::attr(href)"
+        ).getall()
+
+        for href in enlaces:
+            if not href:
+                continue
+
+            if not href.startswith("/wiki/"):
+                continue
+
+            if any(ns in href for ns in [
+                ":",
+                "#",
+                "Archivo:",
+                "File:",
+                "Help:",
+                "Especial:",
+                "Special:",
+                "Categoría:",
+                "Category:",
+                "Plantilla:",
+                "Template:",
+                "Wikipedia:"
+            ]):
+                continue
+
+            yield response.follow(
+                href,
+                callback=self.parse
+            )

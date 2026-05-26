@@ -3,16 +3,30 @@ import time
 from pathlib import Path
 from typing import Union
 
-import faiss  # type: ignore
+# ---- OPTIONAL DEPENDENCIES ----
+try:
+    import faiss
+except ImportError:
+    faiss = None
+
+try:
+    from kneed import KneeLocator
+except ImportError:
+    KneeLocator = None
+
+# ---- CORE LIBRARIES ----
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
-from kneed import KneeLocator  # type: ignore
-from mind.pipeline.utils import get_doc_top_tpcs
-from mind.utils.utils import init_logger
 from scipy import sparse
 from scipy.ndimage import uniform_filter1d
-from sentence_transformers import SentenceTransformer, util  # type: ignore
 from tqdm import tqdm  # type: ignore
+
+# ---- PROJECT IMPORTS ----
+from mind.pipeline.utils import get_doc_top_tpcs
+from mind.utils.utils import init_logger
+
+# ---- MODELS ----
+from sentence_transformers import SentenceTransformer, util  # type: ignore
 
 
 class IndexRetriever:

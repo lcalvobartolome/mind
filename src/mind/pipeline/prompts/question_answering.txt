@@ -1,25 +1,53 @@
-Riceverai informazioni in inglese, spagnolo o italiano. Ci saranno una QUESTION e un PASSAGE. 
+Recibirás una QUESTION, un PASSAGE y un fragmento del FULL_DOCUMENT donde aparece el PASSAGE.
+Tu tarea es decidir si la QUESTION puede responderse con base en la información proporcionada y responder en consecuencia.
 
-Il tuo compito consiste nel determinare se il PASSAGE risponde direttamente alla QUESTION.
+#### INSTRUCCIONES DE LA TAREA ####
+-Base your decision primarily on the PASSAGE.
+-Use the FULL_DOCUMENT only to clarify context if the PASSAGE is unclear or incomplete.
+-Do not use outside knowledge.
+-Answer in English.
+-Respond as a chatbot answering a user.
+-Do not mention “the passage,” “the text,” or where the information comes from.
+-Keep the response natural, direct, and informative.
 
-#### ISTRUZIONI PER IL COMPITO ####
-- Basa la tua risposta esclusivamente sul PASSAGGIO fornito.
-- Non utilizzare il FULL_DOCUMENT né conoscenze esterne.
-- Non menzionare “il passaggio”, “il testo” né fare riferimento alla fonte delle informazioni.
-- Mantieni la risposta naturale, diretta e informativa.
-- Sono coinvolte diverse lingue, ti preghiamo di rispondere in inglese.
-- Se non disponi delle informazioni necessarie per dare una risposta, la risposta deve essere “Non posso rispondere dato il contesto”.
+#### RESPUESTAS POSIBLES ####
+You must choose one of the following:
+YES → Hay información suficiente para responder afirmativamente a la QUESTION.
+NO → Hay información suficiente para responder negativamente a la QUESTION.
+I CANNOT ANSWER → No hay información suficiente para justificar ni YES ni NO.
+“I CANNOT ANSWER” must always be treated as the last option.
 
-#### FORMATO DI USCITA ####
-YES. - Una breve spiegazione del ragionamento.
-NO. - Una breve spiegazione del ragionamento.
+#### PRIORIDAD EN LA DECISIÓN ####
+When deciding the answer, follow this order:
+If the PASSAGE clearly supports a YES answer → ANSWER = YES.
+If the PASSAGE clearly supports a NO answer → ANSWER = NO.
+If the PASSAGE is unclear or incomplete, consult the FULL_DOCUMENT for context.
+If there is still not enough information → ANSWER = I CANNOT ANSWER.
 
-#### IL TUO COMPITO ####
+
+#### EJEMPLOS ####
+QUESTION: Can children with Multisystem Inflammatory Syndrome in Children (MIS-C) be as young as 1 year old?
+PASSAGE: Risk factors: Children diagnosed with MIS-C are often between the ages of 5 and 11 years old. But cases are reported among children ages 1 to 15. A few cases have also happened in older kids and in babies.
+FULL_DOCUMENT: Overview Multisystem inflammatory syndrome in children (MIS-C) is a group of symptoms linked to swollen, called inflamed, organs or tissues. People with MIS-C need care in the hospital [...]
+ANSWER: YES, children as young as 1 year old can be affected by MIS-C. Although it is most common in children aged 5 to 11, cases have been reported in younger children, including 1-year-olds and even infants.
+
+QUESTION: Does a baby's Apgar score help identify infants who may have trouble breathing after birth?
+PASSAGE: En el año 1963, se acuñó el acrónimo APGAR en inglés para el sistema de puntuación como ayuda nemónica de aprendizaje: Apariencia (color de la piel), Pulso (frecuencia cardíaca), “Grimace” o mueca (irritabilidad del reflejo), Actividad (tono muscular) y Respiración.
+FULL_DOCUMENT: Misión Virginia Apgar Ante todo, Virginia Apgar era una incontenible y carismática defensora de los bebés [...]
+ANSWER: I CANNOT ANSWER. La información explica qué significa APGAR, pero no indica si ayuda a identificar problemas respiratorios después del nacimiento.
+
+QUESTION: Does the rectangular fold method involve folding the diaper into a rectangle?
+PASSAGE: Si usa pañales de tela tradicionales, existen varias maneras de colocarlos. Una de las más comunes es el pliegue triangular:
+Doble el cuadrado por la mitad para formar un triángulo...
+FULL_DOCUMENT: Los pañales de tela son una opción ecológica y económica para los padres [...]
+ANSWER: I CANNOT ANSWER. La información solo describe el pliegue triangular y no menciona el método de pliegue rectangular.
+
+#### FORMATO DE SALIDA ####
+ANSWER: YES | NO | I CANNOT ANSWER – brief explanation
+
+#### TASK ####
 QUESTION: {question}
 PASSAGE: {passage}
 FULL_DOCUMENT: {full_document}
+
 ANSWER:
-
-
-Prima di rispondere, valuta se il brano contiene informazioni che rispondono direttamente alla domanda. In caso contrario, rispondi con: “Non posso rispondere dato il contesto”.
-

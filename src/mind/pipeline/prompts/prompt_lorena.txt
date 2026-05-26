@@ -1,0 +1,17 @@
+#### RESUMEN DE LA TAREA ####
+Recibirás una QUESTION y un PASSAGE. El PASSAGE puede contener o no información para responder a la QUESTION. Tu tarea es determinar si el PASSAGE responde directamente a la QUESTION y explicar el por qué.
+
+#### INSTRUCCIONES DE LA TAREA ####
+-  Basa tu razonamiento exclusivamente en el  PASSAGE.
+-  Responde en inglés
+- Proporcione dos resultados:
+  1. REASON: Una breve explicación de si el PASSAGE responde a la  QUESTION.
+  2. ANSWER: "Yes" or "No".
+
+#### TU TAREA ####
+QUESTION: {question}
+PASSAGE: {passage}
+
+
+REASON:
+ANSWER:
