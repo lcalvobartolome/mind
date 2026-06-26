@@ -1,0 +1,20 @@
+Thinking...
+Okay, let's see. I need to determine if the question is atomic or not. The question is asking whether the controls on a ventilator are managed by a respiratory therapist, nurse, or doctor. 
+
+First, I should look at the passage provided. The passage says that a ventilator is attached to a computer with knobs and buttons controlled by those three professionals. So the question is directly referencing that specific part of the passage.
+
+An atomic question is one that can be answered by checking a single statement. Here, the question is asking about who controls the ventilator's knobs and buttons. The passage has a bullet point that explicitly states this. There's no need to combine information from other parts of the passage. The answer is directly in one statement. 
+
+The other parts of the passage talk about the tubes and alarms, but the question is only about the controls. Since the answer is in a single statement, this should be atomic. Non-atomic would be if the question required combining, say, info about the tubes and the controls. But here, it's just one part. So the answer is atomic.
+...done thinking.
+
+The question is **ATOMIC**. 
+
+**Step-by-Step Reasoning:**
+1. **Identify the Question Focus:** The question asks specifically about who manages the controls on a ventilator.
+2. **Check the Passage for Relevant Information:** The passage includes a bullet point stating, *"Is attached to a computer with knobs and buttons that are controlled by a respiratory therapist, nurse, or doctor."* This directly addresses the question.
+3. **Determine if Multiple Statements Are Needed:** The answer is derived from a single, explicit statement in the passage. No additional information from other parts of the text is required.
+4. **Conclusion:** Since the question can be answered by referencing one statement, it is atomic.
+
+**Final Label:** ATOMIC
+

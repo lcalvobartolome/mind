@@ -1,0 +1,13 @@
+Task: Determine whether the following question is ATOMIC.
+
+Definition:
+- ATOMIC: the question can be answered by checking a single statement in the passage.
+- NON-ATOMIC: the question combines two or more distinct statements from the passage.
+
+Passage:
+Once the baby is checked over, a nurse will wrap the baby in blankets and bring the baby to you. In some cases, babies born by cesarean section will first need to be watched in the nursery for a short time. All of the usual procedures, such as weighing and giving medicines, are done there. Usually, your baby can be brought to you while you are in the recovery area after surgery. Breastfeeding can start in the first hours right in the recovery room, just as with a vaginal delivery.
+
+Question:
+Is it possible for babies born by cesarean section to be watched in the nursery for a short time before being brought to their mothers?
+
+Explain your reasoning step by step and then give the final label.

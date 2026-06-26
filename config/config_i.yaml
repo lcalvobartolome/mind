@@ -88,9 +88,11 @@ llm:
       "qwen2.5:7b-instruct",
       "qwen3:32b",
       "llama3.3:70b-instruct-q5_K_M",
-      "llama3:8b"
+      "llama3:8b",
+      "qwen3:8b",
+      "qwen3.6:27b"
     }
-    host: http://kumo.tsc.uc3m.es:11434
+    host: http://kumo01.tsc.uc3m.es:11434
   vllm:
     available_models: {
       "Qwen/Qwen3-8B",

@@ -13,13 +13,18 @@ tests/languages/data/
 
 # Binary/generated files
 *.parquet
-*.xlsx
+#*.xlsx
 *.zip
 *.tar.gz
 *.png
-*.jpg
+*.npy
+*.index
+#*.jpg
+*.pkl
 
 logs/
 t_data/
-outputs_pipeline/
+outputs_pipeline/corpus_building/
 tests/languages/*.parquet
+outputs_pipeline/1_question_testing/*.pkl
+externals/mallet-2.0.8/

@@ -61,7 +61,7 @@ class PolylingualTM(object):
         num_topics: int,
         alpha: float = 1.0,
         token_regexp: str = r"\p{L}+",
-        mallet_path: str = "externals/Mallet-202108/bin/mallet",
+        mallet_path: str = "externals/mallet-2.0.8/bin/mallet",
         add_stops_path: str = "src/mind/topic_modeling/stops",
         is_second_level: bool = False,
         logger: logging.Logger = None
@@ -176,6 +176,7 @@ class PolylingualTM(object):
                     f"-- -- Creating Mallet {corpus_txt_path.as_posix()}...")
                 with corpus_txt_path.open("w", encoding="utf8") as fout:
                     for i, t in zip(df_lang.doc_id, df_lang.lemmas):
+                        print(df_lang[["doc_id", "lang", "lemmas"]].head(20)) 
                         fout.write(f"{i} {lang.upper()} {t}\n")
                 self._logger.info(
                     f"-- -- Mallet {corpus_txt_path.as_posix()} created.")
@@ -325,6 +326,8 @@ class PolylingualTM(object):
         lang2_nr_docs = self._lang_lengths[self._lang2]
 
         # Initialize theta matrices
+        print("lang1:", self._lang1, lang1_nr_docs)
+        print("lang2:", self._lang2, lang2_nr_docs)
         lang1_thetas = np.zeros((lang1_nr_docs, self._num_topics))
         lang2_thetas = np.zeros((lang2_nr_docs, self._num_topics))
 
@@ -553,7 +556,7 @@ if __name__ == "__main__":
     parser.add_argument("--alpha", type=float, default=1.0,
                         help="Alpha hyperparameter (default: 1.0).")
     parser.add_argument("--mallet_path", type=str,
-                        default="externals/Mallet-202108/bin/mallet", help="Path to Mallet executable.")
+                        default="externals/mallet-2.0.8/bin/mallet", help="Path to Mallet executable.")
     parser.add_argument("--add_stops_path", type=str,
                         default="src/mind/topic_modeling/stops", help="Path to stopwords directory.")
     parser.add_argument("--is_second_level", action="store_true",
