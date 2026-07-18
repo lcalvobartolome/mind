@@ -12,11 +12,11 @@ from submetrics_calculation import extract_features
 
 
 DATASET_PATH = (
-    "/export/usuarios01/ivgomez/mind/pipeline_irina/1_questions_testing/rosie_mind_v3_annotated_sample2.xlsx"
+   "/export/usuarios01/ivgomez/mind/pipeline_irina/1_questions_testing/qwen27b_merged.xlsx"
 )
 
 OUTPUT_DIR = (
-    "/export/usuarios01/ivgomez/mind/outputs_pipeline/1_questions_testing/segundas_pruebas"
+    "/export/usuarios01/ivgomez/mind/outputs_pipeline/1_questions_testing"
 )
 
 Path(OUTPUT_DIR).mkdir(
@@ -109,13 +109,13 @@ sns.heatmap(
 plt.title("Pearson Correlation Matrix")
 
 plt.tight_layout()
-'''
+
 plt.savefig(
-    f"{OUTPUT_DIR}/pearson_heatmap1.jpg", #cambiar
+    f"{OUTPUT_DIR}/final_correlation.jpg", #cambiar
     dpi=300,
     bbox_inches="tight"
 )
-'''
+
 '''
 plt.close()
 
@@ -174,7 +174,7 @@ plt.savefig(
     f"{OUTPUT_DIR}/pairplot.jpg", #cambiar
     dpi=300
 )
-'''
+
 
 features_to_plot = [
     "grounding",
@@ -373,5 +373,5 @@ print(vif_df)
 #    f"{OUTPUT_DIR}/vif_analysis2.xlsx", #cambiar
 #    index=False)
 
-
+'''
 

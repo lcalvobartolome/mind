@@ -45,10 +45,13 @@ from scipy import sparse
 import gzip
 import argparse
 import json
+import csv
 
 from sklearn.preprocessing import normalize
 
 from mind.utils.utils import file_lines
+from gensim.corpora import Dictionary
+from gensim.models.coherencemodel import CoherenceModel
 
 
 class PolylingualTM(object):
@@ -64,7 +67,8 @@ class PolylingualTM(object):
         mallet_path: str = "externals/mallet-2.0.8/bin/mallet",
         add_stops_path: str = "src/mind/topic_modeling/stops",
         is_second_level: bool = False,
-        logger: logging.Logger = None
+        logger: logging.Logger = None,
+        coherence_file = None
     ) -> None:
         """Initialize the PolylingualTM object.
 
@@ -98,6 +102,7 @@ class PolylingualTM(object):
         self._is_second_level = is_second_level
         self._lang_lengths = {}
         self._docs_lang = {}
+        self._coherence_file = coherence_file
         if logger:
             self._logger = logger
         else:
@@ -125,7 +130,7 @@ class PolylingualTM(object):
                     os.makedirs(old_model_folder)
                     shutil.move(self._model_folder, old_model_folder)
 
-            self._model_folder.mkdir(exist_ok=True)
+            self._model_folder.mkdir(parents=True, exist_ok=True)
 
         return
 
@@ -304,9 +309,28 @@ class PolylingualTM(object):
 
         self._logger.info(f"-- -- Saving model information...")
         self.save_model_info()
-        self._logger.info(f"-- -- Model information saved successfully.")
+        coherence = self.compute_coherence()
 
-        return
+        if self._coherence_file:
+
+            exists = os.path.exists(self._coherence_file)
+
+            with open(self._coherence_file, "a", newline="") as f:
+
+                writer = csv.writer(f)
+
+                if not exists:
+                    writer.writerow(["num_topics", "coherence"])
+
+                writer.writerow([self._num_topics, coherence])
+
+
+        self._logger.info(
+            f"-- -- Model information saved successfully. Coherence={coherence:.4f}"
+        )
+
+
+        return coherence
 
     def save_model_info(self):
 
@@ -324,6 +348,9 @@ class PolylingualTM(object):
         # Get number of documents
         lang1_nr_docs = self._lang_lengths[self._lang1]
         lang2_nr_docs = self._lang_lengths[self._lang2]
+        self._logger.info(f"-- -- Language lengths: {self._lang_lengths}")
+        self._logger.info(f"-- -- lang1_nr_docs = {lang1_nr_docs}")
+        self._logger.info(f"-- -- lang2_nr_docs = {lang2_nr_docs}")
 
         # Initialize theta matrices
         print("lang1:", self._lang1, lang1_nr_docs)
@@ -334,7 +361,7 @@ class PolylingualTM(object):
         # Read and parse the thetas file
         with open(thetas_file, 'r') as file:
             lines = file.readlines()[1:]  # Skip the first line
-
+            self._logger.info(f"-- -- Rows in doc-topics: {len(lines)}")
         for line in lines:
             values = line.split()
             doc_id = int(values[0])
@@ -349,6 +376,13 @@ class PolylingualTM(object):
                                  topic_id] = weight if not np.isnan(weight) else 0
 
         # Normalize the thetas
+        self._logger.info(
+            f"-- -- Filled rows lang1: {np.count_nonzero(lang1_thetas.sum(axis=1))}"
+        )
+
+        self._logger.info(
+            f"-- -- Filled rows lang2: {np.count_nonzero(lang2_thetas.sum(axis=1))}"
+        )
         lang1_thetas = normalize(lang1_thetas, axis=1, norm='l1')
         lang1_thetas = sparse.csr_matrix(lang1_thetas, copy=True)
 
@@ -387,7 +421,7 @@ class PolylingualTM(object):
         topic_state_model = self._mallet_out_folder / "output-state.gz"
         with gzip.open(topic_state_model) as fin:
             topic_state_df = pd.read_csv(
-                fin, delim_whitespace=True,
+                fin, sep=r"\s+", engine="python",
                 names=['docid', 'lang', 'wd_docid', 'wd_vocabid', 'wd', 'tpc'],
                 header=None, skiprows=1)
         """
@@ -538,6 +572,79 @@ class PolylingualTM(object):
 
         return
 
+    def compute_coherence(self):
+
+        self._logger.info("-- -- Computing topic coherence...")
+
+        # -------- Documents --------
+
+        texts = []
+
+        for lang in [self._lang1, self._lang2]:
+            texts.extend(
+                self._docs_lang[lang]["lemmas"]
+                .apply(str.split)
+                .tolist()
+            )
+
+        dictionary = Dictionary(texts)
+
+        # -------- Topics --------
+
+        topics = []
+
+        topic_keys = self._mallet_out_folder / "topickeys.txt"
+
+        current_topic = []
+
+        with open(topic_keys, encoding="utf8") as f:
+
+            for line in f:
+
+                parts = line.strip().split("\t")
+
+                if len(parts) < 4:
+                    continue
+
+                words = parts[3].split()
+
+                current_topic.append(words)
+
+                # PolylingualTM escribe una línea por idioma.
+                # Cuando tenemos ambos idiomas, unimos las palabras.
+
+                if len(current_topic) == 2:
+
+                    merged = []
+
+                    for topic_words in current_topic:
+                        merged.extend(topic_words)
+
+                    # eliminar duplicados
+
+                    merged = list(dict.fromkeys(merged))
+
+                    topics.append(merged)
+
+                    current_topic = []
+
+        coherence_model = CoherenceModel(
+            topics=topics,
+            texts=texts,
+            dictionary=dictionary,
+            coherence="c_v"
+        )
+
+        coherence = coherence_model.get_coherence()
+
+        self._logger.info(f"-- -- Topic coherence (c_v): {coherence:.4f}")
+
+        with open(self._model_folder / "coherence.txt", "w") as f:
+            f.write(f"{coherence}\n")
+
+        return coherence
+
+
 
 if __name__ == "__main__":
 
@@ -561,6 +668,8 @@ if __name__ == "__main__":
                         default="src/mind/topic_modeling/stops", help="Path to stopwords directory.")
     parser.add_argument("--is_second_level", action="store_true",
                         help="Enable second-level topic modeling mode.")
+    parser.add_argument("--coherence_file",type=str,default=None) 
+
     args = parser.parse_args()
 
     ptm = PolylingualTM(
@@ -571,7 +680,8 @@ if __name__ == "__main__":
         alpha=args.alpha,
         mallet_path=args.mallet_path,
         add_stops_path=args.add_stops_path,
-        is_second_level=args.is_second_level
+        is_second_level=args.is_second_level,
+        coherence_file=args.coherence_file
     )
     ptm.train(df_path=pathlib.Path(args.input))
     print(

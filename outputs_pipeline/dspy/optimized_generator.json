@@ -1,0 +1,48 @@
+{
+  "generate.predict": {
+    "traces": [],
+    "train": [],
+    "demos": [
+      {
+        "augmented": true,
+        "passage": "Choosing Safe Baby Products: Carriers: Babies love and need close contact, and infant carriers are ideal for nestling them against their parents. Most injuries that happen with these carriers are from falls. The two types of carriers are soft, pouch-like ones for young babies, and structured frame carriers for older babies.",
+        "reasoning": "]\nThe passage discusses the use of infant carriers and the potential risks associated with them, specifically falls. It also mentions two types of carriers: soft, pouch-like ones for young babies, and structured frame carriers for older babies. However, it does not provide information on how to prevent falls or any safety guidelines related to these carriers.",
+        "question": "What safety guidelines should be followed when using infant carriers to prevent falls?"
+      },
+      {
+        "passage": "Summary: Folic acid is a B vitamin. It helps the body make healthy new cells. Everyone needs folic acid. For women who may get pregnant, it is really important. Getting enough folic acid before and during pregnancy can prevent major birth defects of her baby's brain or spine."
+      },
+      {
+        "passage": "Research has shown that taking folic acid before getting pregnant and in early pregnancy lowers the risk of having a baby with certain birth defects. This research finding led to the advice that all women who can get pregnant should take 400 micrograms of folic acid daily. In order to learn more, CDC continues to conduct folic acid research."
+      },
+      {
+        "passage": "Have you noticed how your baby's tiny fingers curl around yours or close into fists? Or how your little one startles at a loud noise? Your baby was born with these and other reflexes, which will get less noticeable as your baby grows."
+      }
+    ],
+    "signature": {
+      "instructions": "]\nGenerate a concise, open-ended question based on the provided passage that asks about information likely to appear across multiple documents discussing the same topic. The question should be answerable from the passage, avoid specific details whenever possible, and be useful for discrepancy detection.",
+      "fields": [
+        {
+          "prefix": "Passage:",
+          "description": "${passage}"
+        },
+        {
+          "prefix": "Reasoning:",
+          "description": "${reasoning}"
+        },
+        {
+          "prefix": "Question:",
+          "description": "${question}"
+        }
+      ]
+    },
+    "lm": null
+  },
+  "metadata": {
+    "dependency_versions": {
+      "python": "3.12",
+      "dspy": "3.2.1",
+      "cloudpickle": "3.1"
+    }
+  }
+}
