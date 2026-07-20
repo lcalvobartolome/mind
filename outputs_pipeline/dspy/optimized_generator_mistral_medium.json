@@ -1,0 +1,48 @@
+{
+  "generate.predict": {
+    "traces": [],
+    "train": [],
+    "demos": [
+      {
+        "augmented": true,
+        "passage": "To help prevent the milk from coming back up, keep your baby upright after feeding for 10 to 15 minutes, or longer if your baby spits up or has GERD. But don't worry if your baby spits sometimes. It's probably more unpleasant for you than it is for your baby.",
+        "reasoning": "]\nThe passage discusses tips for preventing milk from coming back up in babies after feeding, mentioning that keeping the baby upright for 10 to 15 minutes is recommended, especially if the baby spits up or has GERD. It also mentions that occasional spitting is normal and not necessarily harmful to the baby.",
+        "question": "What other circumstances might prompt a longer period of keeping a baby upright after feeding?"
+      },
+      {
+        "passage": "Most people recover fully from the surgery and are able to resume all their normal activities after a couple of months. Most side effects of the surgery are temporary."
+      },
+      {
+        "passage": "Babies who may have difficulty at birth include those born prematurely, those who experienced a difficult delivery,and those with birth defects. Maternal illness, such as diabetes, high blood pressure, and infection, can also lead to problems after birth. Fortunately for these babies, special care is available. Newborn babies who need intensive medical attention are often admitted into a special area of the hospital called the Neonatal Intensive Care Unit (NICU). The NICU combines advanced technology and trained healthcare professionals to provide specialized care for the tiniest patients. NICUs may also have intermediate or continuing care areas for babies who are not as sick but need specialized nursing care. Some hospitals do not have trained personnel or a NICU and babies may need to be transferred to another hospital."
+      },
+      {
+        "passage": "Your baby's heart will begin to beat around this time, and might even be detected on ultrasound examination. And the beginnings of the digestive and respiratory systems are forming too. Small buds that will grow into your baby's arms and legs appear this week."
+      }
+    ],
+    "signature": {
+      "instructions": "]\nGenerate a question that asks about information likely to appear across multiple documents discussing the same topic within the given health educational dataset, avoiding specific dates, names, numbers or particular cases whenever possible. The question should be useful for discrepancy detection and answerable from the passage.",
+      "fields": [
+        {
+          "prefix": "Passage:",
+          "description": "${passage}"
+        },
+        {
+          "prefix": "Reasoning:",
+          "description": "${reasoning}"
+        },
+        {
+          "prefix": "Question:",
+          "description": "${question}"
+        }
+      ]
+    },
+    "lm": null
+  },
+  "metadata": {
+    "dependency_versions": {
+      "python": "3.12",
+      "dspy": "3.2.1",
+      "cloudpickle": "3.1"
+    }
+  }
+}

@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=100454302@alumnos.uc3m.es
-#SBATCH --job-name=topic_label
+#SBATCH --job-name=qwen36_light
 #SBATCH --output=/export/usuarios01/ivgomez/mind/logs/columns_%j.out
 #SBATCH --error=/export/usuarios01/ivgomez/mind/logs/columns_%j.err
 #SBATCH --partition=gpu
@@ -13,7 +13,7 @@
 #SBATCH --mem=120GB
 #SBATCH --time=168:00:00
 #SBATCH --chdir=/export/usuarios01/ivgomez/mind/
-#SBATCH --nodelist=kumo04
+#SBATCH --nodelist=kumo02
 
 echo "Activando entorno virtual..."
 
@@ -39,8 +39,8 @@ echo "Lanzando programa..."
 #echo "num_topics,coherence" > "$CSV"
 
 
-#srun python -m pipeline_irina.1_questions_testing.dspy.optimize_prompt
+srun python -m pipeline_irina.1_questions_testing.dspy.optimize_prompt
 
-srun python3 -m.mind.topic_modeling.topic_label --lang1 "ES" --lang2 "IT" --model_folder "/export/usuarios01/ivgomez/mind/outputs_pipeline/dspy/topics_10" --llm_model "qwen3.6:27b" --llm_server "http://kumo01.tsc.uc3m.es:11434"
+#srun python3 -m.mind.topic_modeling.topic_label --lang1 "ES" --lang2 "IT" --model_folder "/export/usuarios01/ivgomez/mind/outputs_pipeline/dspy/topics_10" --llm_model "qwen3.6:27b" --llm_server "http://kumo01.tsc.uc3m.es:11434"
 
 deactivate

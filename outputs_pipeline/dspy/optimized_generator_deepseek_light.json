@@ -1,0 +1,48 @@
+{
+  "generate.predict": {
+    "traces": [],
+    "train": [],
+    "demos": [
+      {
+        "augmented": true,
+        "passage": "Choosing Safe Baby Products: Carriers: Babies love and need close contact, and infant carriers are ideal for nestling them against their parents. Most injuries that happen with these carriers are from falls. The two types of carriers are soft, pouch-like ones for young babies, and structured frame carriers for older babies.",
+        "reasoning": "The passage states that infant carriers are ideal for close contact but also mentions injuries often occur from falls. It distinguishes two main types: soft pouch-like ones for young babies and structured frame carriers for older babies. The question should check if the user understands that not all carriers are necessarily safe, as there is a risk of injury (falls) associated with their use.",
+        "question": "Are both types of infant carriers generally considered equally safe?\n\n[[ ## completed ]]"
+      },
+      {
+        "passage": "Summary: Folic acid is a B vitamin. It helps the body make healthy new cells. Everyone needs folic acid. For women who may get pregnant, it is really important. Getting enough folic acid before and during pregnancy can prevent major birth defects of her baby's brain or spine."
+      },
+      {
+        "passage": "Research has shown that taking folic acid before getting pregnant and in early pregnancy lowers the risk of having a baby with certain birth defects. This research finding led to the advice that all women who can get pregnant should take 400 micrograms of folic acid daily. In order to learn more, CDC continues to conduct folic acid research."
+      },
+      {
+        "passage": "Have you noticed how your baby's tiny fingers curl around yours or close into fists? Or how your little one startles at a loud noise? Your baby was born with these and other reflexes, which will get less noticeable as your baby grows."
+      }
+    ],
+    "signature": {
+      "instructions": "Generate ONE question.\n\nThe generated question must adhere to these strict rules:\n- Ask only one thing\n- Be answerable entirely from a single passage of text\n- Avoid referencing any specific dates, names, numbers, or particular cases (no mention of exact ages or named doctors)\n- Serve as a critical tool for ensuring patient safety and clear communication in pediatric settings\n\nThe question should be designed to identify **non-specific effects** that might appear across different documents or passages discussing similar medical topics. This approach helps flag potential inconsistencies when multiple sources may attribute the same condition, symptom, or advice differently.\n\nFocus on generating broad questions about developmental stages and general care instructions:\n\nExample:\n```\nQuestion: What are recommended approaches for parents to help children with diabetes develop necessary skills over time?\n```\n\nReasoning should explain *why* this question is useful for discrepancy detection between different passages. For instance, it might contrast a primary source suggesting focused instruction while others emphasize patience.",
+      "fields": [
+        {
+          "prefix": "Passage:",
+          "description": "${passage}"
+        },
+        {
+          "prefix": "Reasoning:",
+          "description": "${reasoning}"
+        },
+        {
+          "prefix": "Question:",
+          "description": "${question}"
+        }
+      ]
+    },
+    "lm": null
+  },
+  "metadata": {
+    "dependency_versions": {
+      "python": "3.12",
+      "dspy": "3.2.1",
+      "cloudpickle": "3.1"
+    }
+  }
+}

@@ -399,8 +399,8 @@ print("\nStarting DSPy optimization...\n")
 
 optimizer = MIPROv2(
     metric=question_quality_metric,
-    auto="light",          # light | medium | heavy
-    num_threads=4,         # ajusta según tu máquina
+    auto="medium",          # light medium heavy
+    num_threads=4,         
     seed=42,
     verbose=True,
 )
@@ -413,7 +413,7 @@ optimized_generator = optimizer.compile(
 
 print("\nOptimization finished.")
 
-OUTPUT_PROGRAM = OUTPUT_DIR / "optimized_generator_deepseek_light.json"
+OUTPUT_PROGRAM = OUTPUT_DIR / "optimized_generator_deepseek_medium.json"
 
 optimized_generator.save(str(OUTPUT_PROGRAM))
 
