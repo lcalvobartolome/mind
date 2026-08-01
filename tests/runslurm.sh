@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=100454302@alumnos.uc3m.es
-#SBATCH --job-name=qwen36_light
+#SBATCH --job-name=qwen_medium
 #SBATCH --output=/export/usuarios01/ivgomez/mind/logs/columns_%j.out
 #SBATCH --error=/export/usuarios01/ivgomez/mind/logs/columns_%j.err
 #SBATCH --partition=gpu
@@ -13,7 +13,7 @@
 #SBATCH --mem=120GB
 #SBATCH --time=168:00:00
 #SBATCH --chdir=/export/usuarios01/ivgomez/mind/
-#SBATCH --nodelist=kumo02
+#SBATCH --nodelist=kumo04
 
 echo "Activando entorno virtual..."
 

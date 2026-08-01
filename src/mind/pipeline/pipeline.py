@@ -16,7 +16,7 @@ except ImportError:
 from mind.pipeline.utils import extend_to_full_sentence
 from mind.prompter.prompter import Prompter
 from mind.utils.utils import init_logger, load_prompt, load_yaml_config_file
-#from sentence_transformers import SentenceTransformer  # type: ignore
+from sentence_transformers import SentenceTransformer  # type: ignore
 from tqdm import tqdm  # type: ignore
 
 
@@ -42,7 +42,7 @@ class MIND:
         retrieval_method: str = "TB-ENN",
         multilingual: bool = True,
         lang: str = "en",
-        config_path: Path = Path("config/config.yaml"),
+        config_path: Path = Path("config/config_i.yaml"),
         logger=None,
         dry_run: bool = False,
         do_check_entailement: bool = False,
@@ -185,6 +185,7 @@ class MIND:
                 col_to_index=corpus["passage_col"],
                 col_id=corpus["id_col"],
                 lang=corpus.get("language_filter", None),
+                load_thetas=True,
             )
             corpus_obj.retriever = retriever
 

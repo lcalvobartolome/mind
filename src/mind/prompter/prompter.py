@@ -29,7 +29,7 @@ class Prompter:
         model_type: str,
         llm_server: str = None,
         logger: logging.Logger = None,
-        config_path: pathlib.Path = pathlib.Path("config/config.yaml"),
+        config_path: pathlib.Path = pathlib.Path("config/config_i.yaml"),
         temperature: float = None,
         seed: int = None,
         max_tokens: int = None,

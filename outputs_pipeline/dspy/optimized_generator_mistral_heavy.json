@@ -1,0 +1,54 @@
+{
+  "generate.predict": {
+    "traces": [],
+    "train": [],
+    "demos": [
+      {
+        "augmented": true,
+        "passage": "Many baby products are available, but listed below are the essential items you'll want to have ready for your new baby.",
+        "reasoning": "]\nThe passage provides a list of essential items for a new baby. However, it does not specify the number or type of each item.",
+        "question": "What types of baby products are typically considered essential?"
+      },
+      {
+        "augmented": true,
+        "passage": "Dr. Jellinek: There’s virtually no evidence that watching violent or playing games where you shoot people on a video screen impacts your future in terms of behavior or violence. Now, again, if you're very socially isolated, have no other relationships, have serious other problems, maybe even pre-schizophrenic or schizophrenia, and have difficulty separating fantasy from reality, sure, that would be a concern but that's not what applies to 99-percent-plus of all children.",
+        "reasoning": "]\nThe reasoning here is that Dr. Jellinek suggests that while there's little evidence linking violent video games or media to future violence in most individuals, it could potentially be a concern for those who are socially isolated, have serious other problems, and struggle to separate fantasy from reality.",
+        "question": "What factors might make an individual more susceptible to potential negative effects of violent video games or media on their behavior?"
+      },
+      {
+        "augmented": true,
+        "passage": "A Child’s First Cell Phone: A Guide for Parents: Children are quick to learn that mobile phones are a constant in the lives of their family and friends. It’s natural for a child to want one of their own. But there are many things for parents to consider before buying a child’s first phone.",
+        "reasoning": "]\nThe passage discusses the considerations parents should take into account before buying their child's first phone. It mentions that children are aware of mobile phones being a common item among adults, and they may express interest in having one as well. However, it does not provide specific details about what these considerations might be.",
+        "question": "What are some factors parents should consider before buying their child's first phone?"
+      },
+      {
+        "passage": "Generally, if your baby is alert and active when awake, is feeding well, and can be comforted when crying, occasional differences in these areas are normal. Talk with your baby's doctor if you’re concerned about your infant’s behavior, since changes may indicate an illness. The warning signs below will help you discern when something is amiss, and will help you know when and how to take action."
+      }
+    ],
+    "signature": {
+      "instructions": "]\nGenerate a question that asks about any less common causes of mastitis besides hyperlactation or an oversupply of milk, focusing on information likely to appear across multiple documents discussing the same topic and avoiding specific details such as dates, names, numbers, or particular cases whenever possible.",
+      "fields": [
+        {
+          "prefix": "Passage:",
+          "description": "${passage}"
+        },
+        {
+          "prefix": "Reasoning:",
+          "description": "${reasoning}"
+        },
+        {
+          "prefix": "Question:",
+          "description": "${question}"
+        }
+      ]
+    },
+    "lm": null
+  },
+  "metadata": {
+    "dependency_versions": {
+      "python": "3.12",
+      "dspy": "3.2.1",
+      "cloudpickle": "3.1"
+    }
+  }
+}

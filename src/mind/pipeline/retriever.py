@@ -42,7 +42,7 @@ class IndexRetriever:
         do_norm: bool = False,
         do_weighting: bool = True,
         logger: logging.Logger = None,
-        config_path: Path = Path("config/config.yaml")
+        config_path: Path = Path("config/config_i.yaml")
     ):
         self._logger = logger if logger else init_logger(config_path, __name__)
     

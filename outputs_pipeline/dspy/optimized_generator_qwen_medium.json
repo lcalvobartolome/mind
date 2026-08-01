@@ -1,0 +1,48 @@
+{
+  "generate.predict": {
+    "traces": [],
+    "train": [],
+    "demos": [
+      {
+        "augmented": true,
+        "passage": "Olivia and Stella were diagnosed in utero with twin-twin transfusion syndrome (TTTS), a life-threatening condition in which blood circulates unequally between the twins. One baby receives too much blood and nutrients, while the other doesn't get enough.",
+        "reasoning": "The passage explains twin-twin transfusion syndrome by describing its core mechanism: unequal blood and nutrient circulation between twins, where one receives an excess and the other a deficit. To adhere to the constraints, I crafted a question that targets this fundamental physiological characteristic rather than the specific patient names or case details. Focusing on the defining mechanism of a medical condition ensures the question is answerable from the text, avoids prohibited specifics, and aligns with information commonly found across multiple clinical or educational documents, making it highly suitable for cross-source discrepancy detection.",
+        "question": "What physiological imbalance characterizes twin-twin transfusion syndrome?"
+      },
+      {
+        "passage": "To reduce the risk of SIDS, the American Academy of Pediatrics (AAP) recommends that infants sleep on their backs, on a firm sleep surface (like a crib), separate from their parents, and that the crib be free of any blankets, toys or other items."
+      },
+      {
+        "passage": "This can reduce the chances of a successful vaginal delivery. Labor induction also may increase the chance of complications during labor. If circumstances change, you and your ob-gyn or other health care professional may want to reconsider your decision.\\n- The reverse also may be true. For example, if you have planned a cesarean delivery but go into labor before your scheduled surgery, it may be best to consider VBAC if you are far enough along in your labor and your fetus is healthy.\\n- Cesarean Delivery: Delivery of a baby through surgical incisions made in the woman’s abdomen and uterus.\\n- Hysterectomy: Removal of the uterus.\\n- Obstetrician–Gynecologist (Ob-Gyn): A physician who specializes in caring for women during pregnancy, labor, and the postpartum period.\\n- Placenta: Tissue that provides nourishment to and takes waste away from the fetus.\\n- Uterus: A muscular organ located in the female pelvis that contains and nourishes the developing fetus during pregnancy."
+      },
+      {
+        "passage": "If you have pain during breastfeeding, talk to your doctor or lactation consultant to make sure your baby is properly latched or that something else isn't going on."
+      }
+    ],
+    "signature": {
+      "instructions": "You are a clinical information specialist focused on pediatric, neonatal, and maternal healthcare guidelines. Your task is to analyze the provided passage and generate exactly ONE question optimized for cross-document discrepancy detection and fact-checking.\n\nStrictly adhere to the following constraints:\n- Ask only one clear, focused thing.\n- The question must be directly answerable using only the information in the passage.\n- Avoid all specific dates, names, exact numbers, percentages, or isolated case studies. Instead, frame the question around general clinical principles, standard care protocols, symptom categories, safety timelines, or widely discussed health concepts.\n- Design the question specifically to target information that commonly appears across multiple medical resources discussing the same topic, ensuring it is highly effective for identifying inconsistencies or variations in recommendations.\n\nFirst, provide a concise \"Reasoning\" section explaining how you identified a broad, comparable theme while filtering out overly specific details, and why this question is effective for cross-source comparison. Then, output the final \"Question\". Ensure your response follows this exact structure.",
+      "fields": [
+        {
+          "prefix": "Passage:",
+          "description": "${passage}"
+        },
+        {
+          "prefix": "Reasoning:",
+          "description": "${reasoning}"
+        },
+        {
+          "prefix": "Question:",
+          "description": "${question}"
+        }
+      ]
+    },
+    "lm": null
+  },
+  "metadata": {
+    "dependency_versions": {
+      "python": "3.12",
+      "dspy": "3.2.1",
+      "cloudpickle": "3.1"
+    }
+  }
+}

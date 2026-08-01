@@ -1,0 +1,51 @@
+{
+  "generate.predict": {
+    "traces": [],
+    "train": [],
+    "demos": [
+      {
+        "augmented": true,
+        "passage": "Cerclage usually is done in a hospital. It typically does not require an overnight stay.",
+        "reasoning": "The passage states that cerclage is typically performed in a hospital setting and does not require an overnight stay. However, it does not provide information about the specific post-procedure care instructions or requirements.",
+        "question": "What are general recommendations for patient care following a cerclage procedure?"
+      },
+      {
+        "augmented": true,
+        "passage": "Treatment may include:\\n- Fluids through a vein (by IV)\\n- Medicine to treat symptoms\\n- Breathing support, including tube through the mouth into the lungs and breathing machine (ventilator).",
+        "reasoning": "The passage describes three main treatment components: IV fluids, symptom medicine, and breathing support (including tube insertion and ventilator use). To generate a useful question for discrepancy detection, I need to focus on one of these aspects that is commonly discussed across different medical documents. The breathing support aspect specifically mentions two methods (tube through the mouth into the lungs and breathing machine/ventilator), but other documents might describe it differently or list additional components. Asking about the general purpose or types of treatments under \"breathing support\" would help detect discrepancies in how this category is defined or described across different sources.",
+        "question": "What are some common methods used for providing breathing support as part of medical treatment?"
+      },
+      {
+        "passage": "A Child’s First Cell Phone: A Guide for Parents: Children are quick to learn that mobile phones are a constant in the lives of their family and friends. It’s natural for a child to want one of their own. But there are many things for parents to consider before buying a child’s first phone."
+      },
+      {
+        "passage": "You're likely to deliver early, so be prepared. Your doctor can help you arrange to deliver at a hospital that can do an emergency C-section and has a neonatal intensive care unit (NICU)."
+      }
+    ],
+    "signature": {
+      "instructions": "Given a passage about pediatric health advice, generate ONE question based on its content. The question should:\n- Ask about one specific aspect of the information\n- Be fully answerable from the given passage without requiring external knowledge\n- Exclude references to any particular date, name, or numerical value to keep it general\n- Serve as a key for discrepancy detection by highlighting potential variations across multiple documents on similar topics\n- Concentrate on core concepts that frequently change in different sources to identify inconsistencies\n- Include brief reasoning about the generality and purpose for discrepancy probing if needed",
+      "fields": [
+        {
+          "prefix": "Passage:",
+          "description": "${passage}"
+        },
+        {
+          "prefix": "Reasoning:",
+          "description": "${reasoning}"
+        },
+        {
+          "prefix": "Question:",
+          "description": "${question}"
+        }
+      ]
+    },
+    "lm": null
+  },
+  "metadata": {
+    "dependency_versions": {
+      "python": "3.12",
+      "dspy": "3.2.1",
+      "cloudpickle": "3.1"
+    }
+  }
+}

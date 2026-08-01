@@ -1,0 +1,57 @@
+{
+  "generate.predict": {
+    "traces": [],
+    "train": [],
+    "demos": [
+      {
+        "augmented": true,
+        "passage": "What is the recovery time for a robotic total hysterectomy: The average time for a full recovery after robotic hysterectomy is about four to six weeks. You’ll be able to return to light regular activities within 24 to 28 hours after surgery. It’s helpful to have someone assisting you at home during this time, as your activities may be limited and you may be sore and tired. You can usually drive within 72 hours, but this depends on what pain medication you’re taking. Most people can return to work after about two weeks, but this varies depending on what type of job you have.",
+        "reasoning": "The passage provides information about average recovery times for a robotic total hysterectomy, including timeframes for returning to light activities, needing assistance at home, driving ability, and resuming work. It emphasizes that these durations can vary based on factors like pain medication use or job type.\n\nTo generate a question useful for discrepancy detection across multiple documents, I need to focus on information likely to be generalized rather than specific. The passage mentions varying timelines depending on individual circumstances (job type, pain medication). A good question would ask about the general concept of variability in recovery times without specifying particular factors or durations.\n\nThe ideal question should prompt comparison between different sources by asking about common themes regarding recovery duration variations. It needs to be answerable from this passage but framed generally enough to apply across multiple documents discussing the same topic.",
+        "question": "How do medical documents typically describe the variability of recovery timeframes for robotic hysterectomy?"
+      },
+      {
+        "augmented": true,
+        "passage": "Sleepsacks & Swaddles: The Safety Center at CHOP offers sleepsacks and swaddles — a way to comfort for your baby while he sleeps in his crib or bassinet. Sleepsacks and swaddles are wearable blankets that keep your baby warm without adding comforters, loose blankets or other soft, puffy items to their crib.",
+        "reasoning": "The passage describes sleepsacks and swaddles as wearable blankets specifically designed to keep babies warm safely in their cribs or bassinets without the use of soft bedding like comforters or loose blankets. The key point is that they are a safe alternative method for baby's warmth during sleep.\n\nA question about other baby bedding options would be useful because different safety guidelines and resources might list various specific items (like wearable blankets, crib bumpers, etc.) as recommended alternatives to traditional unsafe bedding methods. This helps detect discrepancies if one source only mentions sleepsacks while others suggest additional safe options or differ in their recommendations.",
+        "question": "What are other baby bedding options considered safe according to safety guidelines?"
+      },
+      {
+        "augmented": true,
+        "passage": "If your child has hearing loss, it’s important to get help early on. Getting help early helps children with hearing loss develop communication and social skills. Some children may also be able to use devices that help them hear, like a hearing aid, or get medicine or surgery.",
+        "reasoning": "The passage discusses the importance of early intervention for children with hearing loss. It mentions three key points: getting help early helps develop communication and social skills, some children may use devices to hear, and others might receive medicine or surgery. The question should focus on a general aspect that could vary across different documents but is present in this one.",
+        "question": "What is the relationship between getting help early for hearing loss and developing communication/social skills?\n\n[[ ## completed ]]"
+      },
+      {
+        "augmented": true,
+        "passage": "Sleeping. Kids this age need about 9–12 hours of sleep per night. Lack of sleep can make it hard to pay attention at school. Set a bedtime that allows for enough sleep and encourage your child to follow a relaxing bedtime routine. Keep TVs and all electronic devices out of your child's bedroom.",
+        "reasoning": "The passage discusses children's sleep requirements, potential consequences of insufficient sleep, and provides recommendations for bedtime routines and limiting electronics.",
+        "question": "According to the text, what general advice is given about ensuring children get sufficient sleep?\n\n[[ ## completed ]]"
+      }
+    ],
+    "signature": {
+      "instructions": "Generate ONE concise question based on this passage alone, ensuring:\n- The query asks precisely one thing and is directly answerable from the text provided.\n- It avoids any reference to specific details like dates, names, numbers, or unique case scenarios.\n- Information in the question is formulated generally to be transferable across various medical documents on similar topics.\n- The purpose explicitly targets discrepancy detection among sources regarding children's health issues by inviting responses that highlight broad aspects rather than particular instances.\n\ncompleted",
+      "fields": [
+        {
+          "prefix": "Passage:",
+          "description": "${passage}"
+        },
+        {
+          "prefix": "Reasoning:",
+          "description": "${reasoning}"
+        },
+        {
+          "prefix": "Question:",
+          "description": "${question}"
+        }
+      ]
+    },
+    "lm": null
+  },
+  "metadata": {
+    "dependency_versions": {
+      "python": "3.12",
+      "dspy": "3.2.1",
+      "cloudpickle": "3.1"
+    }
+  }
+}

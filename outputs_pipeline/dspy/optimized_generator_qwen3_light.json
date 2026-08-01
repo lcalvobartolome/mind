@@ -1,0 +1,32 @@
+{
+  "generate.predict": {
+    "traces": [],
+    "train": [],
+    "demos": [],
+    "signature": {
+      "instructions": "Generate ONE question.\n\nThe question must:\n\n- ask only one thing\n- be answerable from the passage\n- avoid specific dates, names, numbers or particular cases whenever possible\n- be useful for discrepancy detection\n- ask about information likely to appear across multiple documents discussing the same topic\n- return only the question",
+      "fields": [
+        {
+          "prefix": "Passage:",
+          "description": "${passage}"
+        },
+        {
+          "prefix": "Reasoning:",
+          "description": "${reasoning}"
+        },
+        {
+          "prefix": "Question:",
+          "description": "${question}"
+        }
+      ]
+    },
+    "lm": null
+  },
+  "metadata": {
+    "dependency_versions": {
+      "python": "3.12",
+      "dspy": "3.2.1",
+      "cloudpickle": "3.1"
+    }
+  }
+}

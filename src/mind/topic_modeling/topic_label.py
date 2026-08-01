@@ -16,7 +16,7 @@ class TopicLabel(object):
         model_folder: str,
         llm_model: str,
         llm_server: str = None,
-        config_path: Path = Path("config/config.yaml"),
+        config_path: Path = Path("config/config_i.yaml"),
         logger=None,
         env_path=None,
     ) -> None:
@@ -140,7 +140,7 @@ class TopicLabel(object):
         top_docs_per_topic_id = {}
         for topic, doc_list in topic_docs.items():
             doc_list_sorted = sorted(doc_list, key=lambda x: x[1], reverse=True)
-            top_docs_per_topic_id[topic] = doc_list_sorted[3]
+            top_docs_per_topic_id[topic] = doc_list_sorted[:3]
 
         corpus_lang1 = self._load_corpus(f'{self._model_folder}/train_data/corpus_{self._lang1}.txt')
         corpus_lang2 = self._load_corpus(f'{self._model_folder}/train_data/corpus_{self._lang2}.txt')
@@ -149,10 +149,22 @@ class TopicLabel(object):
 
         # top 3 doc text per lang
         for topic, doc_list in top_docs_per_topic_id.items():
-            texts_lang1 = [corpus_lang1[doc_id] for doc_id, _ in doc_list if doc_id in corpus_lang1]
-            texts_lang2 = [corpus_lang2[doc_id] for doc_id, _ in doc_list if doc_id in corpus_lang2]
-            final_dict[self._lang1][topic] = '\n'.join(texts_lang1)
-            final_dict[self._lang2][topic] = '\n'.join(texts_lang2)
+            texts_lang1 = [
+                corpus_lang1.get(str(doc_id), "")
+                for doc_id, _ in doc_list
+            ]
+
+            texts_lang2 = [
+                corpus_lang2.get(str(doc_id), "")
+                for doc_id, _ in doc_list
+            ]
+
+            final_dict[self._lang1][topic] = "\n".join(
+                t for t in texts_lang1 if t
+            )
+            final_dict[self._lang2][topic] = "\n".join(
+                t for t in texts_lang2 if t
+            )
         
         return final_dict
     
@@ -185,7 +197,7 @@ class TopicLabel(object):
         for k in range(len(topic_keys[self._lang1])):
             template_formatted = self._prompt_label.format(
                 keywords=topic_keys[self._lang1][k],
-                docs='\n'.join(top_docs_per_topic[self._lang1][k])
+                docs=top_docs_per_topic[self._lang1][k]
             )
             res, _ = self._prompter.prompt(template_formatted)
             print(res)
@@ -195,7 +207,7 @@ class TopicLabel(object):
         for k in range(len(topic_keys[self._lang2])):
             template_formatted = self._prompt_label.format(
                 keywords=topic_keys[self._lang2][k],
-                docs='\n'.join(top_docs_per_topic[self._lang2][k])
+                docs=top_docs_per_topic[self._lang2][k]
             )
             res, _ = self._prompter.prompt(template_formatted)
             print(res)

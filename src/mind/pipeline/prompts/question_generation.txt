@@ -1,12 +1,54 @@
 You will be given a PASSAGE and a brief SUMMARY of the content where it appears. Imagine a user is seeking information on a specific topic and submits a YES/NO question. Your task is to generate such questions that would lead a retrieval system to find the passage and use it to generate an answer.
 
-#### TASK BREAKDOWN ####
+#### TASK INSTRUCTIONS ####
 
-1. Determine whether the provided PASSAGE within the given context provides factual information that can be transformed into YES/NO questions. Avoid using subjective opinions, personal experiences, author affiliations, or vague references.
-2. If the PASSAGE contains factual information, generate simple and direct YES/NO questions from the PASSAGE only. Do not use the SUMMARY to generate questions only to have some context about the topic discussed. Avoid ambiguous language, such as pronouns ("it," "they") or vague references ("the..."), and always define acronyms and abbreviations within each question (e.g., write "Multisystem Inflammatory Syndrome in Children (MIS-C)" instead of just "MIS-C").
-3. Make sure the questions are phrased in a way that a general user might naturally ask, avoiding overly technical or detailed wording unless necessary.
-4. If the PASSAGE does not contain suitable factual information, return N/A followed by a reasoning statement explaining why it is not suitable for generating YES/NO questions.
-5.Prioritize questions that connect the PASSAGE with the overall context described in the SUMMARY
+Generate ONE concise question based on this passage alone, ensuring:
+- It has to ve a YES/NO question.
+- The query asks precisely one thing and is directly answerable from the text provided.
+- It avoids any reference to specific details like dates, names, numbers, or unique case scenarios.
+- Information in the question is formulated generally to be transferable across various medical documents on similar topics.
+- The purpose explicitly targets discrepancy detection among sources regarding children's health issues by inviting responses that highlight broad aspects rather than particular instances.
+
+#### EXAMPLES ####
+
+Example 1
+
+Passage:
+What is the recovery time for a robotic total hysterectomy: The average time for a full recovery after robotic hysterectomy is about four to six weeks. You’ll be able to return to light regular activities within 24 to 28 hours after surgery. It’s helpful to have someone assisting you at home during this time, as your activities may be limited and you may be sore and tired. You can usually drive within 72 hours, but this depends on what pain medication you’re taking. Most people can return to work after about two weeks, but this varies depending on what type of job you have.
+
+Reasoning:
+The passage provides information about average recovery times for a robotic total hysterectomy, including timeframes for returning to light activities, needing assistance at home, driving ability, and resuming work. It emphasizes that these durations can vary based on factors like pain medication use or job type.
+
+To generate a question useful for discrepancy detection across multiple documents, I need to focus on information likely to be generalized rather than specific. The passage mentions varying timelines depending on individual circumstances (job type, pain medication). A good question would ask about the general concept of variability in recovery times without specifying particular factors or durations.
+
+The ideal question should prompt comparison between different sources by asking about common themes regarding recovery duration variations. It needs to be answerable from this passage but framed generally enough to apply across multiple documents discussing the same topic.
+
+Question:
+Do medical documents typically describe the variability of recovery timeframes for robotic hysterectomy?
+
+
+Example 2
+
+Passage:
+If your child has hearing loss, it’s important to get help early on. Getting help early helps children with hearing loss develop communication and social skills. Some children may also be able to use devices that help them hear, like a hearing aid, or get medicine or surgery.
+
+Reasoning:
+The passage discusses the importance of early intervention for children with hearing loss. It mentions three key points: getting help early helps develop communication and social skills, some children may use devices to hear, and others might receive medicine or surgery. The question should focus on a general aspect that could vary across different documents but is present in this one.
+
+Question:
+Is there relationship between getting help early for hearing loss and developing communication skills?
+
+Example 3
+
+Passage:
+Sleeping. Kids this age need about 9–12 hours of sleep per night. Lack of sleep can make it hard to pay attention at school. Set a bedtime that allows for enough sleep and encourage your child to follow a relaxing bedtime routine. Keep TVs and all electronic devices out of your child's bedroom.
+
+Reasoning:
+The passage discusses children's sleep requirements, potential consequences of insufficient sleep, and provides recommendations for bedtime routines and limiting electronics.
+
+Question:
+Is general advice given about ensuring children get sufficient sleep?
+
 
 #### YOUR TASK ####
 

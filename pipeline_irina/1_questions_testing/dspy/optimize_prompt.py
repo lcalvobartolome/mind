@@ -74,7 +74,7 @@ print("Regression model loaded")
 
 
 generator_lm = dspy.LM(
-    "ollama_chat/deepseek-r1:8b",
+    "ollama_chat/qwen3.6:27b",
     api_base="http://kumo01.tsc.uc3m.es:11434",
     temperature=0,
 )
@@ -413,7 +413,7 @@ optimized_generator = optimizer.compile(
 
 print("\nOptimization finished.")
 
-OUTPUT_PROGRAM = OUTPUT_DIR / "optimized_generator_deepseek_medium.json"
+OUTPUT_PROGRAM = OUTPUT_DIR / "optimized_generator_qwen_medium.json"
 
 optimized_generator.save(str(OUTPUT_PROGRAM))
 
