@@ -67,6 +67,7 @@ srun python -m mind.cli \
     --tgt_full_doc_col "$TGT_FULL_DOC_COL" \
     --tgt_lang_filter "$TGT_LANG_FILTER" \
     --tgt_index_path "$TGT_INDEX_PATH" \
+    --load_thetas \
 
 echo "Pipeline finalizado."
 

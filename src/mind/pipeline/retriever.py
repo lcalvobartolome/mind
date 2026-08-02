@@ -237,6 +237,7 @@ class IndexRetriever:
                 df[row_top_k] = df["thetas"].apply(lambda x: get_doc_top_tpcs(x, topn=self.top_k))
             
             else:
+                
                 if row_top_k not in df.columns:
                     raise ValueError(f"Column {row_top_k} not found in dataframe. If thetas are not precomputed, please set load_thetas=True to compute them from thetas_path.")
                     
@@ -391,15 +392,18 @@ class IndexRetriever:
                     index = topic_data["index"]
                     doc_ids = topic_data["doc_ids"]
                     distances, indices = index.search(np.expand_dims(query_embedding, axis=0), top_k)
+                    #self._logger.info(f"Searching topic {topic} (weight={weight:.3f})")
+                    #self._logger.info(f"Distances: {distances[0][:10]}")
+                    #self._logger.info(f"Indices: {indices[0][:10]}")
                     for dist, idx in zip(distances[0], indices[0]):
                         if idx != -1:
                             score = dist * weight if do_weighting else dist
-                            results.append({"topic": topic, "doc_id": doc_ids[idx], "score": score})
+                            results.append({"topic": topic, "chunk_id": doc_ids[idx], "score": score})
 
         # Remove duplicates, keeping the highest score
         unique_results = {}
         for result in results:
-            doc_id = result["doc_id"]
+            doc_id = result["chunk_id"]
             if doc_id not in unique_results or result["score"] > unique_results[doc_id]["score"]:
                 unique_results[doc_id] = result
 

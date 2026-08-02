@@ -3,7 +3,8 @@ You will be given a PASSAGE and a brief SUMMARY of the content where it appears.
 #### TASK INSTRUCTIONS ####
 
 Generate ONE concise question based on this passage alone, ensuring:
-- It has to ve a YES/NO question.
+- Use information appearing only in the PASSAGE.
+- Generate a YES/NO question.
 - The query asks precisely one thing and is directly answerable from the text provided.
 - It avoids any reference to specific details like dates, names, numbers, or unique case scenarios.
 - Information in the question is formulated generally to be transferable across various medical documents on similar topics.
@@ -36,7 +37,7 @@ Reasoning:
 The passage discusses the importance of early intervention for children with hearing loss. It mentions three key points: getting help early helps develop communication and social skills, some children may use devices to hear, and others might receive medicine or surgery. The question should focus on a general aspect that could vary across different documents but is present in this one.
 
 Question:
-Is there relationship between getting help early for hearing loss and developing communication skills?
+Is there a relationship between getting help early for hearing loss and developing communication skills?
 
 Example 3
 

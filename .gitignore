@@ -28,3 +28,4 @@ outputs_pipeline/corpus_building/
 tests/languages/*.parquet
 outputs_pipeline/1_question_testing/*.pkl
 externals/mallet-2.0.8/
+final_mistral_results/

@@ -39,8 +39,10 @@ echo "Lanzando programa..."
 #echo "num_topics,coherence" > "$CSV"
 
 
-srun python -m pipeline_irina.1_questions_testing.dspy.optimize_prompt
+#srun python -m pipeline_irina.1_questions_testing.dspy.optimize_prompt
 
 #srun python3 -m.mind.topic_modeling.topic_label --lang1 "ES" --lang2 "IT" --model_folder "/export/usuarios01/ivgomez/mind/outputs_pipeline/dspy/topics_10" --llm_model "qwen3.6:27b" --llm_server "http://kumo01.tsc.uc3m.es:11434"
+
+
 
 deactivate

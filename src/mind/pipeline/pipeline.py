@@ -270,6 +270,10 @@ class MIND:
         # generate answer in target language for each subquery and target chunk
         all_target_chunks = []
         for subquery in subqueries:
+            #self._logger.info(f"SOURCE DOC: {source_chunk.metadata['doc_id']}")
+            #self._logger.info(f"QUESTION: {question}")
+            #self._logger.info(f"SUBQUERY: {subquery}")
+            #self._logger.info(f"TOP_K: {source_chunk.metadata['top_k']}")
             target_chunks = self.target_corpus.retrieve_relevant_chunks(
                 query=subquery, theta_query=source_chunk.metadata["top_k"])
             all_target_chunks.extend(target_chunks)

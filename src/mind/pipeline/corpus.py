@@ -70,12 +70,13 @@ class Corpus:
             if col not in df.columns:
                 raise ValueError(f"Column {col} not found in dataframe")
         self.df = df.copy()
+        self.id_col = id_col
         # rename columns to "doc_id", "text", and "full_doc"
         # rename the column passage_col to "text"
         if full_doc_col == passage_col:
             self.df["full_doc"] = self.df[passage_col] 
             full_doc_col = "full_doc"
-        self.df = self.df.rename(columns={passage_col: "text", full_doc_col: "full_doc", id_col:"doc_id"})
+        self.df = self.df.rename(columns={passage_col: "text", full_doc_col: "full_doc"}) #, id_col:"doc_id"
         
 
         self._logger = logger if logger else init_logger(config_path, __name__)
@@ -142,12 +143,14 @@ class Corpus:
                 return 0
 
             df["main_topic_thetas"] = df[row_top_k].apply(safe_main_topic)
-        
+
+
         if filter_ids is not None:
             # remove rows from df whose id_col is in filter_ids
             df = df[~df[id_col].isin(filter_ids)].copy()
             logger.info(f"Filtered out {len(filter_ids)} documents based on provided filter_ids.")
-            
+
+   
         logger.info(f"Loaded {len(df)} documents after filtering.")
         return cls(df, config_path=config_path, logger=logger, retriever=retriever, id_col=id_col, passage_col=passage_col, full_doc_col=full_doc_col, row_top_k=row_top_k)
 
@@ -211,7 +214,7 @@ class Corpus:
                     raise ValueError(f"Answers are not a list or do not match the questions: {answers}")
                         
             yield Chunk(
-                id=row["doc_id"],
+                id=row[self.id_col],
                 text=row["text"],
                 full_doc=row.get("full_doc", ""),
                 metadata=metadata
@@ -225,19 +228,29 @@ class Corpus:
             query=query,
             theta_query=theta_query
         )
+        print(results)
         
         chunks = []
         for result in results:
             try:
-                row = self.df[self.df.doc_id == result["doc_id"]].iloc[0]
+                print("Searching:", result["chunk_id"])
+                print("Exists:", result["chunk_id"] in set(self.df[self.id_col]))
+                print(self.df[self.id_col].head().tolist())
+
+                row = self.df[self.df[self.id_col] == result["chunk_id"]].iloc[0]
+
                 chunk = Chunk(
-                    id=result["doc_id"],
+                    id=result["chunk_id"],
                     text=row["text"],
                     full_doc=row.get("full_doc", ""),
-                    metadata={"score": result["score"], "top_k": row[self.row_top_k]}
+                    metadata={
+                        "score": result["score"],
+                        "top_k": row[self.row_top_k]
+                    }
                 )
                 chunks.append(chunk)
-            except KeyError:
-                self._logger.warning(f"doc_id {result['doc_id']} not found in dataframe")
+
+            except IndexError:
+                self._logger.warning(f"chunk_id {result['chunk_id']} not found in dataframe")
 
         return chunks
