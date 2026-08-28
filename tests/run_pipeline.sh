@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=100454302@alumnos.uc3m.es
-#SBATCH --job-name=mis_mt5
+#SBATCH --job-name=mis_mt5_corrected_prompt
 #SBATCH --output=/export/usuarios01/ivgomez/mind/logs/columns_%j.out
 #SBATCH --error=/export/usuarios01/ivgomez/mind/logs/columns_%j.err
 #SBATCH --partition=gpu
@@ -13,7 +13,7 @@
 #SBATCH --mem=120GB
 #SBATCH --time=168:00:00
 #SBATCH --chdir=/export/usuarios01/ivgomez/mind/
-#SBATCH --nodelist=kumo03
+#SBATCH --nodelist=kumo02
 
 echo "Activando entorno virtual..."
 
@@ -29,7 +29,7 @@ echo "Ejecutando en el host: $(hostname)"
 echo "Python actual: $(which python)"
 
 LLM_MODEL="mistral:7b"
-PATH_SAVE="/export/usuarios01/ivgomez/mind/final_mistral_results/mt5"
+PATH_SAVE="/export/usuarios01/ivgomez/mind/final_mistral_results/mt5/improved_prompt"
 
 SRC_CORPUS_PATH="/export/usuarios01/ivgomez/mind/outputs_pipeline/corpus_building/data_prepared_new_potentially.parquet"
 SRC_THETAS_PATH="/export/usuarios01/ivgomez/mind/outputs_pipeline/dspy/topics_10/mallet_output/thetas_ES.npz"

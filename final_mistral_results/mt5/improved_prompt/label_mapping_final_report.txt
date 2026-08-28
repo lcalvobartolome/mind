@@ -1,0 +1,1629 @@
+FINAL LABEL MAPPING REPORT
+================================================================================
+
+Total rows: 141,600
+Already valid before final round: 140,914
+Unresolved before final round: 686
+
+Assigned to CONTRADICTION using "while": 540
+Assigned to NOT_ENOUGH_INFO: 146
+Remaining invalid labels: 0
+
+================================================================================
+FINAL LABEL DISTRIBUTION
+================================================================================
+
+NOT_ENOUGH_INFO: 104,989
+NO_DISCREPANCY: 33,098
+CULTURAL_DISCREPANCY: 2,208
+CONTRADICTION: 1,305
+
+================================================================================
+LABELS ASSIGNED TO CONTRADICTION BECAUSE THEY CONTAIN "while"
+================================================================================
+
+COUNT: 3
+LABEL: 'WER_1 mentions a general association between bronchitis and cold weather in children of various ages, while ANSWER_2 focuses on the increased risk for infants if there are older siblings or sisters at home during cold seasons.'
+--------------------------------------------------------------------------------
+COUNT: 2
+LABEL: 'WER_1 explicitly mentions the symptoms, while ANSWER_2 implies them based on common associations between kidney colic and oral discomfort.'
+--------------------------------------------------------------------------------
+COUNT: 2
+LABEL: 'WER_1 focuses on the percentage (75%) that could be prevented, while ANSWER_2 emphasizes the potential to reduce complications or severity. However, neither answer contradicts the other, as both statements can be true in different contexts.'
+--------------------------------------------------------------------------------
+COUNT: 2
+LABEL: 'WER_1 emphasizes the percentage (75%) of fatal cases that could be prevented, while ANSWER_2 focuses on the immediate intervention and appropriate treatments made possible by early diagnosis.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the presence of nasal obstruction as a symptom, while ANSWER_2 discusses decongestants as a means to alleviate symptoms derived from nasal congestion (nasal obstruction).'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 presents a more straightforward explanation of the two possibilities, while ANSWER_2 adds context about sperm selection for reproduction from a semen sample. However, neither answer contradicts the other or reflects cultural discrepancies.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 suggests that excessive crying is a symptom of insufficient feeding, while ANSWER_2 implies it could also indicate overfeeding. However, neither answer contradicts the other, as both scenarios (underfeeding and overfeeding) can lead to inadequate feeding.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the balance of bacterial colonies and equilibrium between species that make up the microbiota, while ANSWER_2 emphasizes its role in preventing various intestinal issues such as bloating, difficulty in digestion, discomfort, and acute diarrhea.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the breakdown of red blood cells leading to increased bilirubin, while ANSWER_2 discusses hemolytic anemias and their impact on indirect bilirubin levels.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states this, while ANSWER_2 infers it from the information about total and indirect bilirubin levels mentioned in the passage.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 suggests a possible correlation but does not definitively establish causation, while ANSWER_2 directly states that the widening can cause symptoms related to difficulty in respiration.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the need to report all side effects to health authorities, while ANSWER_2 mentions reporting possible side effects through a specific system (Pharmacovigilance System) and developing studies if necessary.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly addresses the question by stating that it is done for all newborns via injection, while ANSWER_2 implies this practice through the mention of common practice and the role of Vitamin K in blood clotting.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions ingestion of a foreign body or ocular injury as additional suspected causes, while ANSWER_2 focuses on reactions to medications or environmental pollutants. However, neither answer contradicts the other, and both could be valid in different settings.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 asserts that there is an "anomaly" in the structure and functionality of the brain, while ANSWER_2 mentions a problem with neurodevelopmental disorders, which often includes autism.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on autism as the primary condition, while ANSWER_2 discusses hypersensitivity or hyposensitivity to sensory input as a symptom of DSA that can be associated with autism.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 refers specifically to the reflex of triple retraction, while ANSWER_2 describes a method of traction. However, they share a common action and do not directly contradict each other.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on food rejection and intense crying as direct results of the pain caused by esophagitis, while ANSWER_2 mentions difficulty in swallowing as a symptom that can lead to these outcomes.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states the objective as given in the passage, while ANSWER_2 implies that it is a desirable level to avoid or manage diabetes.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the difficulty in venous return as the primary cause, while ANSWER_2 mentions standing for long periods as a contributing factor to the difficulty in venous return.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 offers a more specific definition of lumbalgia, while ANSWER_2 provides additional context about the symptoms associated with it.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the general comparison between the two types of ultrasounds, while ANSWER_2 provides additional information about the advantages of a transvaginal ultrasound for diagnosing conditions related to the ovaries.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions the creation of antibodies against these foreign red blood cells (anti-Rh positive) that can potentially cause hemolysis, while ANSWER_2 discusses fetal-neonatal hemolytic disease caused by Rh incompatibility.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the production of these antibodies without mentioning any precautions or treatments, while ANSWER_2 discusses the need for immunoglobulin anti-D treatment to prevent the formation of these antibodies.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 refers to the passage mentioning asymmetrical cell division and cellular fragmentation as requiring a more detailed evaluation, while ANSWER_2 explains that asymmetrical cell division is a characteristic of displastic cells.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 provides a more detailed explanation of the conditions that can be diagnosed using an MRI, while ANSWER_2 confirms the use of MRI for diagnosing various disturbances without explicitly listing cysts and disc hernias.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses specifically on ruling out other possible causes related to thyroid function, while ANSWER_2 implies a broader scope of evaluating and excluding various diseases that may present with similar symptoms.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on "hipertensión arterial" as a specific term for high blood pressure in pregnancy, while ANSWER_2 discusses the potential causes of high blood pressure in the second half of pregnancy.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that preeclampsia is classified as mild under the given conditions, while ANSWER_2 adds context about the variability in preeclampsia severity and the importance of professional assessment.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states the association, while ANSWER_2 implies it through the mention of related complications like prematurity and pre-eclampsia.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on a general treatment scenario, while ANSWER_2 provides more specific details about preterm birth and eclampsia. However, neither answer contradicts or conflicts with the other.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states the accumulation of food in the stomach as a common symptom, while ANSWER_2 infers this based on the early feelings of fullness mentioned in the passage.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly addresses the question by stating it is a common symptom of hypertrophic pyloric stenosis, while ANSWER_2 implies that the accumulation of food in the stomach could be a symptom of hypertrophic pyloric stenosis or another related condition.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 discusses tuberous sclerosis, while ANSWER_2 mentions systemic sclerosis, a variant of which is sclerosis tuberosa. Both conditions can lead to the development of skin lumps anywhere on the body.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that oral treatment is necessary in some cases, while ANSWER_2 implies this by mentioning the use of oral antimycotics as part of the treatment regimen.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the anatomical area being studied, while ANSWER_2 mentions both the disease itself and specific drugs used for treatment as potential determining factors.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the role of lung involvement as part of the conditions causing sequelae, while ANSWER_2 focuses on lung involvement as a symptom of late-stage streptococcal infection. However, neither answer contradicts or conflicts with the other, and they can both be true in different contexts (e.g., depending on the specific condition or disease being discussed).'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the need for a pediatrician to supervise the entire process, while ANSWER_2 focuses on the potential proposal of treatments by a pediatrician.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions various possible abnormalities such as narrowing, dilating, benign tumors (polyps), precancerous lesions (ulcers) or malignant tumors, while ANSWER_2 specifically mentions colonoscopy to exclude the presence of tumors in the colon rectum.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses more on the aspect of better taste and smaller dosages, while ANSWER_2 mentions the broader context of medication use under strict medical control. However, neither answer contradicts or directly conflicts with the other.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 suggests metabolization in the gastrointestinal tract as the mechanism, while ANSWER_2 mentions potential bloating due to unnecessary filling of the stomach. However, neither answer contradicts or denies the other's assertion about the possibility of stomach lining irritation."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the typical significant loss of sensitivity and strength in 90% of cases, while ANSWER_2 highlights recent advancements that have reduced neurological complications associated with myelomeningocele.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the specific inclusion of immediate antibiotic treatment in the treatment plan, while ANSWER_2 focuses on the flexibility and effectiveness of starting antibiotics quickly without identifying the specific bacteria causing the infection.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions muscle contraction, nerve transmission, hormone, and enzyme release, while ANSWER_2 adds the production of collagen for the health of various tissues like skin, cartilage, teeth, and gums.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes proper hydration as an alternative treatment, while ANSWER_2 focuses on the resolution of symptoms in a few days with timely treatment. However, neither answer contradicts or conflicts with the other, and both could be valid in different settings (e.g., depending on cultural practices, healthcare resources, or specific guidelines).'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 focuses solely on simethicone's role in alleviating gas and bloating, while ANSWER_2 discusses other factors contributing to meteorism and potential treatments beyond simethicone. However, neither answer contradicts the other, as they complement each other by offering different approaches for managing symptoms of aerophagia and meteorism."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the direct relief of flatulence and abdominal pain caused by spasms, while ANSWER_2 discusses additional benefits such as helping newborns eliminate meconium and expel excess bilirubin to prevent jaundice. However, neither answer contradicts or conflicts with the other.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 presents a straightforward affirmative statement, while ANSWER_2 offers additional context about the potential risks to the fetus associated with fever during pregnancy.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 asserts a direct connection between the symptoms and the named nerves, while ANSWER_2 acknowledges that further investigation or medical advice is necessary for a definitive answer.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions the treatment of persistent pain beyond 4-6 weeks, while ANSWER_2 discusses their use in cases of inflammatory processes like arthritis or trauma.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions that while they are effective, they have not demonstrated a positive effect on the evolution of sciatica (i.e., reducing the duration of symptoms). ANSWER_2 suggests that such treatments could potentially be effective for sciatica pain due to their ability to target inflammation and improve mobility.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes that while these treatments are effective, they do not reduce the duration of symptoms in studies conducted. ANSWER_2 suggests that corticosteroids can be effective for managing inflammatory conditions, but it does not explicitly state that this applies to sciatica pain specifically.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states the connection between intestinal perforation and peritonitis, while ANSWER_2 implies this relationship by referencing complications of an intervention that can lead to urinary tract infections, which are related to peritonitis.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that anabolic steroid use can cause liver changes, while ANSWER_2 provides a more comprehensive list of potential side effects associated with anabolic steroids, including liver changes.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses specifically on emphysema as a manifestation of COPD in smokers, while ANSWER_2 provides additional context about the respiratory symptoms associated with COPD and explains how emphysema fits into that broader picture.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 asserts a direct causal link, while ANSWER_2 suggests a more indirect influence on the severity of lip cancer in men.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 refers to a specific brand (Aspinia®) and suggests it should not be used to improve pain, while ANSWER_2 mentions the risk of Reye's syndrome associated with Aspirin use in children."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states this fact, while ANSWER_2 infers it based on the diagnostic criteria mentioned in the passage.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 states it explicitly in a passage, while ANSWER_2 suggests that the need for further investigation arises when chronic mastitis is not caused by external factors. However, neither answer contradicts or conflicts with the other, and both could be true depending on the specific circumstances of each case.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses specifically on genetic predisposition, while ANSWER_2 suggests a combination of genetic and environmental factors. However, neither answer contradicts the other, as they both address the same underlying condition (LES).'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions general fatigue, weight loss, appetite loss, overall discomfort, and fever as symptoms, while ANSWER_2 focuses on influenza or parainfluenza viruses as potential causes. However, neither answer contradicts the other, and both could be valid in different settings.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions AINEs as a class of drugs used for various conditions, including fatigue, while ANSWER_2 focuses on specific AINE-like drugs (Coenzima Q10 or Idebenone) that improve energy production in mitochondria to reduce fatigue.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the reduction as a main advantage of the method, while ANSWER_2 focuses on the mechanism by which lasers achieve this effect (by causing less damage to tissues).'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states this, while ANSWER_2 implies it through the phrase "monitoring progress."'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the direct impact of a small quantity of bacteria or poor urine collection on the value of bacteriuria, while ANSWER_2 discusses how this situation might prevent the detection of bacteriuria in the context of diagnosing urinary tract infections.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on various factors such as type, onset, duration, and location, while ANSWER_2 emphasizes the specific type of pain (strong pain in the upper abdomen that sometimes radiates to the back). However, neither answer contradicts or conflicts with the other, and they can both be true depending on the context.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on factors such as type, onset, and location in addition to duration, while ANSWER_2 emphasizes the potential involvement of multiple systems due to prolonged pain symptoms.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the variability in diagnoses based on location, while ANSWER_2 focuses on common locations for pain occurrence. However, neither answer contradicts or conflicts with the other.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions the possibility of the infection reaching the body via infected organs adjacent to it or through the bloodstream in rare cases, while ANSWER_2 focuses on transmission after a blood transfusion or organ donation where it was not possible to verify the presence of the virus.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 asserts it as one of the possible diagnostic methods, while ANSWER_2 suggests it might contribute to guiding the surgeon during an operation without explicitly stating its role as a primary diagnostic method.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 suggests that frequent urination is one of the signs of dehydration, while ANSWER_2 implies that the absence of frequent urination could also indicate dehydration. However, neither answer contradicts the other, and they can both be true in different contexts or interpretations.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions symptoms of cardiac disease, characteristics of the breath sound, and other exploratory findings, while ANSWER_2 focuses on the presence of secretions as an additional factor in the assessment.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions surgery as a potential method for heart malformation repair alongside cardiac catheterization, while ANSWER_2 focuses more on interventional cardiology procedures like angioplasty or stent placement. However, neither answer contradicts the other, and both could be true in different settings (e.g., depending on the specific type of heart malformation and the expertise of the medical team).'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 discusses cases related to closure, while ANSWER_2 focuses on severe cases of Tourette's Syndrome. However, neither answer contradicts the other, and both could be valid in different medical or cultural settings."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on cases where closure has not been achieved after multiple attempts with medication, while ANSWER_2 discusses the need for surgery to bypass obstructed parts of the arteries when a person does not respond adequately to the medication.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 suggests that coughing helps maintain oxygenation by clearing mucus, while ANSWER_2 mentions that coughing can cause shortness of breath (dyspnea), which is a symptom related to decreased oxygenation.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the preventative role of coughing in clearing mucus from the airways to avoid obstruction, while ANSWER_2 focuses on coughing as a response to existing airway obstruction.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 suggests that coughing helps clear mucus from the airways to prevent obstruction, while ANSWER_2 explains that a mutation causes thick mucus that obstructs the airways, leading to coughing as a result.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly addresses the question by stating that Carbamazepine is among the treatments, while ANSWER_2 implies this by providing information about the type of pain Carbamazepine treats and its effectiveness compared to traditional painkillers.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions fever as a symptom associated with various conditions, while ANSWER_2 focuses on recurring fever linked to inflammatory processes.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 refers to a specific term "malestar general" from a Spanish passage, while ANSWER_2 discusses symptoms like diarrhea, vomiting, and fever that can lead to general discomfort in children.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that swelling is listed as a possible local reaction at the injection site, while ANSWER_2 implies this by referring to it as a common side effect of many medications administered by injection.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 states it explicitly, while ANSWER_2 implies it based on general understanding about live virus vaccines and compromised immune systems.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions general precautions or contraindications depending on each case, while ANSWER_2 specifically mentions postponing the vaccine in cases of recent administration of preparations containing immunoglobulins.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'ON_2: The passage in ANSWER_1 suggests that splenectomy is among the treatments, while the passage in ANSWER_2 implies it is rarely used.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 is more straightforward in stating that a doctor can detect splenomegalia by palpating a child's abdomen, while ANSWER_2 suggests that palpation might be one method among others."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on diet as a single factor, while ANSWER_2 discusses it in the context of multiple contributing factors. However, neither answer contradicts or conflicts with the other.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the need for special cases, while ANSWER_2 emphasizes reducing the risk of developing hepatitis B as a precaution. However, neither answer contradicts or conflicts with the other.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 refers to a specific set of symptoms associated with bacterial infections of skin lesions, while ANSWER_2 relies on common knowledge about the link between infections and unpleasant odors.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the safety profile of the vaccine while still acknowledging potential risks, whereas ANSWER_2 focuses on the need to weigh the risks of vaccination against the risks of infection.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 suggests that antivirals have little effect on the flu virus, while ANSWER_2 emphasizes their use in preventing the flu, especially in specific situations. However, neither answer contradicts or denies the other's assertion about a reported effect of antivirals on the flu virus."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 is more straightforward in stating that cold hands and feet are listed as symptoms, while ANSWER_2 implies this through its discussion of applying ice on affected joints.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states this as a common side effect, while ANSWER_2 discusses the spread of resistant bacteria and its impact on hospital-acquired infections.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes that most childhood infections do not require antibiotics for treatment, while ANSWER_2 mentions the potential risks associated with using antibiotics for these infections.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the most common bacteria found in children with meningitis excluding newborns, while ANSWER_2 lists specific serogroups of Neisseria meningitidis (meningococcus) responsible for meningitis and sepsis.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 focuses on the variation of symptoms based on the evolution of the condition over time, while ANSWER_2 discusses the timing of symptom manifestation throughout a person's life."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that exercise is a factor associated with asthma due to causing bronchoconstriction, while ANSWER_2 provides additional context about the use of bronchodilators to alleviate symptoms related to asthma, including exercise-induced bronchoconstriction.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 suggests an immediate effect, while ANSWER_2 mentions a 20-30 minute delay before physical activity, which still implies a rapid onset of action compared to other treatments.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions "sibilancias" (wheezing) as a symptom, while ANSWER_2 refers to "respiratory distress," which can include wheezing.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'ON_2: The discrepancy between the two answers lies in the level of detail provided; ANSWER_1 directly states that lead is among the toxic substances found in e-liquids, while ANSWER_2 only implies this without explicitly stating it.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 asserts a direct relationship between the vaccine and an impaired immune system without specifying the type of allergy, while ANSWER_2 offers more nuanced information that may be applicable in certain cases.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 refers to a general approach in treating otitis media, while ANSWER_2 specifically mentions the Italian Pediatric Society's guidelines."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 suggests that the presence of germs from colds is a factor, while ANSWER_2 mentions the blocking of protective mechanisms and an increase in infections.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the presence of germs from colds, while ANSWER_2 discusses infections of the upper respiratory tract passing to the middle ear.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the overall connection, while ANSWER_2 offers more specific details about how this resistance develops.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 states that the choice of dosage and schedule depends on the type of infection, while ANSWER_2 suggests it may depend on the timing of diagnosis without explicitly stating the dependence on the type of infection.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions tosferina specifically as an infection that azitromycin can treat, while ANSWER_2 does not mention tosferina but instead suggests that azitromycin may be used for secondary bacterial infections like pneumonia.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses more on the general use of azitromycin for some types of infections, while ANSWER_2 provides examples of specific bacteria (Escherichia coli and Salmonella) that can cause gastroenteritis and are treatable with azitromycin.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 directly advises against such pressure, while ANSWER_2 implies that it is important to follow the doctor's prescription without undue influence."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the importance of not pressuring a medical professional to prescribe specific antibiotics, while ANSWER_2 focuses on the risk of prolonging the time it takes for bacteria to be eliminated through feces when antibiotics are inappropriately used. However, both answers convey the same message about the need to follow medical advice regarding antibiotic prescriptions.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly addresses the question of pressuring a medical professional to prescribe any specific antibiotics, while ANSWER_2 expands upon this by discussing the broader implications of using such solutions.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 provides a direct statement about the symptom being related to the eyes, while ANSWER_2 infers this relationship based on the context provided in the passage.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly mentions pustules as a secondary lesion, while ANSWER_2 implies it through the common association of eczema with such lesions.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 emphasizes the guide's explicit statement about offering possible approaches, while ANSWER_2 highlights the studies being conducted to identify more effective methods of treatment based on up-to-date information."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states this fact, while ANSWER_2 implies it by suggesting that the guide discusses controversial topics related to severe diseases with solid scientific foundations.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 is more straightforward in stating that walking reduces the risk of diabetes, while ANSWER_2 implies this through its association with weight loss and improved health.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 provides more comprehensive information about the general impact of these disorders on motor development, while ANSWER_2 focuses on the symptoms of Cerebral Palsy as an example.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the general effect of nicotine on pleasure centers in the brain, while ANSWER_2 provides more detailed information about the impact on dopaminergic neurons in the Substantia Nigra.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly addresses the question by stating that nicotine acts on areas of the brain that regulate pleasurable sensations, while ANSWER_2 offers a more detailed explanation about how this occurs.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 refers to the symptoms listed in a passage without specifying the exact condition, while ANSWER_2 provides additional context about an umbilical hernia as a specific cause of a distended abdomen.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the general recommendation for a biopsy in such cases, while ANSWER_2 adds more specific details about the implications of a negative result depending on the part of the tissue that was analyzed.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 states that a biopsy is recommended without specifying any additional requirements, while ANSWER_2 mentions that screening for celiac disease is only justified in certain at-risk populations with symptoms.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 states that bacteremia fever is one of the diseases caused by Neisseria meningitidis, while ANSWER_2 suggests that bacteremia could potentially be associated with Neisseria meningitidis infections but does not explicitly state it as a disease caused by the bacteria.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 provides a clear and direct statement about the association between rubella virus and congenital syndrome, while ANSWER_2 adds context by discussing an anomaly in one of the RB1 genes that affects all cells in the body. Although ANSWER_2 does not explicitly state that this anomaly is caused by rubella virus, it can be inferred from the information provided.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the influence of traffic pollution on symptoms of asthma and other respiratory diseases, while ANSWER_2 discusses the potential risk from particles from car exhaust and smoke deposited on clothes that children may inhale when held by their parents.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 refers to Schizencephaly, while ANSWER_2 discusses the Syndrome of Rothmund-Thomson. Since the question does not specify which syndrome is being referred to, it results in an ambiguity that makes it difficult to determine a discrepancy between the answers.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that there are survivors with severe aftereffects in Spain, while ANSWER_2 implies this possibility based on the general information provided about meningitis and sepsis meningococcal.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes that celiac disease causes intestinal damage, while ANSWER_2 provides additional context about the immune response and malabsorption associated with the condition.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on prolactin and the lactogenic placental hormone as a duo that prepares the body for breastfeeding, while ANSWER_2 delves deeper into the specific functions of the lactogenic placental hormone during pregnancy and its potential impact on breastfeeding.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions discussing various home remedies and treatments, while ANSWER_2 provides specific examples of such remedies like paracetamol or ibuprofen, eye drops, and cough syrups.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 asserts that tooth eruption does not cause high fever, while ANSWER_2 explains that there is no scientifically demonstrated correlation between fever, diarrhea, and tooth eruption, with the added context that infections can manifest as fever or diarrhea but are not caused by tooth eruption.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 is more straightforward and direct, while ANSWER_2 offers a slightly more nuanced perspective on the relationship between tooth development and childhood illnesses.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 states that these side effects typically resolve within 24-48 hours, while ANSWER_2 specifies a range from 6 to 12 hours for the onset of symptoms and a duration of 1 or 2 days.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly addresses the question about the HPV vaccine, while ANSWER_2 indirectly answers the question by referring to a different vaccine (OPV) but still providing relevant information.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions ongoing research to further investigate the immune system, while ANSWER_2 focuses on the role and function of the immune system in stopping the spread of infection.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 asserts that smallpox was among the diseases targeted based on explicit mention in the passage, while ANSWER_2 only implies it without direct confirmation.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 directly states the potential risk, while ANSWER_2 infers it based on the document's content. Although they present slightly different perspectives, neither answer contradicts the other."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 focuses on the congelation of tissues due to hypothermia, while ANSWER_2 mentions Raynaud's phenomenon, a condition that can be triggered by cold exposure and is potentially exacerbated during prolonged or severe hypothermia."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 provides more explicit details about the significance of Blundell's work in treating postpartum hemorrhage, while ANSWER_2 makes an inference based on historical knowledge about Blundell's pioneering work."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the objective of informing the public about influencing factors for CVDs specifically, while ANSWER_2 provides a broader context of educating the public on various aspects of healthy lifestyles and disease prevention, including CVDs.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states this fact, while ANSWER_2 provides additional context by referring to antidolorifici (painkillers) as a category of frequently prescribed medications that includes paracetamol.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 suggests that while it cannot be eliminated, it can reduce its frequency and severity, especially preventing severe cases in the first months of life. ANSWER_2 implies that certain types of viruses, including pertussis, can be prevented with specific vaccinations.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes that while the disease cannot be entirely eliminated, it can be reduced in frequency and severity through vaccines.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that poor control increases the risk of high blood pressure, while ANSWER_2 implies this connection through a discussion about diabetes mellitus and creatinine levels.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that these hormones regulate metabolism, while ANSWER_2 explains how hormones send signals to various organs and glands throughout the body to regulate their function, implying that metabolism regulation is one of those functions.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the relationship specifically for some congenital heart diseases, while ANSWER_2 expands on the potential causes (genetic and environmental) that could contribute to the manifestation of these diseases.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions that the cause is not clear in most cases, while ANSWER_2 provides specific examples such as the nature of the malformation, the position of the baby, or excessive weight of the mother.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that the passage indicates this support, while ANSWER_2 infers it based on the context of the passage mentioning the need for a treatment to renew blood cells and the significance of research conducted in the 1970s.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 states it explicitly, while ANSWER_2 suggests it as an implication from the passage.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions that it is sometimes necessary to administer urgent treatment following the removal of a medication, while ANSWER_2 suggests that the need for urgent treatment arises due to the immediate appearance of disturbances requiring control by an ophthalmologist.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 suggests that it can be given in one dose per day, while ANSWER_2 implies that it is usually given in two doses per day with a maximum daily dose of 4 grams. However, neither answer contradicts the other, as both scenarios are possible depending on the specific medication and dosage prescribed.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the rapid disappearance of symptoms, while ANSWER_2 provides a more nuanced explanation about the variation in effect duration based on factors like quantity and purity of the substance.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 attributes the dependency to the substances themselves, while ANSWER_2 explains it through the toxicity of certain molecules within those substances.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 refers to a broader range of brain imaging tests, as stated in Spanish ("A veces, según la causa que se sospeche, habrá que hacer pruebas de imagen del cerebro"), while ANSWER_2 mentions MRI specifically.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on ruling out intoxication, while ANSWER_2 mentions discovering infections and alterations of the kidneys. However, neither answer contradicts or conflicts with the other, as both uses of urine analysis could be valid in different settings.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on ruling out intoxication, while ANSWER_2 mentions identifying metabolic disorders, kidney problems, and urinary tract infections. However, neither answer contradicts the other, as both scenarios could be valid depending on the specific suspected cause or context.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on ruling out intoxication, while ANSWER_2 mentions excluding urinary tract infections or bladder infections as potential causes similar to benign prostate hyperplasia. However, neither answer contradicts the other, and both could be valid in different medical contexts.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions it explicitly as one of the procedures suggested for ruling out intoxication, while ANSWER_2 implies its inclusion in a broader category of "laboratory tests."'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 suggests that it may be due to both benign and serious conditions, while ANSWER_2 focuses on the possibility of heart rhythm problems or seizures as potential causes.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions the use of a transcutaneous bilirubinometer in addition to a blood sample, while ANSWER_2 focuses on the increase in plasma due to a decrease in red blood cells as a means of measuring bilirubin levels.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the importance of monitoring stool color as a symptom of jaundice, while ANSWER_2 adds context about the potential causes of greenish stools (inadequate feeding) and their relationship to jaundice.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions difficulty breathing, lethargy, and confusion as symptoms, while ANSWER_2 adds additional symptoms like severe headache, convulsions, loss of hearing or vision, and weakness or paralysis. However, both answers agree that these symptoms could indicate a severe condition involving cerebral edema.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on cerebral edema, while ANSWER_2 discusses poliomyelitis as a possible cause. Although both conditions can lead to cerebral edema, the answers do not directly contradict each other since they address different underlying diseases that share similar symptoms.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 provides a direct affirmation, while ANSWER_2 adds context by mentioning an example of a specific birth defect (spina bifida) related to the nervous system.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 emphasizes the role of treatment in preventing disease, while ANSWER_2 focuses on the contribution to a quicker recovery. However, neither answer contradicts the other's main point."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the protective aspect against disease, while ANSWER_2 emphasizes healing existing wounds, preventing new ones, and minimizing scarring. However, neither answer contradicts or conflicts with the other.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 is more general and directly addresses the question, while ANSWER_2 adds nuance by specifying certain conditions under which antibiotics are recommended.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the preventive aspect, while ANSWER_2 emphasizes the role of treatment in slowing down or preventing the progression of tetanus symptoms.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that the tetanus vaccine is recommended for everyone, including adolescents, while ANSWER_2 implies this recommendation by mentioning the age at which certain tumors start to occur (possibly referring to a different topic) and suggesting preventive measures such as vaccinations should be taken before then.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on sexual relations as a whole, while ANSWER_2 expands on the details of how STDs are transmitted within those relations.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on PrEP, while ANSWER_2 mentions antiretroviral drugs more broadly, including treatment as prevention. However, neither answer contradicts or directly conflicts with the other.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions that other organs, including the kidneys, can be affected, while ANSWER_2 specifically discusses acute kidney failure as a complication affecting approximately 20% of patients with systemic scleroderma.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions liver involvement directly, while ANSWER_2 discusses hemolytic-uremic syndrome as a possible complication that may involve liver involvement.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that the passage clearly suggests this as an effective treatment, while ANSWER_2 infers it from the mention of excluding certain foods under medical supervision.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 focuses on an individual's personal risk and the need for regular anticorps if they have the genes, while ANSWER_2 emphasizes the importance of genetic testing in family settings when affected or healthy carriers of a genetic disease are present."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes its importance as a "fundamental pillar," while ANSWER_2 discusses the role of biopsies in confirming diagnoses through positive results and acknowledges that negative results may depend on the part of the tissue analyzed during laparoscopic exploration.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the need to avoid harmful side effects by using medication under medical control, while ANSWER_2 focuses on the importance of regular controls for managing potential complications related to medication use.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions "hormonal causes" are associated with the condition, while ANSWER_2 discusses an increase in LH and hyperactivation of the hypothalamus-gonad axis as events related to the fetal cycle that could imply hormonal causation for the condition.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions "enrojecimiento facial" (facial reddening) while ANSWER_2 implies it through the mention of "colorito blu" (blue color), suggesting other colors such as red could be present due to crying.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 discusses a general impact on interactions, while ANSWER_2 focuses on specific medications used for treating hairy cell leukemia and their effects on self-perception and social interactions.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states this relationship, while ANSWER_2 implies it through a reference to the effects of cocaine on body functions.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 suggests that a professional may prescribe a substance if it is necessary and effective, while ANSWER_2 warns against using the drug due to potential signs of deterioration.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions that a professional will provide recommendations and may prescribe substances if necessary, while ANSWER_2 emphasizes the importance of not substituting the current medication without first evaluating the case.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 mentions the professional's recommendations and uncertainty about the substances' effectiveness, while ANSWER_2 discusses initial tests involving blood and fecal analyses."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 suggests that there is little certainty that these substances will work, while ANSWER_2 states that the results of the analysis can determine the most suitable treatment. However, neither answer contradicts the other, as they both acknowledge the possibility of a prescription.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the general prevention of respiratory infections, while ANSWER_2 expands upon this by discussing specific strategies for preventing bronchiolitis and its aftermath.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 states that "Polio virus is among the viruses belonging to the group of Enteroviruses," while ANSWER_2 infers this by mentioning the three serotypes of Poliovirus and stating that enteroviruses are a large group that includes poliovirus.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that Polio virus is among the viruses belonging to the group of Enteroviruses, while ANSWER_2 provides additional context about how Poliovirus replicates in the intestinal cells and spreads to lymphoid tissue, which aligns with the characteristics of Enteroviruses.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that Polio virus is among the viruses belonging to the group of Enteroviruses, while ANSWER_2 infers this by referencing the transmission route and intestinal location of Enteroviruses.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 directly states that Polio virus is among the viruses belonging to the group of Enteroviruses, while ANSWER_2 infers this by describing the characteristics of Enteroviruses and Polio virus's infection pattern."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly addresses the question by mentioning that radiologists can be consulted for complex hemangiomas, while ANSWER_2 expands on the general role of a radiologist. Although they provide slightly different information, neither answer contradicts the other.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_2 acknowledges that secondhand smoke is an irritant that could potentially cause the condition, while ANSWER_1 asserts a stronger causal relationship between smoking and bronchi hyperresponsiveness in children.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 states a direct association between smoking and hyperresponsiveness of the bronchi in children, while ANSWER_2 implies this association through mentioning respiratory issues caused by smoking.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions it as one of the symptoms, while ANSWER_2 adds more context by describing it as an early symptom and referring to it as "pancia dura" (hard belly).'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'ON_2: The context of ANSWER_1 is specific to salt caves, while ANSWER_2 discusses heat sources in general. However, they both address the same underlying concept of avoiding prolonged exposure for health reasons.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 states that 90% of cases do not require any treatment, while ANSWER_2 implies that treatment exists for idiopathic scoliosis, even though it may not differ significantly from treatments used for other types of scoliosis.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that muscle tissue can be seen with an ultrasound, while ANSWER_2 explains why this is possible by discussing the attenuation of the ultrasound beam in relation to different tissue densities.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 provides a general statement about the association, while ANSWER_2 offers more specific examples of factors or agents that can cause developmental delays prenatally.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the association between prenatal growth delay and a series of clinical characteristics in general, while ANSWER_2 discusses the potential role of low levels of vitamin D during pregnancy in this link.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 suggests that weight loss could be among the symptoms due to its general association with various diseases, including cancer. ANSWER_2 implies that while weight loss is not explicitly mentioned as a symptom in the given context, it might still be included among the symptoms of neuroblastoma based on the broader description of the disease's stages and symptoms."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on cases where complete surgical removal is impossible, while ANSWER_2 discusses situations where both surgical removal and radiation therapy are viable options for treating small, localized tumors.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 specifies that the variation is specifically for low-risk patients with vital compromise, while ANSWER_2 suggests a more general approach of tailoring treatment to each patient's specific needs. However, neither answer contradicts the other, and both could be valid in different settings or contexts."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the range of symptom severity, while ANSWER_2 lists some common symptoms associated with the condition.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on cardiologists managing potential cardiovascular issues, while ANSWER_2 mentions a broader program for chronic diseases. However, neither answer contradicts the other, and both could be true in different settings.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the fact that a normal genetic test does not rule out the presence of the syndrome, while ANSWER_2 discusses the possibility of additional diagnostic tools like blood tests to verify the chromosome 22 defect. However, neither answer contradicts or conflicts with the other.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the impact of frequent blood draws on anemia, while ANSWER_2 discusses both the immaturity in red blood cell production systems and the lack of adequate iron intake as contributing factors.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 focuses on the fact that bronchitis is listed among other respiratory diseases with different treatments, while ANSWER_2 emphasizes the importance of considering an individual's overall health condition and history when determining treatment."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes that topical corticosteroids are commonly used in children, while ANSWER_2 discusses the potential risks of prolonged use, particularly with oral corticosteroids.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that nose irritation is among the symptoms causing discomfort, while ANSWER_2 infers this by translating a passage suggesting a condition affecting the nose.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 explicitly states that genital sexual contact is a means of acquiring ITS, while ANSWER_2 implies this by mentioning that sexual activity predisposes to infection, particularly when using contraceptives such as the diaphragm and spermicides, which suggests an STI.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions various methods of transmission, including anal, oral, or direct skin and mucosal contact, while ANSWER_2 focuses specifically on the transmission through contact between mucous membranes and mutual masturbation, which includes anal sexual contact as a means of transmission.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 asserts that syphilis is one of the causes of the mentioned symptoms without explicitly mentioning the text focus, while ANSWER_2 acknowledges the text's focus on erysipelas but still maintains that syphilis could be a cause of the symptoms due to its well-known association with them."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 is a direct statement about the use of medication for treating convulsions in newborns with encephalopathy, while ANSWER_2 adds additional information about the diagnostic process that may precede treatment.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly addresses the question by stating that medication is used to treat convulsions in newborns with encephalopathy, while ANSWER_2 provides more detailed information about one such medication.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly addresses the question by stating that medication is used to treat convulsions in newborns with encephalopathy, while ANSWER_2 expands on this information by mentioning medications that favor blood flow or reduce coagulation, which could potentially be used for treating convulsions.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes that it can be clearly distinguished, while ANSWER_2 adds more detail about the variability in symptoms based on the position and size of the appendix.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes that it can be distinguished, while ANSWER_2 implies that it might go unnoticed in certain cases (children), which still allows for its distinguishability.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes that it can be distinguished, while ANSWER_2 explains the process of diagnosis based on symptoms, health status, and medical examination.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the inherent vulnerability of premature newborns to infections, while ANSWER_2 highlights that pregnant women (including those who give birth prematurely) are a high-risk group for infection, which can lead to complications like premature birth and severe neonatal infections.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on any bacteria entering the uterus due to preterm rupture, while ANSWER_2 specifically mentions Group B Streptococcus as one of the potential bacteria transmitted in this scenario.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on a small percentage of infectious diseases, while ANSWER_2 specifies that Malassezia causes superficial infections affecting various parts of the body and mentions specific examples. However, neither answer contradicts or conflicts with the other.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions "infectious diseases," while ANSWER_2 specifies "superficial infections on the skin, hair, nails, or mucous membranes." However, neither answer contradicts the other, as both types of infections can be considered subsets of infectious diseases.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 discusses various blood tests that can help diagnose infections in general, while ANSWER_2 focuses on the use of these tests to search for other sexually transmitted infections when a test indicates the presence of chlamydia.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions determining white blood cell count, cytokine levels, and other blood tests, while ANSWER_2 discusses IgM and IgG antibodies.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions a lower risk of transmission during childbirth, while ANSWER_2 discusses preventing infection in 1 out of 10 babies or shortening the duration of the disease by one or two days.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly addresses the question by quoting the passage, while ANSWER_2 infers the relationship between antiviral therapy for HIV and transaminases of aspartate elevation in viral acute hepatitis.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that viral acute hepatitis causes an elevation of transaminases of aspartate, while ANSWER_2 implies this association through reasonable inference.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes their ability to demonstrate the presence of embryonic structures with certainty, while ANSWER_2 focuses on their utility in revealing information about the progression of the pregnancy.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that an increase in blood volume causes an increase in maternal weight, while ANSWER_2 suggests that an increase in blood volume during pregnancy can lead to increased body weight, particularly through the vessels.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 is more direct and explicit in stating the relationship between the condition and increased creatinine levels, while ANSWER_2 implies this relationship through the necessity of further investigation.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 refers to a medical condition, while ANSWER_2 discusses the consumption of dietary supplements containing creatine.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the impact of the condition on blood creatinine levels, while ANSWER_2 adds context about the combined analysis of blood and urine creatinine levels.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 states that they are included in general, while ANSWER_2 specifies that they must be part of a diagnostic-therapeutic pathway and involve the exercise of activities reserved for healthcare professionals.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 emphasizes the clear recording of symptoms as part of these examinations, while ANSWER_2 suggests that video recordings of movements (which could include symptoms) may be useful for a doctor's review."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes that nosodes are made from something that causes the disease or products of the disease, while ANSWER_2 explains that these substances are diluted to a point where they no longer contain much (or any) of the original substance. However, neither answer contradicts the other, as both can be true in different contexts and stages of nosode preparation.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that the majority of genes on the chromosome Y are related to masculinity, while ANSWER_2 implies this connection through the role of testosterone and the association between the chromosome Y and male sex determination.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the use of this abnormality specifically for diagnosing newborn girls, while ANSWER_2 mentions that the abnormality may also be associated with other anomalies such as hypoplasia of the spleen.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 asserts that it is not applicable due to males having only one X chromosome, while ANSWER_2 suggests that it could potentially be applicable because males have two distinct chromosomes (X and Y).'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on a specific category as a significant source of genetic diversity in development, while ANSWER_2 mentions both genetic and environmental factors playing an important role in a disease context.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 provides direct evidence from a passage, while ANSWER_2 infers the information based on common knowledge about Dengue transmission.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states this relationship, while ANSWER_2 infers it based on the replication of the virus in the central nervous system and subsequent effects.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 provides a direct statement from the passage, while ANSWER_2 infers the information based on the context of the full document.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 suggests that tens of thousands of fatalities occur annually, while ANSWER_2 states that approximately 400,000 people die each year. This difference might stem from varying sources or methodologies used to gather data on Hepatitis C-related deaths.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that the WHO emphasizes these aspects for dengue, while ANSWER_2 implies it through mentioning a systematic fight against the mosquito that transmits dengue.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that cytokines are involved, while ANSWER_2 implies this by referring to soluble factors that induce a protective response in the body.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 asserts that there are problems with blood coagulation in the severe form of the disease, while ANSWER_2 suggests an abnormal growth of blood vessels could be related to a complication in blood coagulation.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions specific diseases like measles, rubella, and others, while ANSWER_2 discusses influenza viruses as potential causes. However, neither answer contradicts the other, and they can both be true in different settings or diagnostic contexts.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that Ty1-copia is an example of endogenous viral elements, while ANSWER_2 implies this by stating that the immune system responds to them as foreign entities.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the contrast between viruses and cells, while ANSWER_2 focuses on the protein shell and its role in virus entry into cells.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the classification based on genome composition, while ANSWER_2 highlights an example of viruses with RNA genomes found in the gastrointestinal tract.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that latent and inactive viral cells present few signs of infection, while ANSWER_2 implies this by discussing less intense and intermittent symptoms associated with periods where the signs of infection are not noticeable.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 suggests a broader association between EBV and certain types of cancer, while ANSWER_2 focuses specifically on Burkitt's lymphoma, an endemic form linked to EBV."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that VZV is classified under the family of Herpesviridae, while ANSWER_2 infers this information based on the discovery of the virus by Weller and colleagues.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that the virus belongs to this family based on a specific passage, while ANSWER_2 infers its classification through context provided by the NIH document and the symptoms it causes (chickenpox and shingles).'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 directly states that the virus belongs to this genus, while ANSWER_2 provides additional context about the virus's ability to establish a persistent infection and become latent in nerve tissue, which is characteristic of the Varicellovirus genus."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on general methods of viral entry, while ANSWER_2 provides more specific details about the process involving a particular virus (presumably SARS-CoV-2) and its surface glycoprotein called peplomero.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on endocytosis as one of two methods for virus entry, while ANSWER_2 provides additional context about the different types of endocytosis (receptor-mediated endocytosis) and mentions phagocytosis as well.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 provides a general explanation about how viruses can exist relatively harmlessly within an organism, while ANSWER_2 focuses on specific viral infections that can be treated with antiviral drugs.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states this relationship, while ANSWER_2 implies it through the concept of high levels of community transmission leading to strained viral infections.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states this relationship, while ANSWER_2 implies it by discussing the probability of contact between infected and susceptible individuals.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that infected individuals are often isolated from the rest of the community, while ANSWER_2 suggests specific behaviors (staying at home, avoiding contact with others) that contribute to social isolation.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 provides a more detailed explanation by mentioning specific associations with Hodgkin's disease, B-cell lymphoproliferative disorder, and nasopharyngeal carcinoma, while ANSWER_2 implies these associations based on the known relationship between Epstein-Barr virus infection and the mentioned conditions."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions obesity, lack of exercise, diet, and age as potential contributing factors, while ANSWER_2 focuses specifically on an extended lifespan of women and rich diets high in fats.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that anxiety is one of the common chronic diseases treated in primary care, while ANSWER_2 implies this through its discussion of preventive social measures and political means. However, neither answer contradicts the other, as they both acknowledge anxiety as a health issue requiring attention and treatment in primary care.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 attributes the increased risk to stress itself, while ANSWER_2 links it to high blood pressure caused by chronic stress.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on physical health issues like stroke, heart attack, ulcers, and mental health problems such as anxiety and depression, while ANSWER_2 discusses chronic posture and respiratory issues, neurotransmitters, and the psychosomatic system.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the direct mention of a change in immune function as one of the physiological changes, while ANSWER_2 explains that hormonal changes related to female sexual function influence the immune system, which can be considered a change in immune function.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 emphasizes that the drug is sensitive to the acidic environment in the stomach, while ANSWER_2 highlights the impact of the acidic stomach pH on the drug's effectiveness and the microbiota composition in the intestines."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states the recommendation, while ANSWER_2 explains why this recommendation is made by considering the potential effects of acidity in the stomach on benzylpenicillin.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states the reason for the parenteral administration, while ANSWER_2 infers it from symptoms associated with reflux of acidic stomach contents.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions penicillin procaine, while ANSWER_2 mentions penicillin without specifying a derivative. Additionally, ANSWER_1 suggests that penicillin procaine is administered locally, whereas ANSWER_2 implies intravenous administration for severe infections.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that penicillin has been replaced with ceftriaxone due to resistance, while ANSWER_2 provides additional context about the effectiveness of penicillin and the potential for resistance. However, neither answer contradicts the other, as they both acknowledge the development of resistance to penicillin in Neisseria gonorrhoeae.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 provides a direct example of the use of penicillin G sodium for treating meningitis and endocarditis, while ANSWER_2 offers additional context about the broader range of bacterial infections that penicillins can treat, including meningitis and endocarditis.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 is more direct and specific about the types of infections treated, while ANSWER_2 provides additional context about the passage from which it was derived.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly mentions "penicillin binding protein" as being involved, while ANSWER_2 implies that proteins related to penicillin (such as penicillin binding proteins) may be involved without explicitly stating it.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that the passage mentions the protein, while ANSWER_2 infers its existence based on the known mechanism of action of penicillin and other beta-lactam antibiotics.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that erythema multiforme is a reported side effect of these medications, while ANSWER_2 implies this association through the context of multiple factors contributing to its development.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that angioedema is a symptom, while ANSWER_2 implies it by referring to the broader context of allergic reactions.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 suggests a range between 50% and 100%, while ANSWER_2 mentions that about one person in 15 may have an allergic reaction to antibiotics, particularly to penicillin and cefalosporins. However, neither answer contradicts the other or conflicts with factual information.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the limited treatment response associated with these infections, while ANSWER_2 focuses on the consequences of misuse or improper use of antibiotics.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 refers to a specific passage that describes the process of activation, while ANSWER_2 cites a significant leap in evidence as reported by Mahlman in 2001.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 defines it as a consequence or result of the initial action (the pedestrian falling), while ANSWER_2 suggests it could be a result of primary issues like abnormal spinal curvature and poor foot support. However, neither answer contradicts the other, and they both align with the definition of a secondary effect provided in the question.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 defines it as a consequence or result of the initial action (the pedestrian falling), while ANSWER_2 describes it as a delayed consequence related to harmful behaviors such as driving recklessly and substance abuse.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes that both secondary and adverse effects can lack clinical significance, while ANSWER_2 focuses more on the idea that the secondary effect is usually not necessary for treatment due to its lack of problem-causing potential.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the dependence on dosage and mentions biological receptors, while ANSWER_2 focuses on factors such as age, type of formulation used, and the problem being treated. However, neither answer contradicts or conflicts with the other, and they can both be true in different contexts.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 provides more specific terminology in Spanish, while ANSWER_2 offers additional context about indirect effects worsening previous health conditions.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses more on the direct measurement of plasma concentrations, while ANSWER_2 discusses additional factors such as the time of day when medication is taken and the maximum treatment duration, which are part of pharmacokinetics. However, neither answer contradicts or conflicts with the other.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the concentration of a drug in relation to time for each method of administration, while ANSWER_2 mentions that the risk depends on both the disease and the use of specific drugs for treatment.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the study of different methods of drug administration and the concentration of a drug over time for each method, while ANSWER_2 mentions specific types of drugs used for angina pectoris.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the concentration of a drug in relation to time for each method of administration, while ANSWER_2 mentions different types of pills available.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 directly states this dependence, while ANSWER_2 adds context about the body's tolerance towards certain substances and recovery process. However, neither answer contradicts or conflicts with the other."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 directly states that T3 is lipophilic and functions via nuclear receptors in the cell nucleus, while ANSWER_2 implies this by referring to thyroid hormones' known properties."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that T4 is a prehormone produced through the precursor thyroglobulin, while ANSWER_2 implies this by referring to common biological processes.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 provides a direct statement about the production of thyroxine from thyroglobulin, while ANSWER_2 infers this relationship based on information provided in the full document.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 discusses the direct impact of thyroid hormones on worsening heart conditions, while ANSWER_2 introduces the use of beta-blockers as a mitigating measure for these risks.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that these individuals were targeted for euthanasia during the Nazi regime, while ANSWER_2 implies it but does not explicitly confirm it.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 is a direct statement from the passage, while ANSWER_2 infers the use of the sulfate of quinine based on the information given.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 suggests that hemorrhage could potentially be overused, while ANSWER_2 advises against using it because of the demand for long-term medications. However, neither answer contradicts or conflicts with the other, as they both stem from the same historical context and source (the professor's statement)."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on hemochromatosis as part of the treatment for reducing iron levels, while ANSWER_2 mentions that phlebotomy could be used in this context without explicitly stating it is for hemochromatosis.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the passage stating the safety of the procedure under proper care, while ANSWER_2 infers the safety from the absence of anesthesia and the need for no accompaniment, which can be associated with infection control measures.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the variety of definitions due to different approaches and focuses, while ANSWER_2 highlights the contrast between traditional notions of theories and clinical trials.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes avoiding harm to individuals, while ANSWER_2 focuses on avoiding cherry-picking and bias in confirmation. However, both answers align with the general principle of conducting ethical and rigorous research.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 emphasizes the direct statement from the passage, while ANSWER_2 adds context about factors such as cost and long-term use that may contribute to a medication's discontinuation."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the lack of guarantee due to market dynamics, while ANSWER_2 highlights the role of post-commercialization controls through pharmacovigilance. However, neither answer contradicts or conflicts with the other, and both can be true in different contexts.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the limitations of studies conducted on laboratory animals in predicting drug effects in humans, while ANSWER_2 focuses on physiological differences between species and specific susceptibilities within the human population.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states this as the primary goal, while ANSWER_2 implies it by discussing the delay in detection due to underestimated or unknown symptoms.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes that it is common to detect such reactions in phase IV, while ANSWER_2 focuses on allergic reactions as a specific example. However, neither answer contradicts or conflicts with the other.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 suggests that the condition worsens because it is at its worst moment and less likely to improve spontaneously, while ANSWER_2 implies that the condition may worsen due to the fact that alternative therapies are used only when conventional treatments have not been successful.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses specifically on cancer and HIV infection, while ANSWER_2 mentions various diseases without explicitly limiting the discussion to those two. However, neither answer contradicts or conflicts with the other.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'ON_2: The passage in ANSWER_1 specifically mentions estrogen doses, while ANSWER_2 discusses BPA as an example of a compound with estrogenic effects. However, both answers address the same question about research on various aspects related to estrogen doses and their potential adverse effects on health.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 mentions the lack of information about long-term effects, while ANSWER_2 implies that prolonged use may worsen symptoms. However, neither answer contradicts or denies the other's assertion that there is known information about the substances' effects on humans in some cases."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states this link, while ANSWER_2 provides additional context about a study that investigates the relationship between mercury exposure during pregnancy and cognitive development in children.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the general link between mercury poisoning and neurological issues in children, while ANSWER_2 provides a more detailed list of specific symptoms that may arise from high levels of mercury ingestion.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 asserts a direct link between obesity and the development of cardiac diseases, while ANSWER_2 explains this relationship by mentioning high cholesterol and hypertension as intermediary factors.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 explicitly states that problems associated with eroticism include STIs, while ANSWER_2 implies this connection through the mention of transmission associated with sexual relations.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 is more specific to the surgery context, while ANSWER_2 is broader and includes geographical context. However, neither answer contradicts or conflicts with the other.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the use of miniaturized instruments and body cavity or structure insertion, while ANSWER_2 emphasizes the use of local anesthesia and lack of hospitalization. However, neither answer contradicts the other, as both aspects can be used to describe minimally invasive surgery.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the broader inclusion of diet in Ayurvedic practice, while ANSWER_2 focuses on the role of Omega-3 in maintaining attention and brain development within that context.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses specifically on the practice itself, while ANSWER_2 clarifies that it is an ancient Indian system of holistic healing.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 discusses various methods used for boxing training, including the number of repetitions per series, while ANSWER_2 focuses on a specific type of boxing training that involves a low number of blows in water.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the role of rest in developing resistance and aerobic capacity, while ANSWER_2 focuses on creating an atmosphere conducive to calm, peace, and concentration during rest periods.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on quick movements and reactions, while ANSWER_2 provides a more specific example of hand compressions during training.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that the risk is high, while ANSWER_2 describes an event (blockage of blood flow) that can cause brain injury in this context.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 refers to a specific passage that mentions him directly, while ANSWER_2 infers his achievement based on the information from the full document (not provided). However, since both answers agree on the factual information, there is no contradiction or cultural discrepancy between them.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 explicitly mentions the antidiuretic hormone (ADH) as a regulator of salt concentration, while ANSWER_2 implies that ADH is involved in water reabsorption and thus affects fluid balance.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 focuses more specifically on the regulation of salt concentration in fluids, while ANSWER_2 provides additional context about aldosterone's role in maintaining fluid balance within cells and its impact on blood pressure and cardiovascular health."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly addresses the question by stating that inhibiting 5-alfa reductase achieves the prevention of testosterone conversion to dihydrotestosterone, while ANSWER_2 implies this mechanism through the mention of drugs designed to bind specific molecular targets.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions undiagnosed intestinal diseases as another possible reason for lactose intolerance, while ANSWER_2 suggests that the regression might be due to the child growing out of the allergy. However, neither answer contradicts or conflicts with the other.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 asserts the use of capsaicin for migraines, while ANSWER_2 suggests that further context is needed to confirm this.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions its effectiveness in reducing or sedating headaches directly, while ANSWER_2 focuses on preventing migraines. However, neither answer contradicts the other, as they both support the overall claim that caffeine has positive effects in reducing headaches.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the direct properties of LSD causing these changes, while ANSWER_2 focuses on the role of thyroid hormones in the development of these effects.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that malaria is among the diseases that resurge in such situations, while ANSWER_2 implies this by comparing malaria to a contagious disease requiring quarantine.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly mentions specific substances like peyote, tobacco, and mescaline-laden red beans, while ANSWER_2 implies their use without explicitly stating it. However, given the cultural context of shamanic practices, both answers can be valid in different settings.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that syphilis is among the diseases brought by Europeans to the area, while ANSWER_2 provides additional context about the historical spread of syphilis from Europe and mentions influenza as well.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 uses the term "progressive" while ANSWER_2 provides specific numerical data about the reduction in mortality rates between 2009 and 2022.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses specifically on diabetic eye disease or retinal detachment as causes of blindness for those without financial means, while ANSWER_2 expands upon this by mentioning diabetic retinopathy and inferring that retinal detachment could also be a factor.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the discovery of neuroanatomical and functional differences and similarities, while ANSWER_2 focuses on common origins evolutionarily and the concept of homology.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on neuroanatomical and functional differences and similarities, while ANSWER_2 emphasizes the potential for predicting behavior based on mental states and behavior in one subject.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 focuses on the country-level context, while ANSWER_2 delves into the psychological and neurological effects of cannabis use. However, neither answer contradicts or denies the other's assertions."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states the information from the passage, while ANSWER_2 infers the information based on the geographical location of Madagascar.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the perception of anger outbursts, while ANSWER_2 explains the physiological reasons behind these symptoms. Although they provide slightly different information, neither answer contradicts or conflicts with the other.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 is more direct in stating that pleurodesis is used to prevent pneumothorax, while ANSWER_2 suggests this implication based on the broader context of LAM treatment and the nature of pleurodesis as a procedure for treating pneumothorax.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_2 makes an inference based on similarities between metachromatic leukodystrophy and sickle cell anemia, while ANSWER_1 directly states that gene therapy or enzyme replacement therapy for metachromatic leukodystrophy was under investigation in 2010.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 directly states the importance of the evaluation for determining treatment suitability, while ANSWER_2 implies this by discussing the method's ability to detect tumors accurately."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 states it is a recommendation, while ANSWER_2 implies it could potentially help detect tumors in high-risk individuals. However, neither answer contradicts the other or presents conflicting information.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 explains that altered antibody levels can lead to incorrect results, while ANSWER_2 mentions a potential need to wait or avoid chemotherapy in specific cases.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on confirming the presence of breast cancer, while ANSWER_2 highlights the specificity of MRI in detecting tumors, including small metastases.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on common sites for hemorrhage, while ANSWER_2 discusses the potential treatment for individuals who develop inhibitors. However, neither answer contradicts or conflicts with the other.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 states it is one of the main diagnostic techniques, while ANSWER_2 suggests it could be one of the main diagnostic techniques. The slight difference in phrasing does not constitute a contradiction.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly answers the question as stated, while ANSWER_2 implies that such a test would be relevant given the context of the disease being discussed.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that the diagnosis is based on demonstrating a deficiency in glucosylceramidase activity in peripheral blood leukocytes or other nucleated cells, while ANSWER_2 implies this by referring to it as a key characteristic of Gaucher disease.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly addresses the question by stating that it is based on demonstrating a deficiency in glucosylceramidase activity in peripheral blood leukocytes or other nucleated cells, while ANSWER_2 acknowledges this but also mentions that the passage does not explicitly state that it is the sole diagnostic method.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 suggests that microischemias directly cause tissue damage, while ANSWER_2 implies that infections leading to microischemia may hinder or slow down tissue healing, which could indirectly result in tissue damage.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 provides a straightforward affirmative response, while ANSWER_2 offers more specific details about the cytokines released during this process.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that the bone fragility makes the procedure complex, while ANSWER_2 implies it by mentioning the fusion of parts of the vertebral column as a result of certain cases causing it.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that hemoglobin binds to glucose due to its accumulation in blood, while ANSWER_2 suggests that an increase in glucose levels could potentially affect hemoglobin.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on addressing "low levels of glucose" directly, while ANSWER_2 discusses maintaining glucose levels as close to normal as possible to prevent complications, including hypoglycemia.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses specifically on blood sugar control, while ANSWER_2 expands upon that by mentioning the broader context of controlling certain substances in the blood to maintain kidney function.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes a strict control, while ANSWER_2 mentions adjusting the treatment schedule for optimal control.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 classifies otitis as a separate initial symptom, while ANSWER_2 includes it under the broader category of recurrent respiratory infections.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes meningitis as one of several common initial symptoms among children, while ANSWER_2 highlights it as the most likely consequence of central nervous system involvement in children.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'ON_2: While ANSWER_1 refers to a specific condition, ANSWER_2 discusses gestational diabetes mellitus and its potential link to insulin-resistant diabetes mellitus. Given that both forms of diabetes share similarities in terms of insulin resistance, it is reasonable to consider them as related conditions.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that immunodeficiency is one of the tests supporting the diagnosis, while ANSWER_2 implies this by discussing the broader category of immunoenzymatic tests.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that CVS between weeks 10-12 can be used for this diagnosis, while ANSWER_2 implies that it is one possible method among others (mentioned in the passage) and suggests consulting additional information or a medical professional for accurate advice.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that these treatments are potentially lethal for individuals with Ataxia-Telangiectasia, while ANSWER_2 elaborates on the reasons behind this risk by discussing the increased sensitivity of individuals with Ataxia-Telangiectasia to conventional doses of chemotherapy and their predisposition to certain types of cancer.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the interference with the electrophoresis protein test, while ANSWER_2 discusses the natural protection provided by maternal antibodies that might mask the absence of Igs in blood.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 suggests that an intestinal biopsy may be required for confirmation, while ANSWER_2 mentions electrophoresis protein as the primary method with newborns starting to produce their own antibodies at around 6 months of age. However, both answers can be valid in different settings (e.g., depending on the specific diagnostic approach used), so they are not contradictory but rather present variations in reasoning or examples.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes that an intestinal biopsy may be required as a more invasive procedure when electrophoresis protein test results are inconclusive, while ANSWER_2 suggests that the electrophoresis protein test itself might not provide accurate results before six months of age due to maternal antibodies.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 is more direct and explicit in stating the connection between difficulty feeding and neurological disorders, while ANSWER_2 offers a more detailed explanation of the underlying cause.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 directly states that difficulty feeding is a symptom of the neurological disorder mentioned in the passage, while ANSWER_2 implies that any issues affecting the newborn's ability to feed could potentially be related to a neurological disorder."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly mentions "ocular disorders" as a clinical manifestation, while ANSWER_2 lists several visual disturbances that can be considered subcategories of ocular disorders.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly mentions it as a clinical manifestation in the presented condition, while ANSWER_2 connects it to mental retardation, which is one of the four main causes of intellectual disability.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 provides a more comprehensive list of symptoms, while ANSWER_2 infers learning difficulty based on the presence of intellectual disability and the described clinical profile.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "ON_2: The World Health Organization's list of risk factors for chronic diseases includes obesity, while the Syndrome of Prader-Willi is a specific genetic disorder associated with obesity."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the genetic aspect (amount of trisomic cells), while ANSWER_2 emphasizes individual factors such as nutritional status, age, sex, and concurrent diseases. However, neither answer contradicts or conflicts with the other.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the genetic aspect (amount of trisomic cells), while ANSWER_2 considers additional factors such as age, severity of symptoms, associated disorders, and family and social situation. However, neither answer contradicts or conflicts with the other.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the poor prognosis of the fetal condition as a reason for the ethical dilemma, while ANSWER_2 emphasizes the potential complications that could arise from the surgery itself.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states this association based on a specific passage, while ANSWER_2 infers it using additional context and general knowledge about neurofibromatosis type 1.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 provides a direct assertion that Neurofibromatosis Type 2 is associated with chromosome 22, while ANSWER_2 explains the underlying genetic cause of this association.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions them as one of the typical characteristics associated with certain conditions, while ANSWER_2 discusses their use in diagnosing neurofibromatosis. However, neither answer contradicts or conflicts with the other.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 uses the term "de novo" mutations, while ANSWER_2 mentions that these mutations occurred during conception. However, both answers convey the same idea: that spontaneous mutations can occur independently of parental chromosomal alteration.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 directly addresses the question by stating that the diagnosis is dependent on meeting two or more specific criteria as stated in the passage, while ANSWER_2 infers this based on the ERN Genturis's focus and purpose."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions "hypogonadism hypergonadotropic," while ANSWER_2 does not explicitly mention hypergonadotropic but implies it through the reference to an increase in gonadotropin levels due to the lack of response from the testes.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that it is one of their characteristics, while ANSWER_2 suggests that it might be one of the distinctive facial features associated with the condition mentioned in the passage (sindrome di DiGeorge).'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions that it can be used along with other methods (amniocentesis and biopsies of placental tissue), while ANSWER_2 specifies a scenario where an increased risk is detected in a prenatal screening test.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 asserts that the disease is more common among Ashkenazi Jews than in the general population, while ANSWER_2 implies this by stating that Canavan disease is the most common genetic metabolic disorder among populations of Caucasian origin and Ashkenazi Jews are a subgroup within this broader population.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 provides a more direct statement about the components of the treatment, while ANSWER_2 offers additional context by inferring that these elements are included due to addressing life-threatening conditions like infections.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_2 infers these aspects based on the mention of antibiotic therapy. While they do not directly contradict each other, they offer different levels of detail and specificity.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the use of a Nasogastric tube if necessary, while ANSWER_2 implies it through the mention of hydration.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly addresses the question by citing specific alterations observed in achondroplasia, while ANSWER_2 offers a broader perspective that may apply to other types of dwarfism or skeletal dysplasias.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 refers to a broader examination process that includes evaluating the response to treatment, while ANSWER_2 focuses specifically on an antibiogram used to choose appropriate antibiotics for treating Citrobacter infections.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the types of bacteria affecting patients and their characteristics, while ANSWER_2 discusses the enterotype of a person changing in relation to environmental variations.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states the specific location of the CFTR gene on chromosome 7, while ANSWER_2 infers its location based on the context of a search for mutations in the gene associated with cystic fibrosis.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states the position of the gene, while ANSWER_2 infers it based on the association between the gene and modulator drugs, which are often linked to a specific location on chromosome 7 (7q31.2).'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the primary role of these antibiotics in preventing bacterial proliferation, while ANSWER_2 discusses their bronchodilator effects and possible combination with beta2-agonists. Although there is a difference in emphasis and suggested combinations, neither answer contradicts the other.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 provides more context about its mechanism of action as an antagonist of the cholinergic receptor, while ANSWER_2 infers ipratropium bromide's identity based on the context of the passage."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 refers to Tezacaftor as an enhancer or corrector, while ANSWER_2 describes it as a modulator. These terms are related and can be used interchangeably in certain contexts to describe drugs that improve the function of CFTR.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that tezacaftor is among the components of the therapy mentioned in the passage, while ANSWER_2 provides additional information about the therapy being part of a combination called Trikafta.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 states that certain aspects were identified, while ANSWER_2 mentions the discovery of PKU itself in 1934 by Folling.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly addresses the question without additional context, while ANSWER_2 requires further investigation to confirm its claim about an incomplete chromosome being a recognized variation of Klinefelter syndrome.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the cells that may not have carried a chromosome X, while ANSWER_2 discusses developmental issues, intellectual disabilities, and malformations that can occur during the formation of either ova or sperm due to problems in meiosis.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the potential errors in chromosomal number, while ANSWER_2 discusses the differences in chromosome movement speed between faster-moving sperm containing the Y chromosome and slower-moving sperm containing the X chromosome.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly addresses the question by confirming that the ovaries cannot respond to brain orders for producing necessary female hormones, while ANSWER_2 implies this through discussing the development of ovarian cysts due to altered hormone regulation in Turner Syndrome.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 refers to a list of symptoms associated with certain genetic disorders, while ANSWER_2 mentions dyschromatopsia as part of a broader category of sensory disabilities that may indicate a familial syndrome.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 suggests that it is usually detected after puberty, while ANSWER_2 indicates an average diagnosis age of 6 years, which could be before puberty in some cases.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly addresses the question asked, while ANSWER_2 expands on the topic by providing more details about the specific ventricles involved (lateral and third).'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 refers to "Tremor Ataxia Syndrome Associated with the X Fragile (FXTAS)" as a potential pathology or disorder affecting carriers of the Premutation, while ANSWER_2 simply states that Tremor Ataxia Syndrome is associated with carriers of the X Fragile premutation.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that FRAXD is located on chromosome Xq27.2 near the site of FRAXA, while ANSWER_2 infers this information based on the known location of FRAXA and the association between FRAXD and Fragile X syndrome.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 provides more detailed context by mentioning sertralina as one of the SSRIs used for these conditions, while ANSWER_2 makes a general statement about SSRIs without specifying the exact drug but implies that sertraline falls under this category due to its common usage.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the general process of cells producing different protein sets during differentiation, while ANSWER_2 discusses the specific example of gene expression changes leading to altered protein production.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 provides a more direct statement about protein production during cell differentiation, while ANSWER_2 adds context about the process of cell division and its role in gene expression and protein synthesis.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 refers directly to the production of different sets of proteins at different times or conditions during the cell cycle, while ANSWER_2 discusses the continuous flow of information and molecular stimuli that influence cell development and affect the entire organism, implying a change in protein production during the cell cycle.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states this as one of its objectives, while ANSWER_2 infers it based on the overall goal of the analysis.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 provides a direct statement about the objectives of protein interaction proteomics, while ANSWER_2 offers additional context by explaining how this objective might be achieved through key points.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 explicitly mentions Western blot as one of the techniques used, while ANSWER_2 implies that Western blot is a subtype of electrophoresis protein analysis. Although they are not directly contradictory, they present slightly different information about the specific technique used.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly addresses the question by stating that monitoring post-translational modifications is one of the tasks that impact protein function, while ANSWER_2 expands on this by explaining the connection between DNA modifications and protein post-translational modifications.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the cell cycle as a biological system that is susceptible to disturbances, while ANSWER_2 discusses how these disturbances can lead to cancerous cells.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 asserts that there is no mention of a chromosomal disorder, while ANSWER_2 suggests that there might be a mention due to the potential risk of genetic diseases.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states "a variable degree of cognitive disability," while ANSWER_2 refers to "Mental Retardation" as one of the causes. Given that both terms are related and can be used interchangeably in many contexts, there is no direct contradiction between the answers.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on Down Syndrome specifically, while ANSWER_2 discusses chromosomal abnormalities more broadly. However, they share the same underlying idea that ultrasounds offer an estimate of risk but do not provide definitive diagnoses.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that the gene is overactivated by the extra chromosome in Down syndrome, while ANSWER_2 infers this information based on the known effects of Down syndrome on brain development.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the importance of considering the type of examination along with other factors like medical and family history, while ANSWER_2 focuses more broadly on the role of healthcare professionals in interpreting examinations. However, neither answer contradicts or conflicts with the other.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 emphasizes the importance of considering the type of examination in conjunction with a patient's medical and family history, while ANSWER_2 focuses on the potential impact of radiation exposure from a specific examination compared to traditional urography."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the importance of considering the type of examination along with other factors like medical and family history, while ANSWER_2 focuses specifically on a qualitative test that may not quantify results due to its methodology.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the importance of considering the type of examination along with other factors like medical and family history, while ANSWER_2 focuses on the role of a doctor or specialist in interpreting the results.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 discusses healthcare professionals considering various factors (including the type of examination) when interpreting test results for any patient, while ANSWER_2 focuses on blood tests specifically in relation to confirming an implant for women.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 suggests that a genetic test can suggest the need for another examination in general, while ANSWER_2 specifies villocentesis or amniocentesis as potential follow-up tests.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 states that an ambiguous result is unable to confirm or indicate the risk of a specific disease, while ANSWER_2 suggests that an ambiguous result could fall in between positive and negative results, implying a lack of definitive confirmation or ruling out of a diagnosis.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 asserts that an ambiguous result cannot confirm a diagnosis, while ANSWER_2 adds that it may also be unable to rule out a diagnosis due to limited long-term data on results.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes that an ambiguous result cannot confirm or indicate the risk of a specific disease, while ANSWER_2 discusses the potential for inadequate diagnoses or incorrect diagnoses leading to underestimated data.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the inability of an ambiguous result to indicate the risk of a specific disease, while ANSWER_2 discusses the need for careful evaluation before administering tests with ambiguous results.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the need for consent from the patient for healthcare professionals to order the test, while ANSWER_2 focuses on the sharing of results with family members as an implication of obtaining patient consent.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that the structure in question performs the function of perceiving light, while ANSWER_2 explains how Vitamin A improves vision in low light and forms rodopsin, which gives the eye sensitivity to light, thus implying that the eye is responsible for the perception of light.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly addresses the question by stating that at least eight people have died due to anaphylactic shock from a bee sting allergy, while ANSWER_2 implies this is possible but does not provide specific numbers or evidence of such cases.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 explicitly states that the lentivirus can replicate and release virions capable of infecting other cells, while ANSWER_2 implies this possibility for viruses based on the reproductive behavior of bacteria.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 is more specific in stating that there are exactly two parameters involved, while ANSWER_2 implies multiple parameters without specifying their number.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the general idea of combining multiple parameters, while ANSWER_2 offers a specific example (presence or absence of HIV in the blood and the effectiveness of antiretroviral treatment).'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the natural progression of the disease without therapy, while ANSWER_2 discusses the role of therapy in preventing the development of AIDS and limiting damage to immune cells.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the negative impact of untreated HIV infection, while ANSWER_2 highlights the potential for intervention through early detection and prompt access to combination therapies.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses more on the improvement in quality of life and survival chances for HIV carriers due to treatment, while ANSWER_2 discusses the prevention of the progression of the infection towards AIDS.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 directly states the organism's association with immunocompromised patients, while ANSWER_2 implies this connection by discussing the increased probability of being affected by infectious diseases due to altered immune systems."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes reducing potential side effects, while ANSWER_2 focuses on ensuring the safety of both mother and baby. Although they present slightly different perspectives, neither statement contradicts or conflicts with the other.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 refers to a direct statement in the passage, while ANSWER_2 makes an inference based on the information provided in the Italian passage.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the potential negative impact on health in general, while ANSWER_2 emphasizes the potential loss of disease-fighting capabilities due to excessive administration.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the potential worry of living with the risk of having Ehlers-Danlos disease, while ANSWER_2 focuses on understanding potential health risks and taking appropriate measures.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the potential worry of living with the risk of having the disease, while ANSWER_2 focuses on the diagnostic and treatment implications of the test results.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 describes direct neural projections, while ANSWER_2 discusses a herniation scenario that implies indirect neural connections. However, neither answer contradicts or conflicts with the other.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 provides specific examples of less potent drugs that may be better tolerated when these side effects occur, while ANSWER_2 translates the term "unwanted effects (side effects)" to include rigidity, akathisia, and dystonic reactions.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'ON_2: Both answers discuss the use of SSRIs for treating depression but offer contrasting perspectives on the evidence supporting their effectiveness. While ANSWER_1 suggests a lack of controlled studies, ANSWER_2 asserts that they have been found effective in controlled studies.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the effect of reduced anticholinergic activity on bowel dryness, while ANSWER_2 discusses its impact on intestinal fermentation and gas production. However, neither answer contradicts or conflicts with the other, as they both support the same overall claim.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly mentions metastasis determination as a purpose of early diagnosis, while ANSWER_2 implies this by stating that early diagnosis can prevent the worsening of the disease, which often includes detecting and addressing potential complications such as metastasis.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on distinguishing acquired mutations in tissue development from inherited ones, while ANSWER_2 mentions sequencing DNA from placental samples specifically. However, both answers support the same overall idea that this analysis is relevant for interpreting results from placental samples.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the significance of genome sequencing in clinical practice for rare diseases, while ANSWER_2 highlights its importance for prenatal diagnosis, diagnosis, prognosis, and treatment selection of various diseases, particularly tumor-related ones.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states the relationship between the genes involved in carcinogenesis and cell cycle control, while ANSWER_2 offers more detail on the connection by discussing these particular genes.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_2 mentions the potential risk indirectly by referring to pollutants that could be linked to GMOs, while ANSWER_1 directly states that there is evidence of undesired gene dissemination from some GMOs.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states this fact based on information from a passage, while ANSWER_2 infers it by comparing the number of chromosomes between males and females.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 provides a more direct statement about the usefulness of these techniques, while ANSWER_2 infers their relevance based on the context provided.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the role of the centromere in determining the alignment and segregation of chromosomes during cell division, while ANSWER_2 focuses on the necessity of considering the centromere position for proper representation in karyotypes and idiograms.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the risk factors associated with selective pressure, while ANSWER_2 highlights the importance of proper antibiotic use to combat antibiotic resistance.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 states this explicitly, while ANSWER_2 implies it by discussing the various diseases caused by different bacteria that can be treated with bacteriophages.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 uses the term "union" directly from the dictionary definition, while ANSWER_2 describes the process of fertilization without explicitly mentioning the term but still conveying the same meaning.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 provides a direct statement about the usage of the term, while ANSWER_2 offers additional context and examples that support the initial claim.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that there is an imbalance of ligaments at two locations in the condition, while ANSWER_2 explains that one leg being shorter than the other could potentially indicate such an imbalance.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly mentions "hormonales atípicas" (atypical hormonal characteristics) as a condition, while ANSWER_2 discusses exposure to substances that interfere with hormonal action and affect the development of reproductive organs.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 provides a direct reference to the subspecialty, while ANSWER_2 offers additional context about a specific intervention performed in this subspecialty.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions beta-blockers as an additional medication to antiplatelet drugs like aspirin, while ANSWER_2 discusses their use as an alternative to beta2-agonists when the latter cause intolerable side effects.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 explicitly mentions it as one of the four main types, while ANSWER_2 implies it by referring to it in the context of the passage without specifying its rank among the types.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that it is a common type of chromosomal modification, while ANSWER_2 implies this possibility without explicitly stating it.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on any autosomal chromosomes being involved in the given phenomenon, while ANSWER_2 provides a specific example of the fusion of DNA portions from two autosomal chromosomes (chromosome 9 and chromosome 22) that results in the Philadelphia chromosome.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 asserts that the rate of mutation is different for various cellular divisions, while ANSWER_2 suggests that these variations have been developed over time due to cellular divisions.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 provides a direct statement from the passage, while ANSWER_2 interprets the phrase "generazione di mutazioni di \'pensieri casuali\'" as referring to mutations in this context.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 is more specific to the question asked, while ANSWER_2 expands on the topic by providing related information.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the general presence of sex chromosomes in all human cells, while ANSWER_2 highlights the gender-specific association of XY and XX chromosomes.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 emphasizes the likelihood of genetic inheritance when there's only one affected family member, while ANSWER_2 focuses on specific instances of the disease spreading within the family nucleus."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses solely on skin rash being among the most common side effects, while ANSWER_2 expands upon this by listing other common side effects and discussing less common ones.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that sepsis is one of the conditions associated with severe cases, while ANSWER_2 explains how sepsis can compromise vital functions of the body and requires support in ICU.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the physical environment as one of the three components of the triangle, while ANSWER_2 emphasizes the role of infected individuals (people) in transmitting the virus, which can be considered part of the environmental factor facilitating disease transmission.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 provides explicit confirmation from the passage, while ANSWER_2 infers the recommendation based on the broader context of the passage.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 states a more precise estimate, while ANSWER_2 provides an average value that implies the same range as ANSWER_1 but does not explicitly state the percentage of cases it applies to.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly mentions "infection secondary" as a complication in the passage, while ANSWER_2 implies it by stating that the treatment for secondary syphilis is similar to that of primary syphilis.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 states it as one of the most common complications, while ANSWER_2 mentions it occurs in about 30% of cases and provides examples of other potential complications.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states the information, while ANSWER_2 infers it based on the listed complications that are common among ICU survivors.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the higher infection rate among women in older age groups, while ANSWER_2 emphasizes the role of age and conditions in explaining the spread of COVID-19.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions contact and airborne precautions along with protective eyewear, while ANSWER_2 emphasizes being equipped with medication for emergencies. However, both statements can be valid in different settings, as they share a common agreement on the need for standard precautions.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 is more direct in stating the recommendation, while ANSWER_2 adds context about the doctor's awareness of potential interferences. However, neither answer contradicts or conflicts with the other."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states this recommendation, while ANSWER_2 implies it through the mention of hygiene rules.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly addresses the question asked, while ANSWER_2 expands on the topic by mentioning related recommendations. However, neither answer contradicts or conflicts with the other.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes avoiding contact without any specific mention of protective equipment, while ANSWER_2 highlights the use of masks as part of this recommendation.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 is more direct in stating the advice given by the CDC, while ANSWER_2 provides additional context about the settings where this advice applies.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 is more direct in stating hCG's role as a tumor marker for hydatidiform moles, while ANSWER_2 offers a broader perspective on its potential uses."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the fact that hCG subunit β is secreted by hydatidiform moles, while ANSWER_2 explains how hCG stimulates the corpus luteum to produce progesterone in such cases.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'ON_2: The answers are presented in slightly different contexts, with ANSWER_1 providing a more comprehensive list of conditions associated with hCG production, while ANSWER_2 focuses on the association between hCG and tumors of islet cells. However, this difference does not result in a contradiction or discrepancy.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 provides a direct affirmation that paraesthesia is a symptom of mercury poisoning, while ANSWER_2 adds context about the potential need for further medical investigations and mentions that various symptoms may occur due to mercury poisoning, implying that paraesthesia is one such symptom.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly mentions a burning sensation as a symptom, while ANSWER_2 infers it based on other symptoms such as gastrointestinal problems and respiratory issues.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 provides a direct translation from Spanish, while ANSWER_2 offers additional context about exposure levels and timeframes. However, neither answer contradicts the other or presents conflicting information.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 asserts that skin peeling is one of the symptoms of mercury poisoning based on a specific passage, while ANSWER_2 suggests that skin peeling could be involved in the progression of Leishmaniosis symptoms, which can include mercury poisoning as a cause.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 attributes the link between adrenaline and sweating to mercury, while ANSWER_2 does not mention any specific cause.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that irritability is a symptom of mercury chloride overexposure, while ANSWER_2 expands on this by explaining the various symptoms that can occur due to different methods of exposure and providing more information about the tolerable dose established by the EFSCA.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 presents a direct assertion, while ANSWER_2 offers more nuanced information without contradicting it.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions symptoms like memory loss, changes in personality, and brain damage, while ANSWER_2 focuses on the potential effects of inhaling mercury chloride vapors during alchemical experiments.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 asserts a general claim about the organic mercury compound's toxicity and involvement in brain damage, while ANSWER_2 offers more detailed information about the specific impact of methylmercury, a type of organic mercury, on the central and peripheral nervous system."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 provides a direct statement from the passage, while ANSWER_2 infers the information based on common knowledge about p53.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states the involvement of p53 in these processes, while ANSWER_2 infers this based on the mention of substances involved in DNA metabolism.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the physical characteristics of the symptoms, such as their appearance and size, while ANSWER_2 emphasizes the role of different types of HPV in determining symptom variation.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 provides a more direct statement about disorders related to the immune system being caused by aberrant immune system responses, while ANSWER_2 focuses on asthma specifically and mentions corticosteroids as a medication used to manage it. However, neither answer contradicts or conflicts with the other.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses specifically on allergies, while ANSWER_2 discusses both allergies and intolerances in relation to the immune system.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on understanding how such disorders develop, while ANSWER_2 provides an example of one specific type of such disorder (Graft Versus Host Disease).'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 suggests it is among the commonly associated symptoms, while ANSWER_2 indicates it is less common.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that lethargy is one of the symptoms, while ANSWER_2 explains how other symptoms listed in the passage can be associated with lethargy.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 asserts that lethargy is a common symptom for this specific condition, while ANSWER_2 suggests it might be a symptom in some cases without definitively confirming its commonality.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly addresses the question by citing information from the passage, while ANSWER_2 infers fever as a symptom based on knowledge about chickenpox. Although they share the same conclusion, there is some difference in the level of detail and specificity provided.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the use of rpm for heartbeats and other contexts, while ANSWER_2 specifically mentions its application to mechanical devices like pumps or valves within medical documents.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses directly on the cause, while ANSWER_2 provides additional context about the conditions that can lead to this cause.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses specifically on peripheral cyanosis as a manifestation of the intoxication, while ANSWER_2 adds context about other possible cardiac problems associated with the condition.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that vasodilators can cause peripheral cyanosis, while ANSWER_2 explains the mechanism behind this relationship by describing how these drugs increase peripheral resistance and decrease blood flow to the extremities.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 discusses the direct effect of these specific vasodilators, while ANSWER_2 provides an example of a medication (nitrofurantoin) that belongs to this class and can cause peripheral cyanosis.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that cyanosis is one of the symptoms, while ANSWER_2 explains how respiratory issues related to acute dapsone poisoning can lead to cyanosis.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the role of gastric lavage in cleansing the gastrointestinal tract, while ANSWER_2 focuses on allowing the body to rest and recover its tolerance towards certain substances.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions the use of gastric lavage along with activated charcoal to cleanse the gastrointestinal tract, while ANSWER_2 discusses its application in cases where a blood infection is suspected. However, neither answer contradicts or conflicts with the other.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on multiple diseases linked to specific genes being identified and emphasized in medical practice, while ANSWER_2 discusses the identification of genes that modify the risk of developing multiple sclerosis.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the current emphasis on these areas in medical practice, while ANSWER_2 discusses the historical context of the International Human Genome Project and its impact on the development of this focus.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the focus on diseases linked to specific genes, while ANSWER_2 discusses the broader role of cellular biology in forming red blood cells, producing amino acids, and constructing genetic patrimony.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 emphasizes the identification and treatment of diseases linked to specific genes, while ANSWER_2 highlights the use of DNA for identification purposes in medical practice.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 discusses the identification of diseases linked to specific genes and their emphasis in medical practice, while ANSWER_2 talks about cellular reprogramming and its applications in healthcare.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the overall development of orthopedics, while ANSWER_2 highlights its relevance in managing and controlling diseases.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions observing the decision-making machinery working, while ANSWER_2 discusses specific methods like Positron Emission Tomography (PET) and Functional Magnetic Resonance Imaging (fMRI).'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly addresses the question by stating that meningitis aseptica affects the meninges in patients with negative bacterial cultures from routine cerebrospinal fluid tests, while ANSWER_2 implies this based on the understanding of what meningitis refers to and its potential association with late infections.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that the virus can cause aseptic meningitis, while ANSWER_2 provides additional context about how the virus travels to ganglia in the nervous system and can remain latent without causing disturbances, but still has the potential to cause aseptic meningitis.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on laboratory results being among the factors considered by medical professionals, while ANSWER_2 explains that these tests help exclude other diseases that could cause seizures, with aseptic meningitis being one of the conditions diagnosed through this exclusionary process.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 is more straightforward and focuses on peptic ulcers as a direct cause, while ANSWER_2 offers a possible mechanism for how peptic ulcers might contribute to upper digestive tract issues.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 mentions it as one of the possible causes in a passage, while ANSWER_2 provides additional context on the symptoms associated with anal fissure that can lead to lower digestive tract bleeding.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the presence of occult blood in stools as a diagnostic tool for various conditions, while ANSWER_2 emphasizes its role as an indicator of inflammation and treatment monitoring.'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 directly states that the improvement of cell B is part of the immune system\'s benefits from immunization, while ANSWER_2 implies it by discussing the effects of "immunostimulant" substances on blood cells (including cell B).'
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: "WER_1 focuses on the suggestion for rabies, while ANSWER_2 explains that the idea originated from Pasteur's work on smallpox and could be extended to other diseases like rabies in the future."
+--------------------------------------------------------------------------------
+COUNT: 1
+LABEL: 'WER_1 focuses on the overall population, while ANSWER_2 highlights a higher prevalence rate specifically among people with Down syndrome.'
+--------------------------------------------------------------------------------

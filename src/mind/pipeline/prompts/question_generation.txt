@@ -1,14 +1,28 @@
-You will be given a PASSAGE and a brief SUMMARY of the content where it appears. Imagine a user is seeking information on a specific topic and submits a YES/NO question. Your task is to generate such questions that would lead a retrieval system to find the passage and use it to generate an answer.
+You will be given a PASSAGE and a brief SUMMARY of the content where it appears. Your task is to generate self-contained YES/NO questions.
 
 #### TASK INSTRUCTIONS ####
 
 Generate ONE concise question based on this passage alone, ensuring:
-- Use information appearing only in the PASSAGE.
-- Generate a YES/NO question.
-- The query asks precisely one thing and is directly answerable from the text provided.
-- It avoids any reference to specific details like dates, names, numbers, or unique case scenarios.
+- Use information appearing only in the PASSAGE. Do not use the SUMMARY as a source of facts as it is provided only as context.
+- Generate a YES/NO question that asks precisely one thing.
+- The question must be directly answerable from the PASSAGE alone.
+- Avoid any reference to specific dates, names, numbers, or unique case scenarios.
+- Phrase the question generally enough to be transferable across different medical documents on the same topic, so it is useful for discrepancy detection but every entity and relation used must still come from the PASSAGE itself.
+- NEVER use pronouns ("it", "they", "them"), demonstratives ("this", "these", "those"), or bridging/context-dependent expressions ("such", "these conditions", "the disorder", "the disease", "the treatment," "this problem," and similar). Always repeat the explicit noun phrase instead.
+- If the PASSAGE or SUMMARY names multiple entities (e.g. several diagnoses, symptoms, or treatments), name each one individually in the question. Never use a collective term (e.g. "visual disorders").
+- A reader should be able to understand the question without having seen the original passage or summary.
 - Information in the question is formulated generally to be transferable across various medical documents on similar topics.
 - The purpose explicitly targets discrepancy detection among sources regarding children's health issues by inviting responses that highlight broad aspects rather than particular instances.
+
+#### INTERNAL PROCESS (do not include this in your output) ####
+
+STEP 1 — EXTRACT: List every medical entity (disease, symptom, treatment, device, procedure) and the single relation explicitly stated between them in the PASSAGE and the SUMMARY.
+
+STEP 2 — COMPOSE: Using ONLY the entities and relation listed in Step 1, write YES/NO questions. Do not add any word describing an action, recommendation, or process that is not in Step 1's list.
+
+STEP 3 — VERIFY: For each noun phrase in the question, confirm it appears in Step 1's entity list. For each verb/relation, confirm it appears in Step 1's relation. If anything fails, rewrite the question before answering. 
+
+Only output the final questions after Step 3 passes. Do not show Steps 1–3 in your response.
 
 #### EXAMPLES ####
 
@@ -17,12 +31,8 @@ Example 1
 Passage:
 What is the recovery time for a robotic total hysterectomy: The average time for a full recovery after robotic hysterectomy is about four to six weeks. You’ll be able to return to light regular activities within 24 to 28 hours after surgery. It’s helpful to have someone assisting you at home during this time, as your activities may be limited and you may be sore and tired. You can usually drive within 72 hours, but this depends on what pain medication you’re taking. Most people can return to work after about two weeks, but this varies depending on what type of job you have.
 
-Reasoning:
-The passage provides information about average recovery times for a robotic total hysterectomy, including timeframes for returning to light activities, needing assistance at home, driving ability, and resuming work. It emphasizes that these durations can vary based on factors like pain medication use or job type.
-
-To generate a question useful for discrepancy detection across multiple documents, I need to focus on information likely to be generalized rather than specific. The passage mentions varying timelines depending on individual circumstances (job type, pain medication). A good question would ask about the general concept of variability in recovery times without specifying particular factors or durations.
-
-The ideal question should prompt comparison between different sources by asking about common themes regarding recovery duration variations. It needs to be answerable from this passage but framed generally enough to apply across multiple documents discussing the same topic.
+Summary:
+The average time for a full recovery after robotic hysterectomy is about four to six weeks.
 
 Question:
 Do medical documents typically describe the variability of recovery timeframes for robotic hysterectomy?
@@ -33,8 +43,8 @@ Example 2
 Passage:
 If your child has hearing loss, it’s important to get help early on. Getting help early helps children with hearing loss develop communication and social skills. Some children may also be able to use devices that help them hear, like a hearing aid, or get medicine or surgery.
 
-Reasoning:
-The passage discusses the importance of early intervention for children with hearing loss. It mentions three key points: getting help early helps develop communication and social skills, some children may use devices to hear, and others might receive medicine or surgery. The question should focus on a general aspect that could vary across different documents but is present in this one.
+Summary:
+Getting help early helps children with hearing loss develop communication and social skills.
 
 Question:
 Is there a relationship between getting help early for hearing loss and developing communication skills?
@@ -44,11 +54,20 @@ Example 3
 Passage:
 Sleeping. Kids this age need about 9–12 hours of sleep per night. Lack of sleep can make it hard to pay attention at school. Set a bedtime that allows for enough sleep and encourage your child to follow a relaxing bedtime routine. Keep TVs and all electronic devices out of your child's bedroom.
 
-Reasoning:
-The passage discusses children's sleep requirements, potential consequences of insufficient sleep, and provides recommendations for bedtime routines and limiting electronics.
+Summary:
+Kids this age need about 9–12 hours of sleep per night
 
 Question:
 Is general advice given about ensuring children get sufficient sleep?
+
+Example 4 — showing a corrected failure case
+
+Passage: La ambliopía, el estrabismo y las discromatopsias son algunos de los trastornos visuales más comunes en el niño.
+BAD (do not produce output like this): "Are there recommendations for early detection of such visual problems?"
+   - "such visual problems" is a bridging reference instead of naming the
+     disorders explicitly
+   - "recommendations" and "early detection" are not supported by the passage
+GOOD: "Is amblyopia among the most common visual disorders in children?", "Is dyschromatopsia among the most common visual disorders in children?", "Is strabismus among the most common visual disorders in children?"
 
 
 #### YOUR TASK ####

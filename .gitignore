@@ -10,6 +10,8 @@ pip-delete-this-directory.txt
 tests/data_final/
 tests/nuevo/
 tests/languages/data/
+scrapy_data/
+scraping/
 
 # Binary/generated files
 *.parquet
@@ -28,4 +30,7 @@ outputs_pipeline/corpus_building/
 tests/languages/*.parquet
 outputs_pipeline/1_question_testing/*.pkl
 externals/mallet-2.0.8/
-final_mistral_results/
+final_mistral_results/final_db
+final_mistral_results/final_code/searxng
+final_mistral_results/final_code/statistics_output
+.env
